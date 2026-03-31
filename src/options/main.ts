@@ -26,6 +26,7 @@ const keystoneHelpCommandEl = document.getElementById('keystone-help-command') a
 const keystoneHelpBrowserSelectEl = document.getElementById('keystone-help-browser-select') as HTMLSelectElement;
 const keystoneHelpOsSelectEl = document.getElementById('keystone-help-os-select') as HTMLSelectElement;
 const keystoneHelpFlavorSelectEl = document.getElementById('keystone-help-flavor-select') as HTMLSelectElement;
+const keystoneHelpDirectDownloadEl = document.getElementById('keystone-help-direct-download') as HTMLAnchorElement;
 const keystoneHelpHostEl = document.getElementById('keystone-help-host') as HTMLElement;
 const keystoneHelpExtensionIdEl = document.getElementById('keystone-help-extension-id') as HTMLElement;
 const keystoneHelpActionsEl = document.getElementById('keystone-help-actions') as HTMLDivElement;
@@ -173,6 +174,17 @@ function terminalHintForOs(os: string): string {
   return 'Open a terminal first, then run the command above.';
 }
 
+function keystoneArtifactFilenameForOs(os: string): string {
+  if (os === 'mac') return 'keystone-macos-x86_64.tar.gz';
+  if (os === 'win') return 'keystone-windows-x86_64.zip';
+  return 'keystone-linux-x86_64.tar.gz';
+}
+
+function keystoneArtifactUrlForOs(os: string): string {
+  const filename = keystoneArtifactFilenameForOs(os);
+  return `https://github.com/yaijs/keystone/releases/latest/download/${filename}`;
+}
+
 function refreshKeystoneCommandPreview() {
   const os = keystoneHelpOsSelectEl.value || currentPlatformOs;
   const flavor = keystoneHelpFlavorSelectEl.value || keystoneFlavorFromHost();
@@ -181,6 +193,9 @@ function refreshKeystoneCommandPreview() {
   keystoneHelpHostEl.textContent = hostIdForFlavor(flavor);
   keystoneHelpTerminalHintEl.textContent = terminalHintForOs(os);
   keystoneHelpPathNoteEl.textContent = pathNoteForOs(os);
+  const artifactFilename = keystoneArtifactFilenameForOs(os);
+  keystoneHelpDirectDownloadEl.href = keystoneArtifactUrlForOs(os);
+  keystoneHelpDirectDownloadEl.textContent = msg('keystoneDirectDownload', artifactFilename);
 }
 
 function hostIdForFlavor(flavor: string): string {

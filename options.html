@@ -326,6 +326,11 @@
     .keystone-help-card a:hover {
       text-decoration: underline;
     }
+    .keystone-download-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
     .info-card h3 {
       margin: 1rem 0 0.35rem 0;
       font-size: 1rem;
@@ -412,7 +417,10 @@
       <hr />
       <h4 data-i18n="keystoneStepInstall">Step 1: Install Keystone</h4>
       <p data-i18n="keystoneStepInstallBody">Download the packaged Keystone release for your operating system:</p>
-      <p><a href="https://github.com/yaijs/keystone/releases" target="_blank" rel="noopener">https://github.com/yaijs/keystone/releases</a></p>
+      <div class="keystone-download-links">
+        <p><a id="keystone-help-direct-download" href="https://github.com/yaijs/keystone/releases/latest" target="_blank" rel="noopener">Direct download ↗</a></p>
+        <p><a href="https://github.com/yaijs/keystone/releases" target="_blank" rel="noopener">https://github.com/yaijs/keystone/releases</a></p>
+      </div>
       <h4 data-i18n="keystoneStepConnect">Step 2: Connect It To This Browser</h4>
       <p data-i18n="keystoneStepConnectBody">After Keystone is installed on this machine, run the command below to register the Native Messaging host for the current browser, flavor, and extension ID.</p>
       <p id="keystone-help-command-wrap" style="display:none;">

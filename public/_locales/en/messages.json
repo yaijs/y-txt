@@ -532,5 +532,13 @@
   },
   "providerQuickstartLink": {
     "message": "Quickstart ↗"
+  },
+  "keystoneDirectDownload": {
+    "message": "Direct download: $FILE$ ↗",
+    "placeholders": {
+      "file": {
+        "content": "$1"
+      }
+    }
   }
 }
