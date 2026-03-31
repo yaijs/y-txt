@@ -1,0 +1,530 @@
+{
+  "appName": {
+    "message": "Y/TXT"
+  },
+  "appDescription": {
+    "message": "Emulate entire algorithms with 1-2 sentences of plain text"
+  },
+  "appActionTitle": {
+    "message": "Y/TXT"
+  },
+  "popupDocumentTitle": {
+    "message": "Y/TXT"
+  },
+  "optionsDocumentTitle": {
+    "message": "Y/TXT Options"
+  },
+  "surfaceLockTitle": {
+    "message": "Workspace Active In Side Panel"
+  },
+  "surfaceLockBody": {
+    "message": "The shared Y/TXT workspace is currently owned by the side panel. Close the panel to use the popup again, or reopen the panel and continue there."
+  },
+  "surfaceLockActiveLabel": {
+    "message": "Side Panel Active"
+  },
+  "setupCardTitle": {
+    "message": "Setup Needed"
+  },
+  "setupCardBody": {
+    "message": "Y/TXT needs either Keystone or a locally stored provider key before tools can run."
+  },
+  "setupCardHelp": {
+    "message": "Open Options to continue setup."
+  },
+  "openOptions": {
+    "message": "⚙ Open Options"
+  },
+  "openKeystoneAdmin": {
+    "message": "⌂ Open Keystone Admin"
+  },
+  "faqButton": {
+    "message": "⌥ FAQ"
+  },
+  "recentButton": {
+    "message": "⏱ Recent"
+  },
+  "statsButton": {
+    "message": "◔ Stats"
+  },
+  "panelButton": {
+    "message": "▣ Panel"
+  },
+  "optionsButton": {
+    "message": "⚙ Options"
+  },
+  "faqTitle": {
+    "message": "How to use Y/TXT"
+  },
+  "faqBasicWorkflowQ": {
+    "message": "Basic workflow"
+  },
+  "faqBasicWorkflowA": {
+    "message": "Select text on any page → open the extension → pick a tool. Your selection is pre-filled automatically. Hit <em>Run Tool</em> and the result appears below."
+  },
+  "faqChainedToolsQ": {
+    "message": "Chained tools"
+  },
+  "faqChainedToolsA": {
+    "message": "A tool can now define multiple sequential steps. Each step receives the previous step's output as <code>{{input}}</code> and <code>{{previous}}</code>, while the first step also has the original source available as <code>{{originalInput}}</code>."
+  },
+  "faqSelectionQ": {
+    "message": "+ selection / = selection"
+  },
+  "faqSelectionA": {
+    "message": "Select text <em>before</em> opening the popup — it fills the input automatically. Already inside a tool? Select more text elsewhere, reopen the popup and use <em>+ selection</em> to append or <em>= selection</em> to replace. Your workspace is preserved across opens."
+  },
+  "faqStagedQ": {
+    "message": "Staged Content"
+  },
+  "faqStagedA": {
+    "message": "Extra context sent alongside your input. Useful for code reviews where you want to provide the full file while only pasting a snippet in the main input."
+  },
+  "faqRecentQ": {
+    "message": "Recent"
+  },
+  "faqRecentA": {
+    "message": "Stores the last 50 runs. Click any entry to reopen that tool with the original input and result pre-filled. Use it to iterate on a previous run or compare results."
+  },
+  "faqProvidersQ": {
+    "message": "Providers & API keys"
+  },
+  "faqProvidersA": {
+    "message": "Go to <em>⚙ Options</em> to set your provider and API key. Nvidia Build offers a free tier — good for everyday tasks. Keys are stored locally in your browser only."
+  },
+  "faqCustomToolsQ": {
+    "message": "Custom tools"
+  },
+  "faqCustomToolsA": {
+    "message": "Edit the Tools JSON in Options to add your own. Use <code>{{input}}</code> for the active step input, <code>{{previous}}</code> inside chains, and option IDs like <code>{{targetLanguage}}</code>. Add a <code>steps</code> array to build chained tools. Changes take effect on next popup open."
+  },
+  "faqCustomModelsQ": {
+    "message": "Custom models"
+  },
+  "faqCustomModelsA": {
+    "message": "Edit the Models JSON in Options to map tier names (<code>default</code>, <code>fast</code>, <code>coding</code>, <code>creative</code>) to any model your provider supports. Changes take effect immediately."
+  },
+  "recentTitle": {
+    "message": "Recent"
+  },
+  "clearButton": {
+    "message": "Clear"
+  },
+  "statsTitle": {
+    "message": "Stats"
+  },
+  "workspaceInputLabel": {
+    "message": "Input Text"
+  },
+  "workspaceInputPlaceholder": {
+    "message": "Text to process..."
+  },
+  "appendSelection": {
+    "message": "+ selection"
+  },
+  "overrideSelection": {
+    "message": "= selection"
+  },
+  "resetButton": {
+    "message": "reset"
+  },
+  "runTool": {
+    "message": "Run Tool"
+  },
+  "runStepTool": {
+    "message": "Run $COUNT$-Step Tool",
+    "placeholders": {
+      "count": {
+        "content": "$1"
+      }
+    }
+  },
+  "stagedToggleTitle": {
+    "message": "Add staged content"
+  },
+  "abortButton": {
+    "message": "Abort"
+  },
+  "stagedLabel": {
+    "message": "Add Staged Content (Optional)"
+  },
+  "stagedPlaceholder": {
+    "message": "Paste extra context/files here..."
+  },
+  "runMetaStart": {
+    "message": "Start"
+  },
+  "runMetaFinish": {
+    "message": "Finish"
+  },
+  "runMetaElapsed": {
+    "message": "Elapsed"
+  },
+  "workspaceResultLabel": {
+    "message": "Result"
+  },
+  "useResultTitle": {
+    "message": "Use result as new input"
+  },
+  "copyResultTitle": {
+    "message": "Copy to clipboard"
+  },
+  "workspaceResultPlaceholder": {
+    "message": "AI result will appear here..."
+  },
+  "missingKeyMsg": {
+    "message": "⚠️ Missing API Key<br/>Open Options to configure a provider and key."
+  },
+  "optionsHeading": {
+    "message": "Y/TXT Options"
+  },
+  "optionsIntro": {
+    "message": "Configure providers, model/tool definitions, and the optional Keystone companion for safer local key storage."
+  },
+  "gettingStartedTitle": {
+    "message": "Getting Started"
+  },
+  "gettingStartedMode": {
+    "message": "Y/TXT works in two modes."
+  },
+  "gettingStartedFast": {
+    "message": "<strong>Fastest path:</strong> paste at least one provider key below, set the correct default provider, save, and start using the extension immediately."
+  },
+  "gettingStartedSafe": {
+    "message": "<strong>Safer path:</strong> install Keystone and store provider keys outside the browser, then let Y/TXT tunnel requests through the local host."
+  },
+  "gettingStartedOptional": {
+    "message": "You do not need Keystone just to get started. Keystone is an optional upgrade for stronger local secret handling."
+  },
+  "securityWarningTitle": {
+    "message": "⚠️ Security Warning"
+  },
+  "securityWarningBody": {
+    "message": "<strong style=\"display:inline; margin:0; color:#fcd34d;\">Preferred:</strong> store provider keys in Keystone and let Y/TXT tunnel requests through the local host. Local browser storage is supported as a fallback when you want the fastest setup."
+  },
+  "keystoneWarningDetail": {
+    "message": "If local browser storage is active, use low-limit keys and treat this browser profile as a trusted environment."
+  },
+  "keystoneHelpTitle": {
+    "message": "Keystone Reinstall Needed"
+  },
+  "keystoneHelpBody": {
+    "message": "The Native Messaging host is not installed for this browser right now."
+  },
+  "keystoneHelpDetail": {
+    "message": "Reinstall Keystone for this browser in Keystone Admin or via the `keystone install ...` command, then try again."
+  },
+  "keystoneHelpBrowserTarget": {
+    "message": "Browser target:"
+  },
+  "keystoneHelpOs": {
+    "message": "Operating system:"
+  },
+  "keystoneHelpFlavor": {
+    "message": "Keystone flavor:"
+  },
+  "keystoneHelpNativeHost": {
+    "message": "Native host ID:"
+  },
+  "keystoneHelpExtensionId": {
+    "message": "Extension ID:"
+  },
+  "keystoneStepInstall": {
+    "message": "Step 1: Install Keystone"
+  },
+  "keystoneStepInstallBody": {
+    "message": "Download the packaged Keystone release for your operating system:"
+  },
+  "keystoneStepConnect": {
+    "message": "Step 2: Connect It To This Browser"
+  },
+  "keystoneStepConnectBody": {
+    "message": "After Keystone is installed on this machine, run the command below to register the Native Messaging host for the current browser, flavor, and extension ID."
+  },
+  "keystoneConnectTerminal": {
+    "message": "Connect via terminal"
+  },
+  "copyInstallCommand": {
+    "message": "Copy Install Command"
+  },
+  "keystoneTerminalHint": {
+    "message": "Open a terminal first, then run the command above."
+  },
+  "keystonePathNote": {
+    "message": "Replace <code>/absolute/path/to/keystone</code> with the real installed Keystone binary path on your machine."
+  },
+  "keystoneAfterReinstall": {
+    "message": "After reinstalling, reload the extension and click <strong>Test Keystone Connection</strong> again here."
+  },
+  "keystoneRepoLabel": {
+    "message": "Repository:"
+  },
+  "providerKeysTitle": {
+    "message": "Provider Keys"
+  },
+  "providerKeysDesc": {
+    "message": "Each provider entry comes from Providers Config below. Keystone can only tunnel providers it knows; unknown provider IDs fall back to local extension storage only."
+  },
+  "quickSetupBox": {
+    "message": "<strong>Quick setup:</strong> enter one key, click <code>Save Settings</code>, and make sure <code>Default Provider</code> below matches the provider you actually configured."
+  },
+  "saveSettings": {
+    "message": "Save Settings"
+  },
+  "toolsConfigTitle": {
+    "message": "Tools Config"
+  },
+  "providersConfigTitle": {
+    "message": "Providers Config"
+  },
+  "modelsConfigTitle": {
+    "message": "Models Config"
+  },
+  "defaultProviderTitle": {
+    "message": "Default Provider"
+  },
+  "defaultProviderLabel": {
+    "message": "Default Provider"
+  },
+  "keystoneTitle": {
+    "message": "Keystone"
+  },
+  "testKeystoneConnection": {
+    "message": "Test Keystone Connection"
+  },
+  "generalInfoTitle": {
+    "message": "General Info"
+  },
+  "generalWhyTitle": {
+    "message": "Why this extension exists"
+  },
+  "generalApiKeysTitle": {
+    "message": "API Keys"
+  },
+  "saveTools": {
+    "message": "Save Tools"
+  },
+  "importJson": {
+    "message": "Import JSON"
+  },
+  "exportJson": {
+    "message": "Export JSON"
+  },
+  "resetToDefault": {
+    "message": "Reset to Default"
+  },
+  "saveProviders": {
+    "message": "Save Providers"
+  },
+  "saveModels": {
+    "message": "Save Models"
+  },
+  "openKeystoneAdminPlain": {
+    "message": "Open Keystone Admin"
+  },
+  "keystoneSectionDesc": {
+    "message": "Test the local Native Messaging bridge and open the local admin UI. Keystone is optional, but preferred once you want secrets stored outside the browser."
+  },
+  "running": {
+    "message": "Running..."
+  },
+  "runningStep": {
+    "message": "Running $STEP$ ($INDEX$/$COUNT$)...",
+    "placeholders": {
+      "step": { "content": "$1" },
+      "index": { "content": "$2" },
+      "count": { "content": "$3" }
+    }
+  },
+  "aborting": {
+    "message": "Aborting..."
+  },
+  "aborted": {
+    "message": "Aborted."
+  },
+  "nothingToAbort": {
+    "message": "Nothing active to abort."
+  },
+  "partialHint": {
+    "message": "· partial"
+  },
+  "modifiedHint": {
+    "message": "· modified"
+  },
+  "noChangesHint": {
+    "message": "· no changes"
+  },
+  "completedSteps": {
+    "message": "Completed $COUNT$ steps.",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "errorPrefix": {
+    "message": "Error: $MESSAGE$",
+    "placeholders": {
+      "message": { "content": "$1" }
+    }
+  },
+  "unknownError": {
+    "message": "Unknown error"
+  },
+  "failedOpenSidePanel": {
+    "message": "Failed to open side panel."
+  },
+  "failedCloseSidePanel": {
+    "message": "Failed to close side panel."
+  },
+  "providerRuntimeHint": {
+    "message": "provider: $PROVIDER$ · model: $MODEL$",
+    "placeholders": {
+      "provider": { "content": "$1" },
+      "model": { "content": "$2" }
+    }
+  },
+  "timeNow": {
+    "message": "now"
+  },
+  "timeMinutesAgo": {
+    "message": "$COUNT$m ago",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "timeHoursAgo": {
+    "message": "$COUNT$h ago",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "noHistoryYet": {
+    "message": "No history yet."
+  },
+  "toolNoLongerExists": {
+    "message": "This tool no longer exists in the current configuration."
+  },
+  "noRunsYet": {
+    "message": "No runs yet."
+  },
+  "noStatsYet": {
+    "message": "No stats yet."
+  },
+  "statsSummary": {
+    "message": "$RUNS$ runs, $TOOLS$ tools, $WITH_USAGE$ runs with usage data, $TOKENS$ total tokens",
+    "placeholders": {
+      "runs": { "content": "$1" },
+      "tools": { "content": "$2" },
+      "with_usage": { "content": "$3" },
+      "tokens": { "content": "$4" }
+    }
+  },
+  "statsRuns": {
+    "message": "$COUNT$ runs",
+    "placeholders": {
+      "count": { "content": "$1" }
+    }
+  },
+  "statsLatest": {
+    "message": "Latest: $PROVIDER$$MODEL$ · $TIME$",
+    "placeholders": {
+      "provider": { "content": "$1" },
+      "model": { "content": "$2" },
+      "time": { "content": "$3" }
+    }
+  },
+  "statsInputTokens": {
+    "message": "Input tokens: $TOTAL$ total · $AVERAGE$ avg/run",
+    "placeholders": {
+      "total": { "content": "$1" },
+      "average": { "content": "$2" }
+    }
+  },
+  "statsOutputTokens": {
+    "message": "Output tokens: $TOTAL$ total · $AVERAGE$ avg/run",
+    "placeholders": {
+      "total": { "content": "$1" },
+      "average": { "content": "$2" }
+    }
+  },
+  "statsTotalTokens": {
+    "message": "Total tokens: $TOTAL$",
+    "placeholders": {
+      "total": { "content": "$1" }
+    }
+  },
+  "pleaseProvideInput": {
+    "message": "Please provide some input text."
+  },
+  "providerSetupNeededTitle": {
+    "message": "Provider Setup Needed"
+  },
+  "providerSetupNeededBody": {
+    "message": "Set at least one API key and choose the correct default provider."
+  },
+  "providerSetupHelpWithKeystone": {
+    "message": "Open Options to save a local provider key or set the default provider. If you want Keystone-backed secret storage, you can also continue in Keystone Admin."
+  },
+  "providerSetupHelpWithoutKeystone": {
+    "message": "Open Options to save at least one provider key and set the default provider. Keystone is optional and only needed if you want host-managed secret storage."
+  },
+  "copiedCheckmark": {
+    "message": "✓"
+  },
+  "keyStateBoth": {
+    "message": "Stored in Keystone and locally. Leave blank to keep unchanged."
+  },
+  "keyStateKeystone": {
+    "message": "Stored in Keystone. Leave blank to keep unchanged."
+  },
+  "keyStateLocal": {
+    "message": "Stored locally. Leave blank to keep unchanged."
+  },
+  "keyStateNone": {
+    "message": "No key stored."
+  },
+  "replaceStoredKeyPlaceholder": {
+    "message": "Enter a new key to replace the stored one"
+  },
+  "clearStoredKey": {
+    "message": "Clear Stored Key"
+  },
+  "copiedKeystoneInstallCommand": {
+    "message": "Copied Keystone install command."
+  },
+  "settingsSavedLocalOnly": {
+    "message": "Settings saved locally."
+  },
+  "settingsSavedSimple": {
+    "message": "Settings saved!"
+  },
+  "storedKeyRemoved": {
+    "message": "Stored key removed."
+  },
+  "toolsSavedReopen": {
+    "message": "Tools saved. Re-open popup to apply."
+  },
+  "savedWithBang": {
+    "message": "Saved!"
+  },
+  "resetDefaultStatus": {
+    "message": "Reset to default."
+  },
+  "toolsExported": {
+    "message": "Tools exported."
+  },
+  "modelsExported": {
+    "message": "Models exported."
+  },
+  "providersExported": {
+    "message": "Providers exported."
+  },
+  "toolsImportedSaveApply": {
+    "message": "Tools imported. Save to apply."
+  },
+  "modelsImportedSaveApply": {
+    "message": "Models imported. Save to apply."
+  },
+  "providersImportedSaveApply": {
+    "message": "Providers imported. Save to apply."
+  }
+}

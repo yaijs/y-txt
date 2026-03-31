@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-title="popupDocumentTitle">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -424,12 +424,12 @@
 <body data-surface="sidepanel">
 
   <div id="surface-lock-banner" class="setup-card" style="display:none; margin-top:0;">
-    <h3>Workspace Active In Side Panel</h3>
-    <p>The shared Y/TXT workspace is currently owned by the side panel. Close the panel to use the popup again, or reopen the panel and continue there.</p>
+    <h3 data-i18n="surfaceLockTitle">Workspace Active In Side Panel</h3>
+    <p data-i18n="surfaceLockBody">The shared Y/TXT workspace is currently owned by the side panel. Close the panel to use the popup again, or reopen the panel and continue there.</p>
     <div class="setup-actions">
       <label for="side-panel-lock-toggle" style="display:flex; align-items:center; gap:0.55rem; font-size:0.92rem; color:var(--text); cursor:pointer;">
         <input id="side-panel-lock-toggle" type="checkbox" checked style="margin:0; accent-color:var(--accent);" />
-        <span>Side Panel Active</span>
+        <span data-i18n="surfaceLockActiveLabel">Side Panel Active</span>
       </label>
     </div>
   </div>
@@ -449,28 +449,28 @@
     </div>
 
     <div id="missing-key-msg" style="display: none; text-align: center; color: #f59e0b; font-size: 0.9rem; margin-top: 1rem; line-height: 1.4;">
-      ⚠️ Missing API Key<br/>Open Options to configure a provider and key.
+      <span data-i18n="missingKeyMsg" data-i18n-html>⚠️ Missing API Key<br/>Open Options to configure a provider and key.</span>
     </div>
 
     <div id="setup-card" class="setup-card">
-      <h3 id="setup-title">Setup Needed</h3>
-      <p id="setup-body">Y/TXT needs either Keystone or a locally stored provider key before tools can run.</p>
-      <p id="setup-help">Open Options to continue setup.</p>
+      <h3 id="setup-title" data-i18n="setupCardTitle">Setup Needed</h3>
+      <p id="setup-body" data-i18n="setupCardBody">Y/TXT needs either Keystone or a locally stored provider key before tools can run.</p>
+      <p id="setup-help" data-i18n="setupCardHelp">Open Options to continue setup.</p>
       <div class="setup-actions">
-        <button id="btn-setup-options" type="button">⚙ Open Options</button>
-        <button id="btn-setup-admin" type="button" style="display:none;">⌂ Open Keystone Admin</button>
+        <button id="btn-setup-options" type="button" data-i18n="openOptions">⚙ Open Options</button>
+        <button id="btn-setup-admin" type="button" style="display:none;" data-i18n="openKeystoneAdmin">⌂ Open Keystone Admin</button>
       </div>
     </div>
 
     <div class="footer">
       <div class="footer-left">
-        <button id="btn-faq" class="btn-link">⌥ FAQ</button>
-        <button id="btn-history" class="btn-link">⏱ Recent</button>
-        <button id="btn-stats" class="btn-link">◔ Stats</button>
+        <button id="btn-faq" class="btn-link" data-i18n="faqButton">⌥ FAQ</button>
+        <button id="btn-history" class="btn-link" data-i18n="recentButton">⏱ Recent</button>
+        <button id="btn-stats" class="btn-link" data-i18n="statsButton">◔ Stats</button>
       </div>
       <div class="footer-right">
-        <button id="btn-open-side-panel" class="btn-link">▣ Panel</button>
-        <button id="btn-options" class="btn-link">⚙ Options</button>
+        <button id="btn-open-side-panel" class="btn-link" data-i18n="panelButton">▣ Panel</button>
+        <button id="btn-options" class="btn-link" data-i18n="optionsButton">⚙ Options</button>
       </div>
     </div>
   </div>
@@ -478,47 +478,47 @@
   <div id="faq-view" style="display: none;">
     <div class="view-header">
       <button id="btn-faq-back" class="view-back">←</button>
-      <h2>How to use Y/TXT</h2>
+      <h2 data-i18n="faqTitle">How to use Y/TXT</h2>
     </div>
     <div class="faq-entry">
-      <div class="faq-q">Basic workflow</div>
-      <div class="faq-a">Select text on any page → open the extension → pick a tool. Your selection is pre-filled automatically. Hit <em>Run Tool</em> and the result appears below.</div>
+      <div class="faq-q" data-i18n="faqBasicWorkflowQ">Basic workflow</div>
+      <div class="faq-a" data-i18n="faqBasicWorkflowA" data-i18n-html>Select text on any page → open the extension → pick a tool. Your selection is pre-filled automatically. Hit <em>Run Tool</em> and the result appears below.</div>
     </div>
     <div class="faq-entry">
-      <div class="faq-q">Chained tools</div>
-      <div class="faq-a">A tool can now define multiple sequential steps. Each step receives the previous step's output as <code>{{input}}</code> and <code>{{previous}}</code>, while the first step also has the original source available as <code>{{originalInput}}</code>.</div>
+      <div class="faq-q" data-i18n="faqChainedToolsQ">Chained tools</div>
+      <div class="faq-a" data-i18n="faqChainedToolsA" data-i18n-html>A tool can now define multiple sequential steps. Each step receives the previous step's output as <code>{{input}}</code> and <code>{{previous}}</code>, while the first step also has the original source available as <code>{{originalInput}}</code>.</div>
     </div>
     <div class="faq-entry">
-      <div class="faq-q">+ selection / = selection</div>
-      <div class="faq-a">Select text <em>before</em> opening the popup — it fills the input automatically. Already inside a tool? Select more text elsewhere, reopen the popup and use <em>+ selection</em> to append or <em>= selection</em> to replace. Your workspace is preserved across opens.</div>
+      <div class="faq-q" data-i18n="faqSelectionQ">+ selection / = selection</div>
+      <div class="faq-a" data-i18n="faqSelectionA" data-i18n-html>Select text <em>before</em> opening the popup — it fills the input automatically. Already inside a tool? Select more text elsewhere, reopen the popup and use <em>+ selection</em> to append or <em>= selection</em> to replace. Your workspace is preserved across opens.</div>
     </div>
     <div class="faq-entry">
-      <div class="faq-q">Staged Content</div>
-      <div class="faq-a">Extra context sent alongside your input. Useful for code reviews where you want to provide the full file while only pasting a snippet in the main input.</div>
+      <div class="faq-q" data-i18n="faqStagedQ">Staged Content</div>
+      <div class="faq-a" data-i18n="faqStagedA">Extra context sent alongside your input. Useful for code reviews where you want to provide the full file while only pasting a snippet in the main input.</div>
     </div>
     <div class="faq-entry">
-      <div class="faq-q">Recent</div>
-      <div class="faq-a">Stores the last 50 runs. Click any entry to reopen that tool with the original input and result pre-filled. Use it to iterate on a previous run or compare results.</div>
+      <div class="faq-q" data-i18n="faqRecentQ">Recent</div>
+      <div class="faq-a" data-i18n="faqRecentA">Stores the last 50 runs. Click any entry to reopen that tool with the original input and result pre-filled. Use it to iterate on a previous run or compare results.</div>
     </div>
     <div class="faq-entry">
-      <div class="faq-q">Providers &amp; API keys</div>
-      <div class="faq-a">Go to <em>⚙ Options</em> to set your provider and API key. Nvidia Build offers a free tier — good for everyday tasks. Keys are stored locally in your browser only.</div>
+      <div class="faq-q" data-i18n="faqProvidersQ">Providers &amp; API keys</div>
+      <div class="faq-a" data-i18n="faqProvidersA" data-i18n-html>Go to <em>⚙ Options</em> to set your provider and API key. Nvidia Build offers a free tier — good for everyday tasks. Keys are stored locally in your browser only.</div>
     </div>
     <div class="faq-entry">
-      <div class="faq-q">Custom tools</div>
-      <div class="faq-a">Edit the Tools JSON in Options to add your own. Use <code>{{input}}</code> for the active step input, <code>{{previous}}</code> inside chains, and option IDs like <code>{{targetLanguage}}</code>. Add a <code>steps</code> array to build chained tools. Changes take effect on next popup open.</div>
+      <div class="faq-q" data-i18n="faqCustomToolsQ">Custom tools</div>
+      <div class="faq-a" data-i18n="faqCustomToolsA" data-i18n-html>Edit the Tools JSON in Options to add your own. Use <code>{{input}}</code> for the active step input, <code>{{previous}}</code> inside chains, and option IDs like <code>{{targetLanguage}}</code>. Add a <code>steps</code> array to build chained tools. Changes take effect on next popup open.</div>
     </div>
     <div class="faq-entry">
-      <div class="faq-q">Custom models</div>
-      <div class="faq-a">Edit the Models JSON in Options to map tier names (<code>default</code>, <code>fast</code>, <code>coding</code>, <code>creative</code>) to any model your provider supports. Changes take effect immediately.</div>
+      <div class="faq-q" data-i18n="faqCustomModelsQ">Custom models</div>
+      <div class="faq-a" data-i18n="faqCustomModelsA" data-i18n-html>Edit the Models JSON in Options to map tier names (<code>default</code>, <code>fast</code>, <code>coding</code>, <code>creative</code>) to any model your provider supports. Changes take effect immediately.</div>
     </div>
   </div>
 
   <div id="history-view" style="display: none;">
     <div class="view-header">
       <button id="btn-history-back" class="view-back">←</button>
-      <h2>Recent</h2>
-      <button id="btn-clear-history" class="btn-link" style="color:#ef4444; font-size:0.75rem;">Clear</button>
+      <h2 data-i18n="recentTitle">Recent</h2>
+      <button id="btn-clear-history" class="btn-link" style="color:#ef4444; font-size:0.75rem;" data-i18n="clearButton">Clear</button>
     </div>
     <div id="history-list"></div>
   </div>
@@ -526,7 +526,7 @@
   <div id="stats-view" style="display: none;">
     <div class="view-header">
       <button id="btn-stats-back" class="view-back">←</button>
-      <h2>Stats</h2>
+      <h2 data-i18n="statsTitle">Stats</h2>
     </div>
     <div id="stats-summary" style="color:var(--muted); font-size:0.82rem; margin-bottom:0.75rem;"></div>
     <div id="stats-list"></div>
@@ -539,39 +539,39 @@
       <span id="workspace-subtitle" style="margin-left:0.5rem; font-size:80%; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></span>
     </div>
     <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:4px;">
-      <label for="workspace-input" style="font-size: 0.8rem; color: var(--muted);">Input Text</label>
+      <label for="workspace-input" style="font-size: 0.8rem; color: var(--muted);" data-i18n="workspaceInputLabel">Input Text</label>
       <span id="input-char-count" style="font-size:0.7rem; color:var(--muted);">0</span>
     </div>
-    <textarea id="workspace-input" placeholder="Text to process..." style="width: 100%; height: 160px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.75rem; box-sizing: border-box; font-family: inherit; resize: vertical; margin-bottom: 0.6rem;"></textarea>
+    <textarea id="workspace-input" data-i18n-placeholder="workspaceInputPlaceholder" placeholder="Text to process..." style="width: 100%; height: 160px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.75rem; box-sizing: border-box; font-family: inherit; resize: vertical; margin-bottom: 0.6rem;"></textarea>
 
 <div id="tool-options-container" class="tool-options-container"></div>
 
     <div style="display: flex; gap: 6px; margin-bottom: 1rem;">
-      <button id="btn-append" style="flex: 1; padding: 8px; font-size: 0.82rem; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); border-radius:4px;">+ selection</button>
-      <button id="btn-override" style="flex: 1; padding: 8px; font-size: 0.82rem; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); border-radius:4px;">= selection</button>
-      <button id="btn-reset" style="padding: 8px 12px; font-size: 0.82rem; background: transparent; border: 1px solid var(--border); color: #ef4444; border-radius:4px;">reset</button>
+      <button id="btn-append" style="flex: 1; padding: 8px; font-size: 0.82rem; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); border-radius:4px;" data-i18n="appendSelection">+ selection</button>
+      <button id="btn-override" style="flex: 1; padding: 8px; font-size: 0.82rem; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); border-radius:4px;" data-i18n="overrideSelection">= selection</button>
+      <button id="btn-reset" style="padding: 8px 12px; font-size: 0.82rem; background: transparent; border: 1px solid var(--border); color: #ef4444; border-radius:4px;" data-i18n="resetButton">reset</button>
     </div>
 
     <div class="workspace-actions">
-      <button id="btn-submit" style="flex: 1; padding: 0.7rem; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 0.98rem; cursor: pointer;">Run Tool</button>
-      <button id="staged-toggle" class="staged-toggle-btn" type="button" aria-expanded="false" aria-controls="staged-section" title="Add staged content">▶</button>
-      <button id="btn-abort" style="display:none; padding: 0.7rem 0.9rem; background: transparent; color: #ef4444; border: 1px solid var(--border); border-radius: 6px; font-weight: bold; font-size: 0.92rem; cursor: pointer;">Abort</button>
+      <button id="btn-submit" style="flex: 1; padding: 0.7rem; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 0.98rem; cursor: pointer;" data-i18n="runTool">Run Tool</button>
+      <button id="staged-toggle" class="staged-toggle-btn" type="button" aria-expanded="false" aria-controls="staged-section" data-i18n-title="stagedToggleTitle" title="Add staged content">▶</button>
+      <button id="btn-abort" style="display:none; padding: 0.7rem 0.9rem; background: transparent; color: #ef4444; border: 1px solid var(--border); border-radius: 6px; font-weight: bold; font-size: 0.92rem; cursor: pointer;" data-i18n="abortButton">Abort</button>
     </div>
     <div id="staged-section" class="staged-section">
-      <label for="staged-content" class="staged-label">Add Staged Content (Optional)</label>
-      <textarea id="staged-content" class="staged-textarea" placeholder="Paste extra context/files here..."></textarea>
+      <label for="staged-content" class="staged-label" data-i18n="stagedLabel">Add Staged Content (Optional)</label>
+      <textarea id="staged-content" class="staged-textarea" data-i18n-placeholder="stagedPlaceholder" placeholder="Paste extra context/files here..."></textarea>
     </div>
     <div class="run-meta">
       <div>
-        <span>Start</span>
+        <span data-i18n="runMetaStart">Start</span>
         <strong id="run-started-at">--:--:--</strong>
       </div>
       <div>
-        <span>Finish</span>
+        <span data-i18n="runMetaFinish">Finish</span>
         <strong id="run-finished-at">--:--:--</strong>
       </div>
       <div>
-        <span>Elapsed</span>
+        <span data-i18n="runMetaElapsed">Elapsed</span>
         <strong id="run-elapsed">--</strong>
       </div>
     </div>
@@ -579,14 +579,14 @@
     <div id="workspace-status" style="text-align: center; margin-top: 0.7rem; font-size: 0.94rem; color: var(--muted);"></div>
 
     <div style="display:flex; align-items:center; gap:0.5rem; border-top: 1px solid var(--border); padding-top: 0.75rem; margin-top: 0.75rem; margin-bottom: 4px;">
-      <label for="workspace-result" style="font-size: 0.92rem; color: var(--muted);">Result</label>
+      <label for="workspace-result" style="font-size: 0.92rem; color: var(--muted);" data-i18n="workspaceResultLabel">Result</label>
       <span id="result-char-count" style="font-size:0.8rem; color:var(--muted);">0</span>
       <span id="result-hint" style="font-size: 0.8rem; display:none;"></span>
       <span style="flex:1;"></span>
-      <button id="btn-use-result" class="btn-link" style="font-size:0.86rem; padding:0 2px;" title="Use result as new input">↺</button>
-      <button id="btn-copy-result" class="btn-link" style="font-size:0.86rem; padding:0 2px;" title="Copy to clipboard">📋</button>
+      <button id="btn-use-result" class="btn-link" style="font-size:0.86rem; padding:0 2px;" data-i18n-title="useResultTitle" title="Use result as new input">↺</button>
+      <button id="btn-copy-result" class="btn-link" style="font-size:0.86rem; padding:0 2px;" data-i18n-title="copyResultTitle" title="Copy to clipboard">📋</button>
     </div>
-    <textarea id="workspace-result" readonly placeholder="AI result will appear here..." style="width: 100%; min-height: 96px; height: auto; background: var(--bg); border: 1px solid var(--border); color: #10b981; border-radius: 6px; padding: 0.75rem; box-sizing: border-box; font-family: inherit; resize: none; overflow: hidden;"></textarea>
+    <textarea id="workspace-result" readonly data-i18n-placeholder="workspaceResultPlaceholder" placeholder="AI result will appear here..." style="width: 100%; min-height: 96px; height: auto; background: var(--bg); border: 1px solid var(--border); color: #10b981; border-radius: 6px; padding: 0.75rem; box-sizing: border-box; font-family: inherit; resize: none; overflow: hidden;"></textarea>
   </div>
 
   <script type="module" src="/src/popup/main.ts"></script>

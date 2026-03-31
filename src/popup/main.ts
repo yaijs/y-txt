@@ -1,5 +1,6 @@
 import { CATEGORIES as BUNDLED_CATEGORIES, Category, ToolDef } from '../tools/index.js';
 import { getToolSteps, validateCategories } from '../config/index.js';
+import { localizePage, msg } from '../i18n.js';
 
 const mainView = document.getElementById('main-view') as HTMLDivElement;
 const historyView = document.getElementById('history-view') as HTMLDivElement;
@@ -301,10 +302,10 @@ function setRunningState(isRunning: boolean) {
   btnAbort.disabled = !isRunning;
   document.body.classList.toggle('is-loading', isRunning);
   btnSubmit.textContent = isRunning
-    ? 'Running...'
+    ? msg('running')
     : activeTool?.steps && activeTool.steps.length > 1
-      ? `Run ${activeTool.steps.length}-Step Tool`
-      : 'Run Tool';
+      ? msg('runStepTool', String(activeTool.steps.length))
+      : msg('runTool');
 }
 
 function ensureLoadingWatchdog(): void {
@@ -316,8 +317,8 @@ function ensureLoadingWatchdog(): void {
     if (activeRequestId || activeRunRequestId) return;
 
     setRunningState(false);
-    if (workspaceStatus.textContent === 'Aborting...') {
-      workspaceStatus.textContent = 'Aborted.';
+    if (workspaceStatus.textContent === msg('aborting')) {
+      workspaceStatus.textContent = msg('aborted');
     }
   }, 1200);
 }
@@ -656,9 +657,9 @@ function applyRunState(runState: ActiveRunState): void {
     activeRunRequestId = runState.requestId;
     setRunningState(true);
     workspaceStatus.textContent = runState.currentStepName
-      ? `Running ${runState.currentStepName} (${runState.stepIndex}/${runState.stepCount})...`
-      : 'Running...';
-    setResultHint(runState.result ? '· partial' : '', '#f59e0b');
+      ? msg('runningStep', [runState.currentStepName, String(runState.stepIndex), String(runState.stepCount)])
+      : msg('running');
+    setResultHint(runState.result ? msg('partialHint') : '', '#f59e0b');
     return;
   }
 
@@ -668,19 +669,19 @@ function applyRunState(runState: ActiveRunState): void {
 
   if (runState.status === 'completed') {
     const changed = runState.result.trim() !== workspaceInput.value.trim();
-    workspaceStatus.textContent = runState.stepCount > 1 ? `Completed ${runState.stepCount} steps.` : '';
-    setResultHint(changed ? '· modified' : '· no changes', changed ? '#10b981' : 'var(--muted)');
+    workspaceStatus.textContent = runState.stepCount > 1 ? msg('completedSteps', String(runState.stepCount)) : '';
+    setResultHint(changed ? msg('modifiedHint') : msg('noChangesHint'), changed ? '#10b981' : 'var(--muted)');
     return;
   }
 
   if (runState.status === 'aborted') {
-    workspaceStatus.textContent = 'Aborted.';
+    workspaceStatus.textContent = msg('aborted');
   } else {
-    workspaceStatus.textContent = `Error: ${runState.error || 'Unknown error'}`;
+    workspaceStatus.textContent = msg('errorPrefix', runState.error || msg('unknownError'));
   }
 
   if (runState.result) {
-    setResultHint('· partial', '#f59e0b');
+    setResultHint(msg('partialHint'), '#f59e0b');
   } else {
     setResultHint('');
   }
@@ -694,7 +695,7 @@ async function openSidePanel(): Promise<void> {
   });
 
   if (!response?.success) {
-    throw new Error(response?.error || 'Failed to open side panel.');
+    throw new Error(response?.error || msg('failedOpenSidePanel'));
   }
 }
 
@@ -706,7 +707,7 @@ async function closeSidePanel(): Promise<void> {
   });
 
   if (!response?.success) {
-    throw new Error(response?.error || 'Failed to close side panel.');
+    throw new Error(response?.error || msg('failedCloseSidePanel'));
   }
 }
 
@@ -766,14 +767,14 @@ function buildToolRuntimeHint(tool: ToolDef): string {
   const models = [...new Set(steps.map((step) => step.model || 'default'))];
   const providerLabel = providers.length === 1 ? providers[0] : providers.join(', ');
   const modelLabel = models.length === 1 ? models[0] : models.join(', ');
-  return `provider: ${providerLabel} · model: ${modelLabel}`;
+  return msg('providerRuntimeHint', [providerLabel, modelLabel]);
 }
 
 function formatTime(ts: number): string {
   const diff = Date.now() - ts;
-  if (diff < 60_000) return 'now';
-  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}m ago`;
-  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}h ago`;
+  if (diff < 60_000) return msg('timeNow');
+  if (diff < 3_600_000) return msg('timeMinutesAgo', String(Math.floor(diff / 60_000)));
+  if (diff < 86_400_000) return msg('timeHoursAgo', String(Math.floor(diff / 3_600_000)));
   return new Date(ts).toLocaleDateString();
 }
 
@@ -787,7 +788,7 @@ function renderHistoryView(entries: HistoryEntry[]) {
   list.innerHTML = '';
 
   if (!entries.length) {
-    list.innerHTML = '<p style="color:var(--muted); font-size:0.85rem; text-align:center; margin-top:2rem;">No history yet.</p>';
+    list.innerHTML = `<p style="color:var(--muted); font-size:0.85rem; text-align:center; margin-top:2rem;">${msg('noHistoryYet')}</p>`;
     return;
   }
 
@@ -818,7 +819,7 @@ function renderHistoryView(entries: HistoryEntry[]) {
       });
     } else {
       item.style.opacity = '0.6';
-      item.title = 'This tool no longer exists in the current configuration.';
+      item.title = msg('toolNoLongerExists');
     }
 
     list.appendChild(item);
@@ -831,8 +832,8 @@ function renderStatsView(entries: HistoryEntry[]) {
   list.innerHTML = '';
 
   if (!entries.length) {
-    summary.textContent = 'No runs yet.';
-    list.innerHTML = '<p style="color:var(--muted); font-size:0.85rem; text-align:center; margin-top:2rem;">No stats yet.</p>';
+    summary.textContent = msg('noRunsYet');
+    list.innerHTML = `<p style="color:var(--muted); font-size:0.85rem; text-align:center; margin-top:2rem;">${msg('noStatsYet')}</p>`;
     return;
   }
 
@@ -889,7 +890,12 @@ function renderStatsView(entries: HistoryEntry[]) {
     aggregates.set(entry.toolId, aggregate);
   }
 
-  summary.textContent = `${entries.length} runs, ${aggregates.size} tools, ${runsWithUsage} runs with usage data, ${totalTokens} total tokens`;
+  summary.textContent = msg('statsSummary', [
+    String(entries.length),
+    String(aggregates.size),
+    String(runsWithUsage),
+    String(totalTokens)
+  ]);
 
   Array.from(aggregates.values())
     .sort((a, b) => b.runs - a.runs || b.totalTokens - a.totalTokens)
@@ -899,12 +905,12 @@ function renderStatsView(entries: HistoryEntry[]) {
       item.innerHTML = `
         <div class="history-header">
           <span class="history-tool">${aggregate.toolIcon ? `${aggregate.toolIcon} ` : ''}${aggregate.toolName}</span>
-          <span class="history-time">${aggregate.runs} runs</span>
+          <span class="history-time">${msg('statsRuns', String(aggregate.runs))}</span>
         </div>
-        <div class="history-input">Latest: ${aggregate.lastProviderId || 'unknown'}${aggregate.lastModel ? ` / ${aggregate.lastModel}` : ''} · ${formatTime(aggregate.lastRunAt)}</div>
-        <div class="history-input">Input tokens: ${aggregate.inputTokens} total · ${averagePerRun(aggregate.inputTokens, aggregate.runsWithUsage)} avg/run</div>
-        <div class="history-input">Output tokens: ${aggregate.outputTokens} total · ${averagePerRun(aggregate.outputTokens, aggregate.runsWithUsage)} avg/run</div>
-        <div class="history-result">Total tokens: ${aggregate.totalTokens}</div>
+        <div class="history-input">${msg('statsLatest', [aggregate.lastProviderId || 'unknown', aggregate.lastModel ? ` / ${aggregate.lastModel}` : '', formatTime(aggregate.lastRunAt)])}</div>
+        <div class="history-input">${msg('statsInputTokens', [String(aggregate.inputTokens), averagePerRun(aggregate.inputTokens, aggregate.runsWithUsage)])}</div>
+        <div class="history-input">${msg('statsOutputTokens', [String(aggregate.outputTokens), averagePerRun(aggregate.outputTokens, aggregate.runsWithUsage)])}</div>
+        <div class="history-result">${msg('statsTotalTokens', String(aggregate.totalTokens))}</div>
       `;
       list.appendChild(item);
     });
@@ -1034,7 +1040,7 @@ async function submitActiveTool(): Promise<void> {
 
   const targetText = workspaceInput.value.trim();
   if (!targetText) {
-    workspaceStatus.textContent = 'Please provide some input text.';
+    workspaceStatus.textContent = msg('pleaseProvideInput');
     return;
   }
 
@@ -1045,8 +1051,8 @@ async function submitActiveTool(): Promise<void> {
   updateRunMeta(activeRunStartedAt, null);
   setRunningState(true);
   workspaceStatus.textContent = activeTool.steps && activeTool.steps.length > 1
-    ? `Running ${activeTool.steps[0]?.name || 'step'} (1/${activeTool.steps.length})...`
-    : 'Running...';
+    ? msg('runningStep', [activeTool.steps[0]?.name || 'step', '1', String(activeTool.steps.length)])
+    : msg('running');
   setResultHint('');
   updateResultUI('');
   await saveWorkspaceState();
@@ -1078,7 +1084,7 @@ async function submitActiveTool(): Promise<void> {
     });
 
     if (!response?.success) {
-      throw new Error(response?.error || 'Unknown error');
+      throw new Error(response?.error || msg('unknownError'));
     }
 
     const runState = normalizeActiveRunState(response.data);
@@ -1092,9 +1098,9 @@ async function submitActiveTool(): Promise<void> {
     activeRunRequestId = null;
     activeRunStartedAt = null;
     setRunningState(false);
-    workspaceStatus.textContent = /abort/i.test(message) ? 'Aborted.' : `Error: ${message}`;
+    workspaceStatus.textContent = /abort/i.test(message) ? msg('aborted') : msg('errorPrefix', message);
     if (workspaceResult.value) {
-      setResultHint('· partial', '#f59e0b');
+      setResultHint(msg('partialHint'), '#f59e0b');
     }
   }
 }
@@ -1145,6 +1151,7 @@ async function loadLastUsedTargetLanguage(): Promise<string> {
 
 (async function init() {
   ensureLoadingWatchdog();
+  localizePage();
 
   const manifest = chrome.runtime.getManifest();
   (document.getElementById('app-name') as HTMLElement).textContent = manifest.name;
@@ -1170,15 +1177,15 @@ async function loadLastUsedTargetLanguage(): Promise<string> {
     const keystoneStatus = await checkKeystoneSetup();
     toolListEl.style.display = 'none';
     showSetupCard(
-      'Provider Setup Needed',
-      'Set at least one API key and choose the correct default provider.',
+      msg('providerSetupNeededTitle'),
+      msg('providerSetupNeededBody'),
       keystoneStatus.available
-        ? 'Open Options to save a local provider key or set the default provider. If you want Keystone-backed secret storage, you can also continue in Keystone Admin.'
-        : 'Open Options to save at least one provider key and set the default provider. Keystone is optional and only needed if you want host-managed secret storage.',
+        ? msg('providerSetupHelpWithKeystone')
+        : msg('providerSetupHelpWithoutKeystone'),
       keystoneStatus.available ? keystoneStatus.adminUrl : undefined
     );
     missingKeyMsg.style.display = 'none';
-    missingKeyMsg.innerHTML = '⚠️ Missing API Key<br/>Open Options to configure a provider and key.';
+    missingKeyMsg.innerHTML = msg('missingKeyMsg');
     return;
   }
 
@@ -1284,7 +1291,7 @@ btnFaqBack.addEventListener('click', () => showMain());
 btnCopyResult.addEventListener('click', () => {
   if (!workspaceResult.value) return;
   void navigator.clipboard.writeText(workspaceResult.value);
-  btnCopyResult.textContent = '✓';
+  btnCopyResult.textContent = msg('copiedCheckmark');
   setTimeout(() => {
     btnCopyResult.textContent = '📋';
   }, 1500);
@@ -1353,11 +1360,11 @@ btnReset.addEventListener('click', async () => {
 btnAbort.addEventListener('click', async () => {
   if (!activeRequestId) return;
   btnAbort.disabled = true;
-  workspaceStatus.textContent = 'Aborting...';
+  workspaceStatus.textContent = msg('aborting');
   const response = await chrome.runtime.sendMessage({ type: 'CANCEL_REQUEST', requestId: activeRequestId });
   if (response?.success && response.data === false) {
     btnAbort.disabled = false;
-    workspaceStatus.textContent = 'Nothing active to abort.';
+    workspaceStatus.textContent = msg('nothingToAbort');
   }
 });
 

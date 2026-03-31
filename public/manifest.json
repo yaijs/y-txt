@@ -1,9 +1,10 @@
 {
   "manifest_version": 3,
+  "default_locale": "en",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA73P1AeKJeVZmvRE1ENyzlNxmBouMvd1Z4XM4FT7Yd7u6eAEFEO2gmpYFxSKZYUm5pezr1KGKDM7kw1JXbbuBSh/JU0gbveK15Czpl2MSx1K9GsvcZm6qbQZxpEI8qNd2s0GfCynMUm3BSuoIjr0TEvXg5FVIyTc2AWrPNPp2XLc5z20spARJhiFp/K3LvXaVCGVHQ/XMMQj2KYmrOfe6se+YjJrC65uP5XMVR9neld7/FrSgs58YsSCIZQCq/iwf9z6LoAlCP+CtGr0ZB7YGxmS90L5HZcPiOarM5o/0QH/cHM5xx+cvoHCQvmtEzMdQpGHS6XMQYex7GCQqID8B0wIDAQAB",
-  "name": "Y/TXT",
+  "name": "__MSG_appName__",
   "version": "1.0",
-  "description": "Emulate entire algorithms with 1-2 sentences of plain text",
+  "description": "__MSG_appDescription__",
   "permissions": ["activeTab", "storage", "scripting", "nativeMessaging", "sidePanel"],
   "host_permissions": [
     "http://127.0.0.1/*",
@@ -24,7 +25,7 @@
   },
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Y/TXT",
+    "default_title": "__MSG_appActionTitle__",
     "default_icon": {
       "16": "logo.png",
       "32": "logo.png",

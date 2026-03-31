@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-i18n-title="optionsDocumentTitle">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -338,35 +338,35 @@
 <body>
   <div class="container">
     <div class="card">
-      <h1>Y/TXT Options</h1>
-      <p class="section-desc" style="margin-bottom:0;">
+      <h1 data-i18n="optionsHeading">Y/TXT Options</h1>
+      <p class="section-desc" style="margin-bottom:0;" data-i18n="optionsIntro">
         Configure providers, model/tool definitions, and the optional Keystone companion for safer local key storage.
       </p>
     </div>
 
     <div class="card info-card">
-      <h2>Getting Started</h2>
-      <p>Y/TXT works in two modes.</p>
-      <p><strong>Fastest path:</strong> paste at least one provider key below, set the correct default provider, save, and start using the extension immediately.</p>
-      <p><strong>Safer path:</strong> install Keystone and store provider keys outside the browser, then let Y/TXT tunnel requests through the local host.</p>
-      <p>You do not need Keystone just to get started. Keystone is an optional upgrade for stronger local secret handling.</p>
+      <h2 data-i18n="gettingStartedTitle">Getting Started</h2>
+      <p data-i18n="gettingStartedMode">Y/TXT works in two modes.</p>
+      <p data-i18n="gettingStartedFast" data-i18n-html><strong>Fastest path:</strong> paste at least one provider key below, set the correct default provider, save, and start using the extension immediately.</p>
+      <p data-i18n="gettingStartedSafe" data-i18n-html><strong>Safer path:</strong> install Keystone and store provider keys outside the browser, then let Y/TXT tunnel requests through the local host.</p>
+      <p data-i18n="gettingStartedOptional">You do not need Keystone just to get started. Keystone is an optional upgrade for stronger local secret handling.</p>
     </div>
 
     <div class="cardless">
       <div class="warning" style="margin-bottom:0;">
-        <strong>⚠️ Security Warning</strong>
-        <p><strong style="display:inline; margin:0; color:#fcd34d;">Preferred:</strong> store provider keys in Keystone and let Y/TXT tunnel requests through the local host. Local browser storage is supported as a fallback when you want the fastest setup.</p>
-        <p id="keystone-warning-detail">If local browser storage is active, use low-limit keys and treat this browser profile as a trusted environment.</p>
+        <strong data-i18n="securityWarningTitle">⚠️ Security Warning</strong>
+        <p data-i18n="securityWarningBody" data-i18n-html><strong style="display:inline; margin:0; color:#fcd34d;">Preferred:</strong> store provider keys in Keystone and let Y/TXT tunnel requests through the local host. Local browser storage is supported as a fallback when you want the fastest setup.</p>
+        <p id="keystone-warning-detail" data-i18n="keystoneWarningDetail">If local browser storage is active, use low-limit keys and treat this browser profile as a trusted environment.</p>
       </div>
     </div>
 
     <div id="keystone-help-card" class="keystone-help-card">
-      <h3 id="keystone-help-title">Keystone Reinstall Needed</h3>
-      <p id="keystone-help-body">The Native Messaging host is not installed for this browser right now.</p>
-      <p id="keystone-help-detail">Reinstall Keystone for this browser in Keystone Admin or via the `keystone install ...` command, then try again.</p>
+      <h3 id="keystone-help-title" data-i18n="keystoneHelpTitle">Keystone Reinstall Needed</h3>
+      <p id="keystone-help-body" data-i18n="keystoneHelpBody">The Native Messaging host is not installed for this browser right now.</p>
+      <p id="keystone-help-detail" data-i18n="keystoneHelpDetail">Reinstall Keystone for this browser in Keystone Admin or via the `keystone install ...` command, then try again.</p>
       <div class="keystone-help-meta">
         <div>
-          <strong>Browser target:</strong>
+          <strong data-i18n="keystoneHelpBrowserTarget">Browser target:</strong>
           <select id="keystone-help-browser-select">
             <option value="chrome">Chrome</option>
             <option value="chromium">Chromium</option>
@@ -376,7 +376,7 @@
           </select>
         </div>
         <div>
-          <strong>Operating system:</strong>
+          <strong data-i18n="keystoneHelpOs">Operating system:</strong>
           <select id="keystone-help-os-select">
             <option value="linux">Linux</option>
             <option value="mac">macOS</option>
@@ -384,57 +384,57 @@
           </select>
         </div>
         <div>
-          <strong>Keystone flavor:</strong>
+          <strong data-i18n="keystoneHelpFlavor">Keystone flavor:</strong>
           <select id="keystone-help-flavor-select">
             <option value="dev">dev</option>
             <option value="beta">beta</option>
             <option value="prod">prod</option>
           </select>
         </div>
-        <div><strong>Native host ID:</strong> <span id="keystone-help-host">—</span></div>
-        <div><strong>Extension ID:</strong> <span id="keystone-help-extension-id">—</span></div>
+        <div><strong data-i18n="keystoneHelpNativeHost">Native host ID:</strong> <span id="keystone-help-host">—</span></div>
+        <div><strong data-i18n="keystoneHelpExtensionId">Extension ID:</strong> <span id="keystone-help-extension-id">—</span></div>
       </div>
       <hr />
-      <h4>Step 1: Install Keystone</h4>
-      <p>Download the packaged Keystone release for your operating system:</p>
+      <h4 data-i18n="keystoneStepInstall">Step 1: Install Keystone</h4>
+      <p data-i18n="keystoneStepInstallBody">Download the packaged Keystone release for your operating system:</p>
       <p><a href="https://github.com/yaijs/keystone/releases" target="_blank" rel="noopener">https://github.com/yaijs/keystone/releases</a></p>
-      <h4>Step 2: Connect It To This Browser</h4>
-      <p>After Keystone is installed on this machine, run the command below to register the Native Messaging host for the current browser, flavor, and extension ID.</p>
+      <h4 data-i18n="keystoneStepConnect">Step 2: Connect It To This Browser</h4>
+      <p data-i18n="keystoneStepConnectBody">After Keystone is installed on this machine, run the command below to register the Native Messaging host for the current browser, flavor, and extension ID.</p>
       <p id="keystone-help-command-wrap" style="display:none;">
-        <h4 style="margin-top:0;">Connect via terminal</h4>
+        <h4 style="margin-top:0;" data-i18n="keystoneConnectTerminal">Connect via terminal</h4>
         <code id="keystone-help-command"></code>
       </p>
       <div class="btn-row" id="keystone-help-actions" style="display:none; margin-top:0.75rem; margin-bottom:0.75rem;">
-        <button id="copy-keystone-help-command-btn" type="button" class="btn-secondary">Copy Install Command</button>
+        <button id="copy-keystone-help-command-btn" type="button" class="btn-secondary" data-i18n="copyInstallCommand">Copy Install Command</button>
       </div>
-      <p id="keystone-help-terminal-hint">Open a terminal first, then run the command above.</p>
-      <p id="keystone-help-path-note" style="display:none;">
+      <p id="keystone-help-terminal-hint" data-i18n="keystoneTerminalHint">Open a terminal first, then run the command above.</p>
+      <p id="keystone-help-path-note" style="display:none;" data-i18n="keystonePathNote" data-i18n-html>
         Replace <code>/absolute/path/to/keystone</code> with the real installed Keystone binary path on your machine.
       </p>
-      <p>
+      <p data-i18n="keystoneAfterReinstall" data-i18n-html>
         After reinstalling, reload the extension and click <strong>Test Keystone Connection</strong> again here.
       </p>
-      <p>Repository: <a href="https://github.com/yaijs/keystone" target="_blank" rel="noopener">https://github.com/yaijs/keystone</a></p>
+      <p><span data-i18n="keystoneRepoLabel">Repository:</span> <a href="https://github.com/yaijs/keystone" target="_blank" rel="noopener">https://github.com/yaijs/keystone</a></p>
     </div>
 
     <div class="card" id="provider-keys-card">
-      <h2>Provider Keys</h2>
-      <p class="section-desc">
+      <h2 data-i18n="providerKeysTitle">Provider Keys</h2>
+      <p class="section-desc" data-i18n="providerKeysDesc">
         Each provider entry comes from Providers Config below. Keystone can only tunnel providers it knows; unknown provider IDs fall back to local extension storage only.
       </p>
-      <div class="help-box" style="margin-top:0;">
+      <div class="help-box" style="margin-top:0;" data-i18n="quickSetupBox" data-i18n-html>
         <strong>Quick setup:</strong> enter one key, click <code>Save Settings</code>, and make sure <code>Default Provider</code> below matches the provider you actually configured.
       </div>
 
       <div id="provider-fields"></div>
 
-      <button id="save-btn" class="btn-full">Save Settings</button>
+      <button id="save-btn" class="btn-full" data-i18n="saveSettings">Save Settings</button>
       <div id="status" class="status"></div>
     </div>
 
     <!-- Tools Config Editor -->
     <div class="card">
-      <h2>Tools Config</h2>
+      <h2 data-i18n="toolsConfigTitle">Tools Config</h2>
       <p class="section-desc">
         Define and customize tools as JSON. Each category has a <code>label</code> and a <code>tools</code> array.
         Supports <code>{{input}}</code>, <code>{{previous}}</code>, <code>{{originalInput}}</code>, and option-id placeholders in prompts.
@@ -443,32 +443,32 @@
       </p>
       <textarea id="tools-config" class="config-textarea" spellcheck="false"></textarea>
       <div class="btn-row">
-        <button id="save-tools-btn">Save Tools</button>
-        <button id="import-tools-btn" class="btn-secondary">Import JSON</button>
-        <button id="export-tools-btn" class="btn-secondary">Export JSON</button>
-        <button id="reset-tools-btn" class="btn-reset">Reset to Default</button>
+        <button id="save-tools-btn" data-i18n="saveTools">Save Tools</button>
+        <button id="import-tools-btn" class="btn-secondary" data-i18n="importJson">Import JSON</button>
+        <button id="export-tools-btn" class="btn-secondary" data-i18n="exportJson">Export JSON</button>
+        <button id="reset-tools-btn" class="btn-reset" data-i18n="resetToDefault">Reset to Default</button>
       </div>
       <div id="tools-status" class="status"></div>
     </div>
 
     <!-- Models Config Editor -->
     <div class="card">
-      <h2>Providers Config</h2>
+      <h2 data-i18n="providersConfigTitle">Providers Config</h2>
       <p class="section-desc">
         Define provider IDs, labels, adapter type, and upstream base URLs here. Tools and model sets reference these provider IDs.
       </p>
       <textarea id="providers-config" class="config-textarea" spellcheck="false"></textarea>
       <div class="btn-row">
-        <button id="save-providers-btn">Save Providers</button>
-        <button id="import-providers-btn" class="btn-secondary">Import JSON</button>
-        <button id="export-providers-btn" class="btn-secondary">Export JSON</button>
-        <button id="reset-providers-btn" class="btn-reset">Reset to Default</button>
+        <button id="save-providers-btn" data-i18n="saveProviders">Save Providers</button>
+        <button id="import-providers-btn" class="btn-secondary" data-i18n="importJson">Import JSON</button>
+        <button id="export-providers-btn" class="btn-secondary" data-i18n="exportJson">Export JSON</button>
+        <button id="reset-providers-btn" class="btn-reset" data-i18n="resetToDefault">Reset to Default</button>
       </div>
       <div id="providers-status" class="status"></div>
     </div>
 
     <div class="card">
-      <h2>Models Config</h2>
+      <h2 data-i18n="modelsConfigTitle">Models Config</h2>
       <p class="section-desc">
         Map tier names (e.g. <code>"coding"</code>, <code>"creative"</code>) to provider-specific models.
         A string value uses the tool's temperature; an object with <code>"temperature": null</code> suppresses it.<br/>
@@ -477,45 +477,45 @@
       </p>
       <textarea id="models-config" class="config-textarea" spellcheck="false"></textarea>
       <div class="btn-row">
-        <button id="save-models-btn">Save Models</button>
-        <button id="import-models-btn" class="btn-secondary">Import JSON</button>
-        <button id="export-models-btn" class="btn-secondary">Export JSON</button>
-        <button id="reset-models-btn" class="btn-reset">Reset to Default</button>
+        <button id="save-models-btn" data-i18n="saveModels">Save Models</button>
+        <button id="import-models-btn" class="btn-secondary" data-i18n="importJson">Import JSON</button>
+        <button id="export-models-btn" class="btn-secondary" data-i18n="exportJson">Export JSON</button>
+        <button id="reset-models-btn" class="btn-reset" data-i18n="resetToDefault">Reset to Default</button>
       </div>
       <div id="models-status" class="status"></div>
     </div>
 
     <div class="card">
-      <h2>Default Provider</h2>
+      <h2 data-i18n="defaultProviderTitle">Default Provider</h2>
       <p class="section-desc">
         Used only when a tool step does not set its own provider. Tools can still choose a provider explicitly.
       </p>
 
       <div class="form-group">
-        <label for="provider">Default Provider</label>
+        <label for="provider" data-i18n="defaultProviderLabel">Default Provider</label>
         <select id="provider"></select>
       </div>
     </div>
 
     <div class="card" id="keystone-card">
-      <h2>Keystone</h2>
-      <p class="section-desc">
+      <h2 data-i18n="keystoneTitle">Keystone</h2>
+      <p class="section-desc" data-i18n="keystoneSectionDesc">
         Test the local Native Messaging bridge and open the local admin UI. Keystone is optional, but preferred once you want secrets stored outside the browser.
       </p>
       <div class="btn-row">
-        <button id="test-keystone-btn" class="btn-secondary">Test Keystone Connection</button>
-        <button id="open-keystone-admin-btn" class="btn-secondary">Open Keystone Admin</button>
+        <button id="test-keystone-btn" class="btn-secondary" data-i18n="testKeystoneConnection">Test Keystone Connection</button>
+        <button id="open-keystone-admin-btn" class="btn-secondary" data-i18n="openKeystoneAdminPlain">Open Keystone Admin</button>
       </div>
       <div id="keystone-status" class="status"></div>
     </div>
 
     <div class="card info-card">
-      <h2>General Info</h2>
-      <h3>Why this extension exists</h3>
+      <h2 data-i18n="generalInfoTitle">General Info</h2>
+      <h3 data-i18n="generalWhyTitle">Why this extension exists</h3>
       <p>Y/TXT treats plain-language instructions as configurable tools. Instead of building a separate app for every narrow text workflow, you can often describe the job in human language and let a model handle it.</p>
       <p>That means custom tools, custom providers, and model mappings can all be composed here without changing extension code.</p>
 
-      <h3>API Keys</h3>
+      <h3 data-i18n="generalApiKeysTitle">API Keys</h3>
       <p>LLM providers require API keys so requests can be authenticated and billed. Chrome extensions can store data, but they do not offer a truly secure secret vault for extension-managed API keys.</p>
       <p>If secure API-key handling matters, use Keystone. It stores secrets outside the extension and lets Y/TXT tunnel requests through a local trusted host instead of keeping the key in browser storage.</p>
     </div>

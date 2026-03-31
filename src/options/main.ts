@@ -7,6 +7,7 @@ import {
   ProviderConfig,
   validateProvidersConfig,
 } from '../providers/config.js';
+import { localizePage, msg } from '../i18n.js';
 
 const providerSelect = document.getElementById('provider') as HTMLSelectElement;
 const providerFieldsEl = document.getElementById('provider-fields') as HTMLDivElement;
@@ -78,18 +79,18 @@ function isProviderId(value: string): boolean {
 
 function updateKeyState(el: HTMLDivElement, location: KeyLocation) {
   if (location === 'both') {
-    el.textContent = 'Stored in Keystone and locally. Leave blank to keep unchanged.';
+    el.textContent = msg('keyStateBoth');
     return;
   }
   if (location === 'keystone') {
-    el.textContent = 'Stored in Keystone. Leave blank to keep unchanged.';
+    el.textContent = msg('keyStateKeystone');
     return;
   }
   if (location === 'local') {
-    el.textContent = 'Stored locally. Leave blank to keep unchanged.';
+    el.textContent = msg('keyStateLocal');
     return;
   }
-  el.textContent = 'No key stored.';
+  el.textContent = msg('keyStateNone');
 }
 
 function updateClearButtonVisibility(button: HTMLButtonElement, hasStoredValue: boolean) {
@@ -204,7 +205,7 @@ copyKeystoneHelpCommandBtn.addEventListener('click', async () => {
   const command = keystoneHelpCommandEl.textContent?.trim();
   if (!command) return;
   await navigator.clipboard.writeText(command);
-  showStatus(keystoneStatusEl, 'Copied Keystone install command.');
+  showStatus(keystoneStatusEl, msg('copiedKeystoneInstallCommand'));
 });
 
 keystoneHelpBrowserSelectEl.addEventListener('change', () => {
@@ -278,7 +279,7 @@ function renderProviderFields() {
     const input = document.createElement('input');
     input.type = 'password';
     input.id = `${provider.id}-key`;
-    input.placeholder = 'Enter a new key to replace the stored one';
+    input.placeholder = msg('replaceStoredKeyPlaceholder');
     keyWrap.appendChild(input);
 
     const showBtn = document.createElement('button');
@@ -299,7 +300,7 @@ function renderProviderFields() {
     const clearBtn = document.createElement('button');
     clearBtn.type = 'button';
     clearBtn.className = 'btn-reset';
-    clearBtn.textContent = 'Clear Stored Key';
+    clearBtn.textContent = msg('clearStoredKey');
     actions.appendChild(clearBtn);
     group.appendChild(actions);
 
@@ -389,10 +390,10 @@ function buildSaveStatus(storedProviders: string[], fallbackProviders: string[],
   if (fallbackProviders.length) {
     return keystoneErrors.length
       ? `Settings saved locally. Keystone unavailable or failed: ${keystoneErrors.join(' | ')}`
-      : 'Settings saved locally.';
+      : msg('settingsSavedLocalOnly');
   }
 
-  return 'Settings saved!';
+  return msg('settingsSavedSimple');
 }
 
 async function clearStoredKey(providerId: string) {
@@ -403,7 +404,7 @@ async function clearStoredKey(providerId: string) {
   await chrome.runtime.sendMessage({ type: 'CLEAR_PROVIDER_SECRET', providerId });
   field.input.value = '';
   await refreshKeyStates();
-  showStatus(statusEl, 'Stored key removed.');
+  showStatus(statusEl, msg('storedKeyRemoved'));
   await chrome.runtime.sendMessage({ type: 'SETTINGS_UPDATED' });
 }
 
@@ -462,6 +463,7 @@ async function loadSettings() {
   }
 }
 
+localizePage();
 void loadSettings();
 
 saveBtn.addEventListener('click', async () => {
@@ -585,7 +587,7 @@ saveToolsBtn.addEventListener('click', () => {
   try {
     const parsed = validateCategories(JSON.parse(toolsTextarea.value));
     chrome.storage.local.set({ customTools: JSON.stringify(parsed) }, () => {
-      showStatus(toolsStatusEl, 'Tools saved. Re-open popup to apply.');
+      showStatus(toolsStatusEl, msg('toolsSavedReopen'));
     });
   } catch (e) {
     showStatus(toolsStatusEl, `Invalid JSON: ${(e as Error).message}`, true);
@@ -595,7 +597,7 @@ saveToolsBtn.addEventListener('click', () => {
 resetToolsBtn.addEventListener('click', () => {
   chrome.storage.local.remove('customTools', () => {
     toolsTextarea.value = JSON.stringify(bundledTools, null, 2);
-    showStatus(toolsStatusEl, 'Reset to default.');
+    showStatus(toolsStatusEl, msg('resetDefaultStatus'));
   });
 });
 
@@ -605,14 +607,14 @@ importToolsBtn.addEventListener('click', () => {
 
 exportToolsBtn.addEventListener('click', () => {
   downloadJson('y-txt-tools.json', toolsTextarea.value);
-  showStatus(toolsStatusEl, 'Tools exported.');
+  showStatus(toolsStatusEl, msg('toolsExported'));
 });
 
 saveModelsBtn.addEventListener('click', () => {
   try {
     const parsed = validateModelSets(JSON.parse(modelsTextarea.value));
     chrome.storage.local.set({ customModels: JSON.stringify(parsed) }, () => {
-      showStatus(modelsStatusEl, 'Models saved!');
+      showStatus(modelsStatusEl, msg('savedWithBang'));
       chrome.runtime.sendMessage({ type: 'SETTINGS_UPDATED' });
     });
   } catch (e) {
@@ -623,7 +625,7 @@ saveModelsBtn.addEventListener('click', () => {
 resetModelsBtn.addEventListener('click', () => {
   chrome.storage.local.remove('customModels', () => {
     modelsTextarea.value = JSON.stringify(bundledModels, null, 2);
-    showStatus(modelsStatusEl, 'Reset to default.');
+    showStatus(modelsStatusEl, msg('resetDefaultStatus'));
     chrome.runtime.sendMessage({ type: 'SETTINGS_UPDATED' });
   });
 });
@@ -634,7 +636,7 @@ importModelsBtn.addEventListener('click', () => {
 
 exportModelsBtn.addEventListener('click', () => {
   downloadJson('y-txt-models.json', modelsTextarea.value);
-  showStatus(modelsStatusEl, 'Models exported.');
+  showStatus(modelsStatusEl, msg('modelsExported'));
 });
 
 saveProvidersBtn.addEventListener('click', () => {
@@ -646,7 +648,7 @@ saveProvidersBtn.addEventListener('click', () => {
       renderProviderFields();
       attachClearHandlers();
       await refreshKeyStates();
-      showStatus(providersStatusEl, 'Providers saved!');
+      showStatus(providersStatusEl, msg('savedWithBang'));
       chrome.runtime.sendMessage({ type: 'SETTINGS_UPDATED' });
     });
   } catch (e) {
@@ -662,7 +664,7 @@ resetProvidersBtn.addEventListener('click', () => {
     renderProviderFields();
     attachClearHandlers();
     await refreshKeyStates();
-    showStatus(providersStatusEl, 'Reset to default.');
+    showStatus(providersStatusEl, msg('resetDefaultStatus'));
     chrome.runtime.sendMessage({ type: 'SETTINGS_UPDATED' });
   });
 });
@@ -673,7 +675,7 @@ importProvidersBtn.addEventListener('click', () => {
 
 exportProvidersBtn.addEventListener('click', () => {
   downloadJson('y-txt-providers.json', providersTextarea.value);
-  showStatus(providersStatusEl, 'Providers exported.');
+  showStatus(providersStatusEl, msg('providersExported'));
 });
 
 importFileInput.addEventListener('change', async () => {
@@ -686,13 +688,13 @@ importFileInput.addEventListener('change', async () => {
 
     if (pendingImportTarget === 'tools') {
       toolsTextarea.value = JSON.stringify(validateCategories(parsed), null, 2);
-      showStatus(toolsStatusEl, 'Tools imported. Save to apply.');
+      showStatus(toolsStatusEl, msg('toolsImportedSaveApply'));
     } else if (pendingImportTarget === 'models') {
       modelsTextarea.value = JSON.stringify(validateModelSets(parsed), null, 2);
-      showStatus(modelsStatusEl, 'Models imported. Save to apply.');
+      showStatus(modelsStatusEl, msg('modelsImportedSaveApply'));
     } else {
       providersTextarea.value = JSON.stringify(validateProvidersConfig(parsed), null, 2);
-      showStatus(providersStatusEl, 'Providers imported. Save to apply.');
+      showStatus(providersStatusEl, msg('providersImportedSaveApply'));
     }
   } catch (error) {
     if (pendingImportTarget === 'tools') {
