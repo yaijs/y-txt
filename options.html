@@ -331,6 +331,12 @@
       flex-direction: column;
       gap: 0.35rem;
     }
+    .docs-link-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      margin-top: 0.85rem;
+    }
     .info-card h3 {
       margin: 1rem 0 0.35rem 0;
       font-size: 1rem;
@@ -419,12 +425,13 @@
       <p data-i18n="keystoneStepInstallBody">Download the packaged Keystone release for your operating system:</p>
       <div class="keystone-download-links">
         <p><a id="keystone-help-direct-download" href="https://github.com/yaijs/keystone/releases/latest" target="_blank" rel="noopener">Direct download ↗</a></p>
+        <p><a id="keystone-help-installer-notes" href="https://github.com/yaijs/keystone/blob/main/installer/README.md" target="_blank" rel="noopener" data-i18n="keystoneInstallerNotes">Installer notes ↗</a></p>
         <p><a href="https://github.com/yaijs/keystone/releases" target="_blank" rel="noopener">https://github.com/yaijs/keystone/releases</a></p>
       </div>
       <h4 data-i18n="keystoneStepConnect">Step 2: Connect It To This Browser</h4>
       <p data-i18n="keystoneStepConnectBody">After Keystone is installed on this machine, run the command below to register the Native Messaging host for the current browser, flavor, and extension ID.</p>
       <p id="keystone-help-command-wrap" style="display:none;">
-        <h4 style="margin-top:0;" data-i18n="keystoneConnectTerminal">Connect via terminal</h4>
+        <h4 id="keystone-help-command-title" style="margin-top:0;" data-i18n="keystoneConnectTerminalLinux">Connect via terminal</h4>
         <code id="keystone-help-command"></code>
       </p>
       <div class="btn-row" id="keystone-help-actions" style="display:none; margin-top:0.75rem; margin-bottom:0.75rem;">
@@ -530,6 +537,11 @@
         <button id="open-keystone-admin-btn" class="btn-secondary" data-i18n="openKeystoneAdminPlain">Open Keystone Admin</button>
       </div>
       <div id="keystone-status" class="status"></div>
+      <div class="help-box" style="margin-top:1rem;">
+        <a href="https://github.com/yaijs/keystone#linux-release-install" target="_blank" rel="noopener" data-i18n="keystoneFooterReleaseGuide">Linux release install guide ↗</a><br />
+        <a href="https://github.com/yaijs/keystone/blob/main/installer/README.md" target="_blank" rel="noopener" data-i18n="keystoneFooterNotes">Installer notes ↗</a><br />
+        <a href="https://github.com/yaijs/keystone/releases" target="_blank" rel="noopener" data-i18n="keystoneFooterReleases">Keystone releases ↗</a>
+      </div>
     </div>
 
     <div class="card info-card">
@@ -541,6 +553,17 @@
       <h3 data-i18n="generalApiKeysTitle">API Keys</h3>
       <p>LLM providers require API keys so requests can be authenticated and billed. Chrome extensions can store data, but they do not offer a truly secure secret vault for extension-managed API keys.</p>
       <p>If secure API-key handling matters, use Keystone. It stores secrets outside the extension and lets Y/TXT tunnel requests through a local trusted host instead of keeping the key in browser storage.</p>
+    </div>
+
+    <div class="card info-card">
+      <h2 data-i18n="keystoneFooterTitle">Keystone Docs</h2>
+      <p data-i18n="keystoneFooterBody">Use these links if you need the release install path, the current installer notes, or the latest downloadable artifacts.</p>
+      <div class="docs-link-list">
+        <a href="https://github.com/yaijs/keystone#linux-release-install" target="_blank" rel="noopener" data-i18n="keystoneFooterReleaseGuide">Linux release install guide ↗</a>
+        <a href="https://github.com/yaijs/keystone/blob/main/installer/README.md" target="_blank" rel="noopener" data-i18n="keystoneFooterNotes">Installer notes ↗</a>
+        <a href="https://github.com/yaijs/keystone/releases" target="_blank" rel="noopener" data-i18n="keystoneFooterReleases">Keystone releases ↗</a>
+        <a href="https://github.com/yaijs/keystone" target="_blank" rel="noopener" data-i18n="keystoneFooterRepo">Keystone repository ↗</a>
+      </div>
     </div>
 
   </div>

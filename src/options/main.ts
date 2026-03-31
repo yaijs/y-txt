@@ -22,6 +22,7 @@ const keystoneHelpTitleEl = document.getElementById('keystone-help-title') as HT
 const keystoneHelpBodyEl = document.getElementById('keystone-help-body') as HTMLParagraphElement;
 const keystoneHelpDetailEl = document.getElementById('keystone-help-detail') as HTMLParagraphElement;
 const keystoneHelpCommandWrapEl = document.getElementById('keystone-help-command-wrap') as HTMLParagraphElement;
+const keystoneHelpCommandTitleEl = document.getElementById('keystone-help-command-title') as HTMLHeadingElement;
 const keystoneHelpCommandEl = document.getElementById('keystone-help-command') as HTMLElement;
 const keystoneHelpBrowserSelectEl = document.getElementById('keystone-help-browser-select') as HTMLSelectElement;
 const keystoneHelpOsSelectEl = document.getElementById('keystone-help-os-select') as HTMLSelectElement;
@@ -149,29 +150,27 @@ function detectBrowserTarget(): 'chrome' | 'chromium' | 'opera' | 'vivaldi' | 'b
 function buildKeystoneInstallCommand(): string {
   const extensionId = chrome.runtime.id;
   if (!extensionId) return '';
+  const os = keystoneHelpOsSelectEl.value || currentPlatformOs;
   const browserTarget = keystoneHelpBrowserSelectEl.value || detectBrowserTarget();
   const flavor = keystoneHelpFlavorSelectEl.value || keystoneFlavorFromHost();
-  return `keystone install ${browserTarget} ${flavor} ${extensionId} /absolute/path/to/keystone`;
+  if (os === 'linux') {
+    return `./install-keystone-linux.sh ${browserTarget} ${flavor} ${extensionId}`;
+  }
+  return '';
 }
 
 function pathNoteForOs(os: string): string {
-  if (os === 'mac') {
-    return 'Replace /absolute/path/to/keystone with the installed Keystone binary path on macOS.';
+  if (os === 'linux') {
+    return msg('keystonePathNoteLinux');
   }
-  if (os === 'win') {
-    return 'Replace /absolute/path/to/keystone with the installed Keystone binary path on Windows, for example the full path to keystone.exe.';
-  }
-  return 'Replace /absolute/path/to/keystone with the real installed Keystone binary path on your machine.';
+  return msg('keystonePathNoteFallback');
 }
 
 function terminalHintForOs(os: string): string {
-  if (os === 'mac') {
-    return 'Open Terminal first, for example with Command + Space, type "Terminal", and press Enter. Then run the command above.';
+  if (os === 'linux') {
+    return msg('keystoneTerminalHintLinux');
   }
-  if (os === 'win') {
-    return 'Open Windows Terminal or PowerShell first, for example with Win + X and then choose Terminal or PowerShell. Then run the command above.';
-  }
-  return 'Open a terminal first, then run the command above.';
+  return msg('keystoneTerminalHintFallback');
 }
 
 function keystoneArtifactFilenameForOs(os: string): string {
@@ -190,6 +189,9 @@ function refreshKeystoneCommandPreview() {
   const flavor = keystoneHelpFlavorSelectEl.value || keystoneFlavorFromHost();
   const command = buildKeystoneInstallCommand();
   keystoneHelpCommandEl.textContent = command;
+  keystoneHelpCommandTitleEl.textContent = os === 'linux'
+    ? msg('keystoneConnectTerminalLinux')
+    : msg('keystoneConnectTerminalFallback');
   keystoneHelpHostEl.textContent = hostIdForFlavor(flavor);
   keystoneHelpTerminalHintEl.textContent = terminalHintForOs(os);
   keystoneHelpPathNoteEl.textContent = pathNoteForOs(os);

@@ -540,5 +540,44 @@
         "content": "$1"
       }
     }
+  },
+  "keystoneInstallerNotes": {
+    "message": "Installer notes ↗"
+  },
+  "keystoneConnectTerminalLinux": {
+    "message": "Connect via terminal"
+  },
+  "keystoneConnectTerminalFallback": {
+    "message": "Release helper not bundled on this OS yet"
+  },
+  "keystoneTerminalHintLinux": {
+    "message": "Open a terminal in the extracted release folder, then run the command above."
+  },
+  "keystoneTerminalHintFallback": {
+    "message": "Linux release archives include a helper script. For macOS and Windows, use the release docs and installer notes first."
+  },
+  "keystonePathNoteLinux": {
+    "message": "This helper installs the binary into a stable per-user location and then registers the browser manifest for the selected browser and flavor."
+  },
+  "keystonePathNoteFallback": {
+    "message": "Use the linked release docs and installer notes for the current manual steps on this OS."
+  },
+  "keystoneFooterTitle": {
+    "message": "Keystone Docs"
+  },
+  "keystoneFooterBody": {
+    "message": "Use these links if you need the release install path, the current installer notes, or the latest downloadable artifacts."
+  },
+  "keystoneFooterReleaseGuide": {
+    "message": "Linux release install guide ↗"
+  },
+  "keystoneFooterNotes": {
+    "message": "Installer notes ↗"
+  },
+  "keystoneFooterReleases": {
+    "message": "Keystone releases ↗"
+  },
+  "keystoneFooterRepo": {
+    "message": "Keystone repository ↗"
   }
 }
