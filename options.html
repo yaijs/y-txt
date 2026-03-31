@@ -224,6 +224,18 @@
     .btn-secondary:hover {
       background: #243247;
     }
+    .btn-success {
+      background: rgba(16, 185, 129, 0.14);
+      border: 1px solid rgba(16, 185, 129, 0.5);
+      color: #a7f3d0;
+    }
+    .btn-success:hover {
+      background: rgba(16, 185, 129, 0.14);
+    }
+    .static-btn {
+      pointer-events: none;
+      cursor: default;
+    }
     .status {
       margin-top: 0.75rem;
       font-size: 0.95rem;
@@ -422,7 +434,7 @@
       <p class="section-desc" data-i18n="providerKeysDesc">
         Each provider entry comes from Providers Config below. Keystone can only tunnel providers it knows; unknown provider IDs fall back to local extension storage only.
       </p>
-      <div class="help-box" style="margin-top:0;" data-i18n="quickSetupBox" data-i18n-html>
+      <div class="help-box" style="margin-top:0;margin-bottom:1rem;" data-i18n="quickSetupBox" data-i18n-html>
         <strong>Quick setup:</strong> enter one key, click <code>Save Settings</code>, and make sure <code>Default Provider</code> below matches the provider you actually configured.
       </div>
 
@@ -430,6 +442,18 @@
 
       <button id="save-btn" class="btn-full" data-i18n="saveSettings">Save Settings</button>
       <div id="status" class="status"></div>
+    </div>
+
+    <div class="card">
+      <h2 data-i18n="defaultProviderTitle">Default Provider</h2>
+      <p class="section-desc">
+        Used only when a tool step does not set its own provider. Tools can still choose a provider explicitly.
+      </p>
+
+      <div class="form-group">
+        <label for="provider" data-i18n="defaultProviderLabel">Default Provider</label>
+        <select id="provider"></select>
+      </div>
     </div>
 
     <!-- Tools Config Editor -->
@@ -483,18 +507,6 @@
         <button id="reset-models-btn" class="btn-reset" data-i18n="resetToDefault">Reset to Default</button>
       </div>
       <div id="models-status" class="status"></div>
-    </div>
-
-    <div class="card">
-      <h2 data-i18n="defaultProviderTitle">Default Provider</h2>
-      <p class="section-desc">
-        Used only when a tool step does not set its own provider. Tools can still choose a provider explicitly.
-      </p>
-
-      <div class="form-group">
-        <label for="provider" data-i18n="defaultProviderLabel">Default Provider</label>
-        <select id="provider"></select>
-      </div>
     </div>
 
     <div class="card" id="keystone-card">

@@ -1,13 +1,13 @@
-import toolsBundled from '../tools/tools.json';
-import modelsBundled from '../models.json';
 import { validateCategories, validateModelSets } from '../config/index.js';
+import { localizePage, msg } from '../i18n.js';
+import modelsBundled from '../models.json';
 import {
   BUNDLED_PROVIDERS,
   getProviderStorageKey,
   ProviderConfig,
   validateProvidersConfig,
 } from '../providers/config.js';
-import { localizePage, msg } from '../i18n.js';
+import toolsBundled from '../tools/tools.json';
 
 const providerSelect = document.getElementById('provider') as HTMLSelectElement;
 const providerFieldsEl = document.getElementById('provider-fields') as HTMLDivElement;
@@ -68,6 +68,7 @@ type ProviderField = {
   storageKey: string;
   input: HTMLInputElement;
   stateEl: HTMLDivElement;
+  hasApiKeyBadge: HTMLButtonElement;
   clearBtn: HTMLButtonElement;
 };
 
@@ -94,6 +95,10 @@ function updateKeyState(el: HTMLDivElement, location: KeyLocation) {
 }
 
 function updateClearButtonVisibility(button: HTMLButtonElement, hasStoredValue: boolean) {
+  button.style.display = hasStoredValue ? '' : 'none';
+}
+
+function updateStoredKeyBadge(button: HTMLButtonElement, hasStoredValue: boolean) {
   button.style.display = hasStoredValue ? '' : 'none';
 }
 
@@ -297,10 +302,19 @@ function renderProviderFields() {
 
     const actions = document.createElement('div');
     actions.className = 'key-actions';
+
+    const hasApiKey = document.createElement('button');
+    hasApiKey.type = 'button';
+    hasApiKey.className = 'btn-success static-btn';
+    hasApiKey.textContent = msg('providerKeyPresent');
+    hasApiKey.style.display = 'none';
+
     const clearBtn = document.createElement('button');
     clearBtn.type = 'button';
     clearBtn.className = 'btn-reset';
     clearBtn.textContent = msg('clearStoredKey');
+
+    actions.appendChild(hasApiKey);
     actions.appendChild(clearBtn);
     group.appendChild(actions);
 
@@ -312,7 +326,7 @@ function renderProviderFields() {
     }
 
     providerFieldsEl.appendChild(group);
-    providerFields.set(provider.id, { provider, storageKey, input, stateEl, clearBtn });
+    providerFields.set(provider.id, { provider, storageKey, input, stateEl, hasApiKeyBadge: hasApiKey, clearBtn });
   });
 }
 
@@ -373,8 +387,10 @@ async function refreshKeyStates(localResult?: Record<string, string>): Promise<v
 
   providerFields.forEach((field, providerId) => {
     const location = keyLocation(Boolean(keystone[providerId]), Boolean(local[field.storageKey]));
+    const hasStoredValue = location !== 'none';
     updateKeyState(field.stateEl, location);
-    updateClearButtonVisibility(field.clearBtn, location !== 'none');
+    updateStoredKeyBadge(field.hasApiKeyBadge, hasStoredValue);
+    updateClearButtonVisibility(field.clearBtn, hasStoredValue);
   });
 }
 
