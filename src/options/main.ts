@@ -386,7 +386,7 @@ function renderProviderFields() {
 
     const clearBtn = document.createElement('button');
     clearBtn.type = 'button';
-    clearBtn.className = 'btn-reset';
+    clearBtn.className = 'btn-danger';
     clearBtn.textContent = msg('clearStoredKey');
 
     actions.appendChild(hasApiKey);
