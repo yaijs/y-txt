@@ -228,7 +228,21 @@ Practical setup:
 5. Keep `Default Provider` set to `Nvidia Build`.
 6. Save settings and start using the popup or side panel.
 
-Nvidia Build is the bundled free-tier default for everyday utility runs, but model availability and quota behavior can still change over time.
+### Why Nvidia Build First?
+
+As of March 31, 2026, Nvidia Build is the bundled default because it gives Y/TXT a low-friction free-tier starting point with a broad model catalog.
+
+Why that matters for Y/TXT:
+
+- many Y/TXT tools are short utility runs such as spell-checking, rewriting, translation, and summarization
+- those jobs usually fit comfortably within the kinds of per-request limits common on Nvidia Build text models
+- single-step Y/TXT tools use one model request per run, which keeps the workflow predictable
+- the bundled defaults are chosen conservatively, but you can override providers and models at any time through plain JSON
+
+Important caveat:
+
+- actual rate limits, context sizes, and model availability vary by model and can change over time
+- if you rely on a specific quota or context window, verify it against the current Nvidia Build model page before promising it operationally
 
 ## Development
 
