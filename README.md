@@ -82,6 +82,11 @@ Then open the browser's extensions page, enable `Developer mode`, click `Load un
 
 ## Permissions And Privacy
 
+See also:
+
+- [`PRIVACY.md`](./PRIVACY.md)
+- [`SECURITY.md`](./SECURITY.md)
+
 When Keystone is connected, provider keys are stored there instead of inside the extension.
 If Keystone is unavailable, Y/TXT falls back to `chrome.storage.local`.
 
