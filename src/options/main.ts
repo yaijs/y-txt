@@ -67,7 +67,6 @@ type ProviderField = {
   provider: ProviderConfig;
   storageKey: string;
   input: HTMLInputElement;
-  stateEl: HTMLDivElement;
   hasApiKeyBadge: HTMLButtonElement;
   clearBtn: HTMLButtonElement;
 };
@@ -76,22 +75,6 @@ const providerFields = new Map<string, ProviderField>();
 
 function isProviderId(value: string): boolean {
   return currentProviders.some((provider) => provider.id === value);
-}
-
-function updateKeyState(el: HTMLDivElement, location: KeyLocation) {
-  if (location === 'both') {
-    el.textContent = msg('keyStateBoth');
-    return;
-  }
-  if (location === 'keystone') {
-    el.textContent = msg('keyStateKeystone');
-    return;
-  }
-  if (location === 'local') {
-    el.textContent = msg('keyStateLocal');
-    return;
-  }
-  el.textContent = msg('keyStateNone');
 }
 
 function updateClearButtonVisibility(button: HTMLButtonElement, hasStoredValue: boolean) {
@@ -315,10 +298,6 @@ function renderProviderFields() {
 
     group.appendChild(keyWrap);
 
-    const stateEl = document.createElement('div');
-    stateEl.className = 'key-state';
-    group.appendChild(stateEl);
-
     const actions = document.createElement('div');
     actions.className = 'key-actions';
 
@@ -347,7 +326,7 @@ function renderProviderFields() {
     }
 
     providerFieldsEl.appendChild(group);
-    providerFields.set(provider.id, { provider, storageKey, input, stateEl, hasApiKeyBadge: hasApiKey, clearBtn });
+    providerFields.set(provider.id, { provider, storageKey, input, hasApiKeyBadge: hasApiKey, clearBtn });
   });
 }
 
@@ -409,7 +388,6 @@ async function refreshKeyStates(localResult?: Record<string, string>): Promise<v
   providerFields.forEach((field, providerId) => {
     const location = keyLocation(Boolean(keystone[providerId]), Boolean(local[field.storageKey]));
     const hasStoredValue = location !== 'none';
-    updateKeyState(field.stateEl, location);
     updateStoredKeyBadge(field.hasApiKeyBadge, hasStoredValue);
     updateClearButtonVisibility(field.clearBtn, hasStoredValue);
   });
