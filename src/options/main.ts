@@ -70,6 +70,7 @@ type ProviderField = {
   storageKey: string;
   input: HTMLInputElement;
   hasApiKeyBadge: HTMLButtonElement;
+  storageBadge: HTMLButtonElement;
   clearBtn: HTMLButtonElement;
 };
 
@@ -85,6 +86,27 @@ function updateClearButtonVisibility(button: HTMLButtonElement, hasStoredValue: 
 
 function updateStoredKeyBadge(button: HTMLButtonElement, hasStoredValue: boolean) {
   button.style.display = hasStoredValue ? '' : 'none';
+}
+
+function updateStorageBadge(button: HTMLButtonElement, location: KeyLocation) {
+  if (location === 'none') {
+    button.style.display = 'none';
+    return;
+  }
+
+  button.style.display = '';
+  if (location === 'both') {
+    button.textContent = '[keystone,storage]';
+    button.title = 'Stored in Keystone and browser storage';
+    return;
+  }
+  if (location === 'keystone') {
+    button.textContent = '[keystone]';
+    button.title = 'Stored in Keystone';
+    return;
+  }
+  button.textContent = '[storage]';
+  button.title = 'Stored in browser storage';
 }
 
 function attachShowKeyHandler(button: HTMLButtonElement, input: HTMLInputElement) {
@@ -326,12 +348,18 @@ function renderProviderFields() {
     hasApiKey.textContent = '🔑';
     hasApiKey.style.display = 'none';
 
+    const storageBadge = document.createElement('button');
+    storageBadge.type = 'button';
+    storageBadge.className = 'btn-neutral static-btn';
+    storageBadge.style.display = 'none';
+
     const clearBtn = document.createElement('button');
     clearBtn.type = 'button';
     clearBtn.className = 'btn-reset';
     clearBtn.textContent = msg('clearStoredKey');
 
     actions.appendChild(hasApiKey);
+    actions.appendChild(storageBadge);
     actions.appendChild(clearBtn);
     group.appendChild(actions);
 
@@ -343,7 +371,7 @@ function renderProviderFields() {
     }
 
     providerFieldsEl.appendChild(group);
-    providerFields.set(provider.id, { provider, storageKey, input, hasApiKeyBadge: hasApiKey, clearBtn });
+    providerFields.set(provider.id, { provider, storageKey, input, hasApiKeyBadge: hasApiKey, storageBadge, clearBtn });
   });
 }
 
@@ -406,6 +434,7 @@ async function refreshKeyStates(localResult?: Record<string, string>): Promise<v
     const location = keyLocation(Boolean(keystone[providerId]), Boolean(local[field.storageKey]));
     const hasStoredValue = location !== 'none';
     updateStoredKeyBadge(field.hasApiKeyBadge, hasStoredValue);
+    updateStorageBadge(field.storageBadge, location);
     updateClearButtonVisibility(field.clearBtn, hasStoredValue);
   });
 }
