@@ -113,24 +113,27 @@ function updateStorageBadge(button: HTMLButtonElement, location: KeyLocation) {
 
 async function refreshKeystoneInstalledPath(): Promise<void> {
   try {
-    const response = await chrome.runtime.sendMessage({ type: 'KEYSTONE_STATUS' });
-    if (!response?.success) {
-      keystoneInstalledPathEl.style.display = 'none';
-      keystoneInstalledPathValueEl.textContent = '—';
-      return;
+    const response = await chrome.runtime.sendMessage({ type: 'KEYSTONE_INSTALL_INFO' });
+    if (response?.success) {
+      const result = response.data || {};
+      const binaryPath = typeof result?.binaryPath === 'string' ? result.binaryPath : '';
+      if (binaryPath) {
+        keystoneInstalledPathValueEl.textContent = binaryPath;
+        keystoneInstalledPathEl.style.display = 'block';
+        return;
+      }
+
+      const wrapperPath = typeof result?.wrapperPath === 'string' ? result.wrapperPath : '';
+      const wrapperPresent = result?.wrapperPresent === true;
+      if (wrapperPath && wrapperPresent) {
+        keystoneInstalledPathValueEl.textContent = wrapperPath;
+        keystoneInstalledPathEl.style.display = 'block';
+        return;
+      }
     }
 
-    const result = response.data?.result || response.data;
-    const wrapperPath = typeof result?.wrapper_path === 'string' ? result.wrapper_path : '';
-    const wrapperPresent = result?.wrapper_present === true;
-    if (!wrapperPath || !wrapperPresent) {
-      keystoneInstalledPathEl.style.display = 'none';
-      keystoneInstalledPathValueEl.textContent = '—';
-      return;
-    }
-
-    keystoneInstalledPathValueEl.textContent = wrapperPath;
-    keystoneInstalledPathEl.style.display = 'block';
+    keystoneInstalledPathEl.style.display = 'none';
+    keystoneInstalledPathValueEl.textContent = '—';
   } catch {
     keystoneInstalledPathEl.style.display = 'none';
     keystoneInstalledPathValueEl.textContent = '—';

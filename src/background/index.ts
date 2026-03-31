@@ -67,6 +67,13 @@ interface SecretStoreResult {
   errors: string[];
 }
 
+interface KeystoneInstallInfo {
+  adminUrl?: string;
+  binaryPath?: string;
+  wrapperPath?: string;
+  wrapperPresent?: boolean;
+}
+
 interface ProviderReadyStatus {
   activeProviderId: string;
   activeProviderReady: boolean;
@@ -303,6 +310,48 @@ async function configureClient() {
   currentProviderInstance = currentProviderConfig
     ? createProvider(currentProviderConfig, currentKeys)
     : null;
+}
+
+async function getKeystoneInstallInfo(): Promise<KeystoneInstallInfo> {
+  const info: KeystoneInstallInfo = {};
+
+  try {
+    const openSettingsResult = await callKeystone('bridge.open_settings', {});
+    const openSettingsData = openSettingsResult?.result || openSettingsResult;
+    const adminUrl = typeof openSettingsData?.url === 'string' ? openSettingsData.url : '';
+    if (adminUrl) {
+      info.adminUrl = adminUrl;
+      try {
+        const adminStatusUrl = new URL('/admin/api/status', adminUrl).toString();
+        const adminStatusResponse = await fetch(adminStatusUrl);
+        if (adminStatusResponse.ok) {
+          const adminStatus = await adminStatusResponse.json() as { binary_path?: unknown };
+          if (typeof adminStatus.binary_path === 'string' && adminStatus.binary_path) {
+            info.binaryPath = adminStatus.binary_path;
+          }
+        }
+      } catch {
+        // Fall back to bridge.status below.
+      }
+    }
+  } catch {
+    // Fall back to bridge.status below.
+  }
+
+  try {
+    const statusResult = await callKeystone('bridge.status', {});
+    const statusData = statusResult?.result || statusResult;
+    if (typeof statusData?.wrapper_path === 'string' && statusData.wrapper_path) {
+      info.wrapperPath = statusData.wrapper_path;
+    }
+    if (statusData?.wrapper_present === true) {
+      info.wrapperPresent = true;
+    }
+  } catch {
+    // Leave partial info if Keystone status is unavailable.
+  }
+
+  return info;
 }
 
 function ensureConfigured(): Promise<void> {
@@ -778,6 +827,13 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 
   if (request.type === 'KEYSTONE_STATUS') {
     callKeystone('bridge.status', {})
+      .then((result) => sendResponse({ success: true, data: result }))
+      .catch((error: Error) => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+
+  if (request.type === 'KEYSTONE_INSTALL_INFO') {
+    getKeystoneInstallInfo()
       .then((result) => sendResponse({ success: true, data: result }))
       .catch((error: Error) => sendResponse({ success: false, error: error.message }));
     return true;
