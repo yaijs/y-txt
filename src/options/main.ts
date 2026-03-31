@@ -120,8 +120,9 @@ async function refreshKeystoneInstalledPath(): Promise<void> {
       return;
     }
 
-    const wrapperPath = typeof response.data?.wrapper_path === 'string' ? response.data.wrapper_path : '';
-    const wrapperPresent = response.data?.wrapper_present === true;
+    const result = response.data?.result || response.data;
+    const wrapperPath = typeof result?.wrapper_path === 'string' ? result.wrapper_path : '';
+    const wrapperPresent = result?.wrapper_present === true;
     if (!wrapperPath || !wrapperPresent) {
       keystoneInstalledPathEl.style.display = 'none';
       keystoneInstalledPathValueEl.textContent = '—';

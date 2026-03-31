@@ -579,5 +579,8 @@
   },
   "keystoneFooterRepo": {
     "message": "Keystone repository ↗"
+  },
+  "keystoneInstalledPathLabel": {
+    "message": "Installed path:"
   }
 }
