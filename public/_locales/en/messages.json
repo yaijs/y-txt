@@ -580,6 +580,15 @@
   "keystoneFooterRepo": {
     "message": "Keystone repository ↗"
   },
+  "policyFooterBody": {
+    "message": "Review these policy docs if you want the privacy and security model in one place."
+  },
+  "policyFooterPrivacy": {
+    "message": "Y/TXT privacy policy ↗"
+  },
+  "policyFooterSecurity": {
+    "message": "Y/TXT security policy ↗"
+  },
   "keystoneInstalledPathLabel": {
     "message": "Installed path:"
   }

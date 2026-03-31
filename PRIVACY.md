@@ -23,6 +23,8 @@ Y/TXT supports two key-storage paths:
 
 If you save a provider key in the extension itself, it stays in local browser storage on your machine and is used only for requests to the provider you configured.
 
+For the security tradeoffs of those two paths, see [`SECURITY.md`](./SECURITY.md).
+
 ## Keystone Integration
 
 Keystone is optional.
