@@ -51,6 +51,35 @@ You have two supported storage paths:
 
 Keystone is optional. It is the preferred storage path when available, but the extension can run entirely with locally stored provider keys.
 
+## Install
+
+There are two practical installation paths:
+
+- build locally from source
+- download a GitHub Release artifact and load it as an unpacked extension
+
+Chrome-style browsers do not install this repo directly from GitHub. You need a folder containing the built extension files.
+
+For the release artifact flow:
+
+1. Download the latest `y-txt-...-extension.zip` release asset.
+2. Unzip it somewhere local.
+3. Open your browser's extensions page.
+4. Enable `Developer mode`.
+5. Click `Load unpacked`.
+6. Select the unzipped extension directory.
+
+You do not need to pick a specific file. The browser expects the whole extracted folder.
+
+For local source builds:
+
+```bash
+npm install
+npm run build
+```
+
+Then open the browser's extensions page, enable `Developer mode`, click `Load unpacked`, and select `dist/`.
+
 ## Permissions And Privacy
 
 When Keystone is connected, provider keys are stored there instead of inside the extension.
@@ -190,7 +219,7 @@ npm run typecheck
 npm test
 ```
 
-Load `dist/` as an unpacked extension from `chrome://extensions`.
+Load `dist/` as an unpacked extension from `chrome://extensions` after enabling `Developer mode`.
 
 Keystone integration defaults to the `dev` native host (`com.ytxt.keystone.dev`) during local builds.
 You can switch the build target with:
