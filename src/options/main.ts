@@ -34,6 +34,8 @@ const keystoneHelpActionsEl = document.getElementById('keystone-help-actions') a
 const copyKeystoneHelpCommandBtn = document.getElementById('copy-keystone-help-command-btn') as HTMLButtonElement;
 const keystoneHelpTerminalHintEl = document.getElementById('keystone-help-terminal-hint') as HTMLParagraphElement;
 const keystoneHelpPathNoteEl = document.getElementById('keystone-help-path-note') as HTMLParagraphElement;
+const keystoneInstalledPathEl = document.getElementById('keystone-installed-path') as HTMLParagraphElement;
+const keystoneInstalledPathValueEl = document.getElementById('keystone-installed-path-value') as HTMLSpanElement;
 
 const toolsTextarea = document.getElementById('tools-config') as HTMLTextAreaElement;
 const modelsTextarea = document.getElementById('models-config') as HTMLTextAreaElement;
@@ -96,17 +98,42 @@ function updateStorageBadge(button: HTMLButtonElement, location: KeyLocation) {
 
   button.style.display = '';
   if (location === 'both') {
-    button.textContent = '[keystone,storage]';
+    button.textContent = 'keystone,storage';
     button.title = 'Stored in Keystone and browser storage';
     return;
   }
   if (location === 'keystone') {
-    button.textContent = '[keystone]';
+    button.textContent = 'keystone';
     button.title = 'Stored in Keystone';
     return;
   }
-  button.textContent = '[storage]';
+  button.textContent = 'storage';
   button.title = 'Stored in browser storage';
+}
+
+async function refreshKeystoneInstalledPath(): Promise<void> {
+  try {
+    const response = await chrome.runtime.sendMessage({ type: 'KEYSTONE_STATUS' });
+    if (!response?.success) {
+      keystoneInstalledPathEl.style.display = 'none';
+      keystoneInstalledPathValueEl.textContent = '—';
+      return;
+    }
+
+    const wrapperPath = typeof response.data?.wrapper_path === 'string' ? response.data.wrapper_path : '';
+    const wrapperPresent = response.data?.wrapper_present === true;
+    if (!wrapperPath || !wrapperPresent) {
+      keystoneInstalledPathEl.style.display = 'none';
+      keystoneInstalledPathValueEl.textContent = '—';
+      return;
+    }
+
+    keystoneInstalledPathValueEl.textContent = wrapperPath;
+    keystoneInstalledPathEl.style.display = 'block';
+  } catch {
+    keystoneInstalledPathEl.style.display = 'none';
+    keystoneInstalledPathValueEl.textContent = '—';
+  }
 }
 
 function attachShowKeyHandler(button: HTMLButtonElement, input: HTMLInputElement) {
@@ -500,6 +527,7 @@ async function loadSettings() {
   attachClearHandlers();
   await refreshKeyStates();
   await refreshKeystoneWarning();
+  await refreshKeystoneInstalledPath();
 
   providersTextarea.value = result.customProviders
     ? JSON.stringify(currentProviders, null, 2)
@@ -595,6 +623,7 @@ testKeystoneBtn.addEventListener('click', async () => {
     hideKeystoneHelpCard();
     await refreshKeyStates();
     await refreshKeystoneWarning();
+    await refreshKeystoneInstalledPath();
   } catch (error) {
     const message = (error as Error).message || 'Keystone connection failed.';
     showStatus(keystoneStatusEl, `Keystone test failed: ${message}`, true);
@@ -606,6 +635,7 @@ testKeystoneBtn.addEventListener('click', async () => {
       );
     }
     await refreshKeystoneWarning();
+    await refreshKeystoneInstalledPath();
   }
 });
 
@@ -625,6 +655,7 @@ openKeystoneAdminBtn.addEventListener('click', async () => {
     window.open(url, '_blank', 'noopener');
     showStatus(keystoneStatusEl, `Opened Keystone Admin: ${url}`);
     hideKeystoneHelpCard();
+    await refreshKeystoneInstalledPath();
   } catch (error) {
     const message = (error as Error).message || 'Keystone admin URL unavailable.';
     if (message.includes('Specified native messaging host not found')) {

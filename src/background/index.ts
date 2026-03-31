@@ -776,6 +776,13 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     return true;
   }
 
+  if (request.type === 'KEYSTONE_STATUS') {
+    callKeystone('bridge.status', {})
+      .then((result) => sendResponse({ success: true, data: result }))
+      .catch((error: Error) => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
+
   if (request.type === 'STORE_PROVIDER_SECRETS') {
     storeSecretsInKeystone(request.payload || {})
       .then((result) => sendResponse({ success: true, data: result }))

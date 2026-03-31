@@ -346,6 +346,16 @@
       gap: 0.45rem;
       margin-top: 0.85rem;
     }
+    .docs-path {
+      margin-top: 0.9rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+      word-break: break-all;
+    }
+    .docs-path strong {
+      color: var(--text);
+    }
     .info-card h3 {
       margin: 1rem 0 0.35rem 0;
       font-size: 1rem;
@@ -568,6 +578,11 @@
         <a href="https://github.com/yaijs/keystone/releases" target="_blank" rel="noopener" data-i18n="keystoneFooterReleases">Keystone releases ↗</a>
         <a href="https://github.com/yaijs/keystone" target="_blank" rel="noopener" data-i18n="keystoneFooterRepo">Keystone repository ↗</a>
       </div>
+      <hr />
+      <p id="keystone-installed-path" class="docs-path" style="display:none;">
+        <strong>Installed path:</strong>
+        <span id="keystone-installed-path-value">—</span>
+      </p>
     </div>
 
   </div>
