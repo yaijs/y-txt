@@ -278,6 +278,16 @@ function renderProviderFields() {
       group.appendChild(link);
     }
 
+    if (provider.helpUrl) {
+      const helpLink = document.createElement('a');
+      helpLink.className = 'api-link';
+      helpLink.href = provider.helpUrl;
+      helpLink.target = '_blank';
+      helpLink.rel = 'noopener';
+      helpLink.textContent = msg('providerQuickstartLink');
+      group.appendChild(helpLink);
+    }
+
     const keyWrap = document.createElement('div');
     keyWrap.className = 'key-wrap';
 

@@ -7,7 +7,8 @@
     "defaultModel": "mistralai/mamba-codestral-7b-v0.1",
     "systemMode": "inline_user",
     "apiKeyUrl": "https://build.nvidia.com/settings/api-keys",
-    "description": "Default provider for cheap utility runs and experimentation."
+    "helpUrl": "https://github.com/yaijs/y-txt#nvidia-build-quickstart",
+    "description": "Default provider for free-tier utility runs and experimentation."
   },
   {
     "id": "openai",

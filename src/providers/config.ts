@@ -11,6 +11,7 @@ export interface ProviderConfig {
   defaultModel: string;
   systemMode?: OpenAiCompatibleSystemMode;
   apiKeyUrl?: string;
+  helpUrl?: string;
   description?: string;
 }
 
@@ -74,6 +75,7 @@ export function validateProvidersConfig(value: unknown): ProviderConfig[] {
       defaultModel: requireString(entry.defaultModel, `${path}.defaultModel`),
       systemMode,
       apiKeyUrl: optionalString(entry.apiKeyUrl, `${path}.apiKeyUrl`),
+      helpUrl: optionalString(entry.helpUrl, `${path}.helpUrl`),
       description: optionalString(entry.description, `${path}.description`),
     };
   });

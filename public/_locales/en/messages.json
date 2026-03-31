@@ -529,5 +529,8 @@
   },
   "providerKeyPresent": {
     "message": "Key Present"
+  },
+  "providerQuickstartLink": {
+    "message": "Quickstart ↗"
   }
 }

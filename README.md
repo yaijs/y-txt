@@ -215,6 +215,21 @@ The current provider UI supports:
 OpenAI-compatible providers use the OpenAI SDK. Anthropic uses its own adapter against the Messages API.
 Provider definitions now live in [`src/providers/providers.json`](./src/providers/providers.json), including labels, base URLs, adapter types, and provider defaults.
 
+## Nvidia Build Quickstart
+
+Y/TXT ships with Nvidia Build first in the default provider order because it is the easiest low-friction starting point.
+
+Practical setup:
+
+1. Create or sign in to your Nvidia Build account.
+2. Create an API key at <https://build.nvidia.com/settings/api-keys>.
+3. Open Y/TXT Options.
+4. Paste the key into the Nvidia Build field.
+5. Keep `Default Provider` set to `Nvidia Build`.
+6. Save settings and start using the popup or side panel.
+
+Nvidia Build is the bundled free-tier default for everyday utility runs, but model availability and quota behavior can still change over time.
+
 ## Development
 
 ```bash
