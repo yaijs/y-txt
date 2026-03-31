@@ -340,15 +340,23 @@
     <div class="card">
       <h1>Y/TXT Options</h1>
       <p class="section-desc" style="margin-bottom:0;">
-        Configure providers, model/tool definitions, and optional local Keystone integration.
+        Configure providers, model/tool definitions, and the optional Keystone companion for safer local key storage.
       </p>
+    </div>
+
+    <div class="card info-card">
+      <h2>Getting Started</h2>
+      <p>Y/TXT works in two modes.</p>
+      <p><strong>Fastest path:</strong> paste at least one provider key below, set the correct default provider, save, and start using the extension immediately.</p>
+      <p><strong>Safer path:</strong> install Keystone and store provider keys outside the browser, then let Y/TXT tunnel requests through the local host.</p>
+      <p>You do not need Keystone just to get started. Keystone is an optional upgrade for stronger local secret handling.</p>
     </div>
 
     <div class="cardless">
       <div class="warning" style="margin-bottom:0;">
         <strong>⚠️ Security Warning</strong>
-        <p><strong style="display:inline; margin:0; color:#fcd34d;">Preferred:</strong> store provider keys in Keystone and let Y/TXT tunnel requests through the local host. If Keystone is unavailable, Y/TXT falls back to <code>chrome.storage.local</code>.</p>
-        <p id="keystone-warning-detail">If Chromium storage fallback is active, use low-limit keys and treat this browser profile as a trusted environment.</p>
+        <p><strong style="display:inline; margin:0; color:#fcd34d;">Preferred:</strong> store provider keys in Keystone and let Y/TXT tunnel requests through the local host. Local browser storage is supported as a fallback when you want the fastest setup.</p>
+        <p id="keystone-warning-detail">If local browser storage is active, use low-limit keys and treat this browser profile as a trusted environment.</p>
       </div>
     </div>
 
@@ -414,6 +422,9 @@
       <p class="section-desc">
         Each provider entry comes from Providers Config below. Keystone can only tunnel providers it knows; unknown provider IDs fall back to local extension storage only.
       </p>
+      <div class="help-box" style="margin-top:0;">
+        <strong>Quick setup:</strong> enter one key, click <code>Save Settings</code>, and make sure <code>Default Provider</code> below matches the provider you actually configured.
+      </div>
 
       <div id="provider-fields"></div>
 
@@ -489,7 +500,7 @@
     <div class="card" id="keystone-card">
       <h2>Keystone</h2>
       <p class="section-desc">
-        Test the local Native Messaging bridge against the currently installed dev host manifest.
+        Test the local Native Messaging bridge and open the local admin UI. Keystone is optional, but preferred once you want secrets stored outside the browser.
       </p>
       <div class="btn-row">
         <button id="test-keystone-btn" class="btn-secondary">Test Keystone Connection</button>
