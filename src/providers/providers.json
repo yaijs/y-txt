@@ -18,7 +18,7 @@
     "defaultModel": "gpt-5-mini",
     "systemMode": "system",
     "apiKeyUrl": "https://platform.openai.com/api-keys",
-    "description": "Fast default for editing, correction, and general-purpose tools."
+    "description": "General-purpose hosted provider."
   },
   {
     "id": "claude",

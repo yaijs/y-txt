@@ -262,6 +262,9 @@ function renderProviderFields() {
 
     const group = document.createElement('div');
     group.className = 'form-group';
+    const linksRow = document.createElement('div');
+    linksRow.className = 'api-links-row';
+    let hasLinksRow = false;
 
     const label = document.createElement('label');
     label.htmlFor = `${provider.id}-key`;
@@ -275,7 +278,8 @@ function renderProviderFields() {
       link.target = '_blank';
       link.rel = 'noopener';
       link.textContent = provider.apiKeyUrl.replace(/^https?:\/\//, '') + ' ↗';
-      group.appendChild(link);
+      linksRow.appendChild(link);
+      hasLinksRow = true;
     }
 
     if (provider.helpUrl) {
@@ -285,7 +289,12 @@ function renderProviderFields() {
       helpLink.target = '_blank';
       helpLink.rel = 'noopener';
       helpLink.textContent = msg('providerQuickstartLink');
-      group.appendChild(helpLink);
+      linksRow.appendChild(helpLink);
+      hasLinksRow = true;
+    }
+
+    if (hasLinksRow) {
+      group.appendChild(linksRow);
     }
 
     const keyWrap = document.createElement('div');
@@ -316,7 +325,9 @@ function renderProviderFields() {
     const hasApiKey = document.createElement('button');
     hasApiKey.type = 'button';
     hasApiKey.className = 'btn-success static-btn';
-    hasApiKey.textContent = msg('providerKeyPresent');
+    hasApiKey.title = msg('providerKeyPresent');
+    hasApiKey.setAttribute('aria-label', msg('providerKeyPresent'));
+    hasApiKey.textContent = '🔑';
     hasApiKey.style.display = 'none';
 
     const clearBtn = document.createElement('button');
