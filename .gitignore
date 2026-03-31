@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.test-dist/
+.notes.md
+.claude/
+.vscode/
+.DS_Store
+*.log
+*.tmp
+*.swp
+*.orig
+coverage/
+*.local

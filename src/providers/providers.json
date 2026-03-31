@@ -1,0 +1,39 @@
+[
+  {
+    "id": "nvidia",
+    "label": "Nvidia Build",
+    "type": "openai-compatible",
+    "baseUrl": "https://integrate.api.nvidia.com/v1",
+    "defaultModel": "mistralai/mamba-codestral-7b-v0.1",
+    "systemMode": "inline_user",
+    "apiKeyUrl": "https://build.nvidia.com/settings/api-keys",
+    "description": "Default provider for cheap utility runs and experimentation."
+  },
+  {
+    "id": "openai",
+    "label": "OpenAI",
+    "type": "openai-compatible",
+    "baseUrl": "https://api.openai.com/v1",
+    "defaultModel": "gpt-5-mini",
+    "systemMode": "system",
+    "apiKeyUrl": "https://platform.openai.com/api-keys",
+    "description": "Fast default for editing, correction, and general-purpose tools."
+  },
+  {
+    "id": "claude",
+    "label": "Claude (Anthropic)",
+    "type": "anthropic",
+    "baseUrl": "https://api.anthropic.com/v1",
+    "defaultModel": "claude-sonnet-4-6",
+    "apiKeyUrl": "https://console.anthropic.com/settings/keys"
+  },
+  {
+    "id": "deepseek",
+    "label": "DeepSeek",
+    "type": "openai-compatible",
+    "baseUrl": "https://api.deepseek.com/v1",
+    "defaultModel": "deepseek-chat",
+    "systemMode": "inline_user",
+    "apiKeyUrl": "https://platform.deepseek.com/api_keys"
+  }
+]

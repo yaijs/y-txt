@@ -1,0 +1,26 @@
+{
+  "default": {
+    "nvidia": "meta/llama-3.1-405b-instruct",
+    "openai": { "model": "gpt-5-mini", "temperature": null },
+    "claude": "claude-sonnet-4-6",
+    "deepseek": { "model": "deepseek-chat", "temperature": 1.0 }
+  },
+  "coding": {
+    "nvidia": "qwen/qwen2.5-coder-32b-instruct",
+    "openai": { "model": "gpt-5-mini", "temperature": null },
+    "claude": "claude-opus-4-6",
+    "deepseek": { "model": "deepseek-chat", "temperature": 0.0 }
+  },
+  "fast": {
+    "nvidia": "mistralai/mamba-codestral-7b-v0.1",
+    "openai": { "model": "gpt-5-mini", "temperature": null },
+    "claude": "claude-haiku-4-5",
+    "deepseek": { "model": "deepseek-chat", "temperature": 0.0 }
+  },
+  "creative": {
+    "nvidia": "google/gemma-2-27b-it",
+    "openai": { "model": "gpt-5-mini", "temperature": null },
+    "claude": "claude-sonnet-4-6",
+    "deepseek": { "model": "deepseek-reasoner", "temperature": null }
+  }
+}

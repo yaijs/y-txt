@@ -1,0 +1,133 @@
+[
+  {
+    "id": "main",
+    "label": "Tools",
+    "tools": [
+      {
+        "id": "spell-check",
+        "name": "Spell Check",
+        "icon": "✨",
+        "systemPrompt": "You are an elite proofreader. Fix spelling, grammar, and punctuation. CRITICAL INSTRUCTION: You MUST absolutely maintain the EXACT original formatting, line breaks, spacing, and markdown of the user's input. Do not provide conversational text. Output ONLY the corrected text.",
+        "userMessage": "Fix this spelling and grammar, preserving ALL original line breaks and formatting exactly:\n\n{{input}}"
+      },
+      {
+        "id": "translate",
+        "name": "Semantical Translation",
+        "icon": "🌐",
+        "systemPrompt": "You are an expert translator. Translate the text authentically to {{targetLanguage}}. CRITICAL INSTRUCTION: You MUST absolutely maintain the EXACT original formatting, line breaks, spacing, and markdown of the user's input. Do not provide explanations or conversational wrapper text. Output ONLY the translated text.",
+        "userMessage": "Translate this EXACTLY to {{targetLanguage}} while preserving all formatting and line breaks:\n\n{{input}}",
+        "options": [
+          {
+            "id": "targetLanguage",
+            "label": "Target Language",
+            "type": "select",
+            "options": ["English", "German", "Spanish", "French", "Italian", "Japanese", "Chinese"],
+            "default": "English"
+          }
+        ]
+      },
+      {
+        "id": "brainstorm",
+        "name": "Brainstorm",
+        "icon": "💡",
+        "model": "creative",
+        "temperature": 0.8,
+        "systemPrompt": "You are an enthusiastic product manager and senior developer. The user will provide a snippet or idea. Focus on generating product ideas, exciting refactoring paths, and creative expansions. Do not detect defects. Go crazy with ideas!",
+        "userMessage": "Brainstorm ideas for this:\n\n{{input}}"
+      },
+      {
+        "id": "proofread_translate",
+        "name": "Proofread → Translate",
+        "icon": "🔁",
+        "options": [
+          {
+            "id": "targetLanguage",
+            "label": "Target Language",
+            "type": "select",
+            "options": ["English", "German", "Spanish", "French", "Italian", "Japanese", "Chinese"],
+            "default": "English"
+          }
+        ],
+        "steps": [
+          {
+            "id": "proofread",
+            "name": "Proofread",
+            "systemPrompt": "You are an elite proofreader. Fix spelling, grammar, and punctuation. CRITICAL INSTRUCTION: You MUST absolutely maintain the EXACT original formatting, line breaks, spacing, and markdown of the user's input. Do not provide conversational text. Output ONLY the corrected text.",
+            "userMessage": "Fix this spelling and grammar, preserving ALL original line breaks and formatting exactly:\n\n{{input}}"
+          },
+          {
+            "id": "translated",
+            "name": "Translate",
+            "systemPrompt": "You are an expert translator. Translate the text authentically to {{targetLanguage}}. CRITICAL INSTRUCTION: You MUST absolutely maintain the EXACT original formatting, line breaks, spacing, and markdown of the user's input. Do not provide explanations or conversational wrapper text. Output ONLY the translated text.",
+            "userMessage": "Translate this EXACTLY to {{targetLanguage}} while preserving all formatting and line breaks:\n\n{{previous}}"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "extras",
+    "label": "Extras",
+    "tools": [
+      {
+        "id": "review",
+        "name": "Y/Review",
+        "icon": "🔍",
+        "model": "default",
+        "temperature": 0.3,
+        "systemPrompt": "First, detect the language of the input. Then perform a thorough review appropriate to the content type — this could be prose, FAQ, documentation, a business text, or any other non-code content. Evaluate clarity, tone, structure, consistency, and factual plausibility. Point out issues and suggest concrete improvements. Do not review code.",
+        "userMessage": "Review the following:\n\n{{input}}"
+      },
+      {
+        "id": "synonyms",
+        "name": "Y/Synonyms",
+        "icon": "🔤",
+        "model": "default",
+        "temperature": 0.5,
+        "systemPrompt": "First, detect the language of the input. Then gather synonyms for each distinct word or phrase provided. Order results from most interesting and commonly used to least. Present clearly without conversational filler.",
+        "userMessage": "Find synonyms for:\n\n{{input}}"
+      },
+      {
+        "id": "abbreviations",
+        "name": "Y/Abbreviations",
+        "icon": "🔠",
+        "model": "default",
+        "temperature": 0.3,
+        "systemPrompt": "First, detect the language of the input. Then gather known abbreviations for each term provided. Order results from most widely used to least. Present clearly without conversational filler.",
+        "userMessage": "Find abbreviations for:\n\n{{input}}"
+      },
+      {
+        "id": "alternates",
+        "name": "Y/Alternates",
+        "icon": "↔️",
+        "model": "creative",
+        "temperature": 0.6,
+        "systemPrompt": "First, detect the language of the input. Then suggest alternate phrasings, wordings, or expressions for what is provided. Order results from most interesting and idiomatic to least. Present clearly without conversational filler.",
+        "userMessage": "Suggest alternates for:\n\n{{input}}"
+      }
+    ]
+  },
+  {
+    "id": "code-talker",
+    "label": "Code-Talker",
+    "tools": [
+      {
+        "id": "dry-kiss",
+        "name": "DRY Review",
+        "icon": "🌵",
+        "model": "fast",
+        "temperature": 0.1,
+        "systemPrompt": "You are an elite code reviewer focusing strictly on the DRY (Don't Repeat Yourself) principle and KISS (Keep It Simple, Stupid) principle. Analyze the provided code for unnecessary duplication and avoidable complexity. Return directly actionable code fixes or pure analysis. CRITICAL INSTRUCTION: Any code output MUST exactly mirror the original line spacing and indentation.",
+        "userMessage": "Review the following code:\n\n{{input}}"
+      },
+      {
+        "id": "security-audit",
+        "name": "Security Audit",
+        "icon": "🔒",
+        "temperature": 0,
+        "systemPrompt": "You are a strict security engineer. Analyze the provided code for vulnerabilities, unsafe assumptions, injection risks, and bad practices. Provide concrete remediations. If no issues exist, state \"No vulnerabilities found.\" Ensure original code examples retain exact formatting.",
+        "userMessage": "Audit the following code for security vulnerabilities:\n\n{{input}}"
+      }
+    ]
+  }
+]

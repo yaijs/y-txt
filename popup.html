@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Y/TXT</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --border: #334155;
+      --yai-tabs-closed-timeout: .5s;
+      --yai-loading-pulse-duration: calc(var(--yai-tabs-closed-timeout) * 5);
+      --yai-loading-sweep-duration: calc(var(--yai-tabs-closed-timeout) * 4.7);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      :root {
+        --yai-tabs-closed-timeout: 0s;
+      }
+    }
+    html,
+    body {
+      background: linear-gradient(160deg, #0f172a 0%, #0f2240 50%, #0f172a 100%);
+      background-attachment: fixed;
+      background-size: cover;
+    }
+    html {
+      scrollbar-gutter: stable;
+    }
+    body {
+      color: var(--text);
+      font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+      margin: 0;
+      padding: 1rem;
+      width: 520px;
+      overflow-y: auto;
+      box-sizing: border-box;
+      font-size: 15px;
+      line-height: 1.45;
+      position: relative;
+    }
+    body[data-surface="sidepanel"] {
+      width: auto;
+      min-width: 320px;
+      min-height: 100vh;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: -6% -55%;
+      pointer-events: none;
+      opacity: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 14%,
+        rgba(125, 211, 252, 0.02) 28%,
+        rgba(186, 230, 253, 0.055) 40%,
+        rgba(255, 255, 255, 0.105) 50%,
+        rgba(147, 197, 253, 0.085) 60%,
+        rgba(56, 189, 248, 0.045) 72%,
+        transparent 86%
+      );
+      transform: translateX(-130%);
+      z-index: 0;
+      filter: blur(12px);
+    }
+    body > * {
+      position: relative;
+      z-index: 1;
+    }
+    .tool-category + .tool-category {
+      margin-top: 0.75rem;
+    }
+    .category-label {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 0.4rem;
+      padding-left: 2px;
+    }
+    .category-label input[type="checkbox"] {
+      margin: 0;
+      accent-color: var(--accent);
+    }
+    .category-label-text {
+      cursor: pointer;
+    }
+    .tool-btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.35rem;
+    }
+    .tool-options-container {
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .tool-options-container.is-visible {
+      display: flex;
+    }
+    .tool-btn {
+      background: var(--card-bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 0.9rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      text-align: left;
+      cursor: pointer;
+      transition:
+        background calc(var(--yai-tabs-closed-timeout) * 0.6) ease-in,
+        border-color calc(var(--yai-tabs-closed-timeout) * 0.4) ease-in,
+        box-shadow calc(var(--yai-tabs-closed-timeout) * 0.4) ease-in;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .tool-btn:hover {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.1);
+    }
+    .footer {
+      margin-top: 1rem;
+      padding-top: 0.6rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-left, .footer-right {
+      display: flex;
+      gap: 0.1rem;
+    }
+    .view-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.5rem;
+    }
+    .view-header h2 {
+      margin: 0;
+      font-size: 1.1rem;
+      flex: 1;
+    }
+    .view-back {
+      background: transparent;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 0 10px 0 0;
+      color: var(--text);
+    }
+    .faq-entry {
+      margin-bottom: 1rem;
+    }
+    .faq-q {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+    .faq-a {
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .faq-a code {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 0 3px;
+      font-size: 0.75rem;
+      color: var(--text);
+    }
+    .btn-link {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      font-size: 0.9rem;
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 4px;
+    }
+    .btn-link:hover {
+      color: var(--text);
+    }
+    button:not(.tool-btn):not(.btn-link) {
+      cursor: pointer;
+      transition:
+        background calc(var(--yai-tabs-closed-timeout) * 0.6) ease-in,
+        box-shadow calc(var(--yai-tabs-closed-timeout) * 0.4) ease-in,
+        border-color calc(var(--yai-tabs-closed-timeout) * 0.4) ease-in;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .run-meta {
+      min-width: 164px;
+      display: flex;
+      justify-content: center;
+      gap: 2px 8px;
+      flex-wrap: wrap;
+      padding: 0.5rem 0.65rem;
+      border-radius: 6px;
+      background: rgba(15, 23, 42, 0.45);
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+    }
+    .run-meta > div {
+      display: flex;
+      align-items: baseline;
+      gap: 0.3rem;
+    }
+    .run-meta strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+    .is-loading .run-meta {
+      box-shadow: 0 0 18px rgba(59, 130, 246, 0.2);
+      animation: pulse-border var(--yai-loading-pulse-duration) ease-in-out infinite;
+    }
+    body.is-loading::before {
+      opacity: 1;
+      animation: loading-sweep var(--yai-loading-sweep-duration) linear infinite;
+    }
+    #btn-submit {
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      box-shadow: 0 0 18px 6px rgba(59, 130, 246, 0.2);
+    }
+    #btn-submit:hover {
+      box-shadow: 0 5px 20px rgba(59, 130, 246, 0.24);
+    }
+    .workspace-actions {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+    .staged-toggle-btn {
+      flex: 0 0 auto;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      font-size: 1rem;
+      line-height: 1;
+      border-radius: 6px;
+    }
+    .staged-toggle-btn:hover {
+      color: var(--text);
+      background: rgba(148, 163, 184, 0.08);
+    }
+    .staged-toggle-btn[aria-expanded="true"] {
+      color: var(--text);
+      transform: rotate(90deg);
+    }
+    .staged-section {
+      display: none;
+      margin: 1rem 0 0;
+    }
+    .staged-section.is-open {
+      display: block;
+    }
+    .staged-label {
+      display: block;
+      font-size: 0.92rem;
+      margin-bottom: 0.5rem;
+      color: var(--muted);
+    }
+    .staged-textarea {
+      width: 100%;
+      height: 96px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 0.75rem;
+      box-sizing: border-box;
+      font-family: inherit;
+      resize: vertical;
+    }
+    #btn-abort:hover {
+      border-color: #ef4444;
+      box-shadow: 0 0 14px rgba(239, 68, 68, 0.12);
+    }
+    @keyframes pulse-border {
+      0%, 100% { box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+      50% { box-shadow: 0 0 25px rgba(59, 130, 246, 0.5); }
+    }
+    @keyframes loading-sweep {
+      0% {
+        transform: translateX(-132%) translateY(-1.5%);
+        opacity: 0;
+      }
+      18% {
+        transform: translateX(-104%) translateY(1%);
+        opacity: 0.72;
+      }
+      34% {
+        transform: translateX(-72%) translateY(-0.8%);
+        opacity: 0.92;
+      }
+      52% {
+        transform: translateX(-8%) translateY(0.2%);
+        opacity: 0.86;
+      }
+      70% {
+        transform: translateX(62%) translateY(0%);
+        opacity: 0.72;
+      }
+      84% {
+        transform: translateX(124%) translateY(0%);
+        opacity: 0.42;
+      }
+      94% {
+        transform: translateX(188%) translateY(0%);
+        opacity: 0.1;
+      }
+      100% {
+        transform: translateX(236%) translateY(0%);
+        opacity: 0;
+      }
+    }
+    .history-item {
+      padding: 0.45rem 0.6rem;
+      border-radius: 6px;
+      cursor: pointer;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      font-size: 0.92rem;
+      margin-bottom: 0.25rem;
+      line-height: 1.4;
+      transition: border-color calc(var(--yai-tabs-closed-timeout) * 0.3);
+    }
+    .history-item:hover {
+      border-color: var(--accent);
+      background: rgba(59, 130, 246, 0.06);
+    }
+    .history-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 2px;
+    }
+    .history-tool { font-weight: 500; color: var(--text); }
+    .history-time { color: var(--muted); font-size: 0.78rem; }
+    .history-input {
+      color: var(--muted);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .history-result {
+      color: #10b981;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-top: 1px;
+    }
+    .setup-card {
+      display: none;
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      background: rgba(245, 158, 11, 0.08);
+    }
+    .setup-card h3 {
+      margin: 0 0 0.4rem;
+      font-size: 1rem;
+      color: #fbbf24;
+    }
+    .setup-card p {
+      margin: 0;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .setup-card p + p {
+      margin-top: 0.55rem;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+    .setup-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+      flex-wrap: wrap;
+    }
+    .setup-actions button {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      padding: 0.55rem 0.8rem;
+      font-size: 0.82rem;
+    }
+    .setup-actions button:hover {
+      border-color: var(--accent);
+    }
+    textarea,
+    select,
+    input[type="text"] {
+      font-size: 0.98rem !important;
+      line-height: 1.55;
+    }
+  </style>
+</head>
+<body data-surface="popup">
+
+  <div id="surface-lock-banner" class="setup-card" style="display:none; margin-top:0;">
+    <h3>Workspace Active In Side Panel</h3>
+    <p>The shared Y/TXT workspace is currently owned by the side panel. Close the panel to use the popup again, or reopen the panel and continue there.</p>
+    <div class="setup-actions">
+      <label for="side-panel-lock-toggle" style="display:flex; align-items:center; gap:0.55rem; font-size:0.92rem; color:var(--text); cursor:pointer;">
+        <input id="side-panel-lock-toggle" type="checkbox" checked style="margin:0; accent-color:var(--accent);" />
+        <span>Side Panel Active</span>
+      </label>
+    </div>
+  </div>
+
+  <div id="main-view">
+    <div style="margin-top: 0; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem;">
+      <h2 style="display: flex; justify-content: space-between; margin: 0 0 0.2rem 0; font-size: 1.25rem;">
+        <span id="app-name">—</span>
+        <span id="app-version" style="color: var(--muted); font-size: 75%;">—</span>
+      </h2>
+      <p id="app-description" style="margin: 0 0 0.25rem 0; font-size: 1rem; color: var(--muted); line-height: 1.45;">—</p>
+      <p id="current-url" style="margin: 0; font-size: 0.82rem; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">—</p>
+    </div>
+
+    <div id="tool-list">
+      <!-- Tools are dynamically populated by category -->
+    </div>
+
+    <div id="missing-key-msg" style="display: none; text-align: center; color: #f59e0b; font-size: 0.9rem; margin-top: 1rem; line-height: 1.4;">
+      ⚠️ Missing API Key<br/>Open Options to configure a provider and key.
+    </div>
+
+    <div id="setup-card" class="setup-card">
+      <h3 id="setup-title">Setup Needed</h3>
+      <p id="setup-body">Y/TXT needs either Keystone or a locally stored provider key before tools can run.</p>
+      <p id="setup-help">Open Options to continue setup.</p>
+      <div class="setup-actions">
+        <button id="btn-setup-options" type="button">⚙ Open Options</button>
+        <button id="btn-setup-admin" type="button" style="display:none;">⌂ Open Keystone Admin</button>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="footer-left">
+        <button id="btn-faq" class="btn-link">⌥ FAQ</button>
+        <button id="btn-history" class="btn-link">⏱ Recent</button>
+        <button id="btn-stats" class="btn-link">◔ Stats</button>
+      </div>
+      <div class="footer-right">
+        <button id="btn-open-side-panel" class="btn-link">▣ Panel</button>
+        <button id="btn-options" class="btn-link">⚙ Options</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="faq-view" style="display: none;">
+    <div class="view-header">
+      <button id="btn-faq-back" class="view-back">←</button>
+      <h2>How to use Y/TXT</h2>
+    </div>
+    <div class="faq-entry">
+      <div class="faq-q">Basic workflow</div>
+      <div class="faq-a">Select text on any page → open the extension → pick a tool. Your selection is pre-filled automatically. Hit <em>Run Tool</em> and the result appears below.</div>
+    </div>
+    <div class="faq-entry">
+      <div class="faq-q">Chained tools</div>
+      <div class="faq-a">A tool can now define multiple sequential steps. Each step receives the previous step's output as <code>{{input}}</code> and <code>{{previous}}</code>, while the first step also has the original source available as <code>{{originalInput}}</code>.</div>
+    </div>
+    <div class="faq-entry">
+      <div class="faq-q">+ selection / = selection</div>
+      <div class="faq-a">Select text <em>before</em> opening the popup — it fills the input automatically. Already inside a tool? Select more text elsewhere, reopen the popup and use <em>+ selection</em> to append or <em>= selection</em> to replace. Your workspace is preserved across opens.</div>
+    </div>
+    <div class="faq-entry">
+      <div class="faq-q">Staged Content</div>
+      <div class="faq-a">Extra context sent alongside your input. Useful for code reviews where you want to provide the full file while only pasting a snippet in the main input.</div>
+    </div>
+    <div class="faq-entry">
+      <div class="faq-q">Recent</div>
+      <div class="faq-a">Stores the last 50 runs. Click any entry to reopen that tool with the original input and result pre-filled. Use it to iterate on a previous run or compare results.</div>
+    </div>
+    <div class="faq-entry">
+      <div class="faq-q">Providers &amp; API keys</div>
+      <div class="faq-a">Go to <em>⚙ Options</em> to set your provider and API key. Nvidia Build offers a free tier — good for everyday tasks. Keys are stored locally in your browser only.</div>
+    </div>
+    <div class="faq-entry">
+      <div class="faq-q">Custom tools</div>
+      <div class="faq-a">Edit the Tools JSON in Options to add your own. Use <code>{{input}}</code> for the active step input, <code>{{previous}}</code> inside chains, and option IDs like <code>{{targetLanguage}}</code>. Add a <code>steps</code> array to build chained tools. Changes take effect on next popup open.</div>
+    </div>
+    <div class="faq-entry">
+      <div class="faq-q">Custom models</div>
+      <div class="faq-a">Edit the Models JSON in Options to map tier names (<code>default</code>, <code>fast</code>, <code>coding</code>, <code>creative</code>) to any model your provider supports. Changes take effect immediately.</div>
+    </div>
+  </div>
+
+  <div id="history-view" style="display: none;">
+    <div class="view-header">
+      <button id="btn-history-back" class="view-back">←</button>
+      <h2>Recent</h2>
+      <button id="btn-clear-history" class="btn-link" style="color:#ef4444; font-size:0.75rem;">Clear</button>
+    </div>
+    <div id="history-list"></div>
+  </div>
+
+  <div id="stats-view" style="display: none;">
+    <div class="view-header">
+      <button id="btn-stats-back" class="view-back">←</button>
+      <h2>Stats</h2>
+    </div>
+    <div id="stats-summary" style="color:var(--muted); font-size:0.82rem; margin-bottom:0.75rem;"></div>
+    <div id="stats-list"></div>
+  </div>
+
+  <div id="workspace-view" style="display: none;">
+    <div class="view-header">
+      <button id="btn-back" class="view-back">←</button>
+      <h2 id="workspace-title">Tool</h2>
+      <span id="workspace-subtitle" style="margin-left:0.5rem; font-size:80%; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></span>
+    </div>
+    <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:4px;">
+      <label for="workspace-input" style="font-size: 0.8rem; color: var(--muted);">Input Text</label>
+      <span id="input-char-count" style="font-size:0.7rem; color:var(--muted);">0</span>
+    </div>
+    <textarea id="workspace-input" placeholder="Text to process..." style="width: 100%; height: 160px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.75rem; box-sizing: border-box; font-family: inherit; resize: vertical; margin-bottom: 0.6rem;"></textarea>
+
+<div id="tool-options-container" class="tool-options-container"></div>
+
+    <div style="display: flex; gap: 6px; margin-bottom: 1rem;">
+      <button id="btn-append" style="flex: 1; padding: 8px; font-size: 0.82rem; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); border-radius:4px;">+ selection</button>
+      <button id="btn-override" style="flex: 1; padding: 8px; font-size: 0.82rem; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); border-radius:4px;">= selection</button>
+      <button id="btn-reset" style="padding: 8px 12px; font-size: 0.82rem; background: transparent; border: 1px solid var(--border); color: #ef4444; border-radius:4px;">reset</button>
+    </div>
+
+    <div class="workspace-actions">
+      <button id="btn-submit" style="flex: 1; padding: 0.7rem; color: white; border: none; border-radius: 6px; font-weight: bold; font-size: 0.98rem; cursor: pointer;">Run Tool</button>
+      <button id="staged-toggle" class="staged-toggle-btn" type="button" aria-expanded="false" aria-controls="staged-section" title="Add staged content">▶</button>
+      <button id="btn-abort" style="display:none; padding: 0.7rem 0.9rem; background: transparent; color: #ef4444; border: 1px solid var(--border); border-radius: 6px; font-weight: bold; font-size: 0.92rem; cursor: pointer;">Abort</button>
+    </div>
+    <div id="staged-section" class="staged-section">
+      <label for="staged-content" class="staged-label">Add Staged Content (Optional)</label>
+      <textarea id="staged-content" class="staged-textarea" placeholder="Paste extra context/files here..."></textarea>
+    </div>
+    <div class="run-meta">
+      <div>
+        <span>Start</span>
+        <strong id="run-started-at">--:--:--</strong>
+      </div>
+      <div>
+        <span>Finish</span>
+        <strong id="run-finished-at">--:--:--</strong>
+      </div>
+      <div>
+        <span>Elapsed</span>
+        <strong id="run-elapsed">--</strong>
+      </div>
+    </div>
+
+    <div id="workspace-status" style="text-align: center; margin-top: 0.7rem; font-size: 0.94rem; color: var(--muted);"></div>
+
+    <div style="display:flex; align-items:center; gap:0.5rem; border-top: 1px solid var(--border); padding-top: 0.75rem; margin-top: 0.75rem; margin-bottom: 4px;">
+      <label for="workspace-result" style="font-size: 0.92rem; color: var(--muted);">Result</label>
+      <span id="result-char-count" style="font-size:0.8rem; color:var(--muted);">0</span>
+      <span id="result-hint" style="font-size: 0.8rem; display:none;"></span>
+      <span style="flex:1;"></span>
+      <button id="btn-use-result" class="btn-link" style="font-size:0.86rem; padding:0 2px;" title="Use result as new input">↺</button>
+      <button id="btn-copy-result" class="btn-link" style="font-size:0.86rem; padding:0 2px;" title="Copy to clipboard">📋</button>
+    </div>
+    <textarea id="workspace-result" readonly placeholder="AI result will appear here..." style="width: 100%; min-height: 96px; height: auto; background: var(--bg); border: 1px solid var(--border); color: #10b981; border-radius: 6px; padding: 0.75rem; box-sizing: border-box; font-family: inherit; resize: none; overflow: hidden;"></textarea>
+  </div>
+
+  <script type="module" src="/src/popup/main.ts"></script>
+</body>
+</html>

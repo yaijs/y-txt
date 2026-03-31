@@ -1,0 +1,11 @@
+src/
+public/
+*.html
+*.md
+*.json
+!package.json
+.gitignore
+.npmignore
+vite.config.ts
+tsconfig.json
+.notes.md

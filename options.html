@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Y/TXT Options</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --border: #334155;
+      --success: #10b981;
+      --danger: #ef4444;
+      --yai-tabs-closed-timeout: .5s;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      :root {
+        --yai-tabs-closed-timeout: 0s;
+      }
+    }
+    html {
+      scrollbar-gutter: stable;
+    }
+    body {
+      color: var(--text);
+      font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+      margin: 0;
+      padding: 2.5rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    html,
+    body {
+      background: linear-gradient(160deg, #0f172a 0%, #0f2240 50%, #0f172a 100%);
+      background-attachment: fixed;
+      background-size: cover;
+    }
+    .container {
+      width: 100%;
+      max-width: 760px;
+      align-self: flex-start;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    }
+    h1 { margin-top: 0; font-size: 1.85rem; line-height: 1.2; }
+    h2 { font-size: 1.25rem; margin: 0 0 0.5rem 0; line-height: 1.25; }
+    .section {
+      padding-top: 1.75rem;
+      margin-top: 1rem;
+      border-top: 1px solid var(--border);
+    }
+    .section-desc {
+      font-size: 0.98rem;
+      color: var(--muted);
+      margin: 0 0 1rem 0;
+      line-height: 1.6;
+    }
+    .form-group { margin-bottom: 1.75rem; }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.45rem;
+      font-weight: 500;
+      font-size: 1rem;
+    }
+    .api-link {
+      display: inline-block;
+      font-size: 0.9rem;
+      color: var(--accent);
+      text-decoration: none;
+      margin-bottom: 0.55rem;
+    }
+    .api-link:hover { text-decoration: underline; }
+    input[type="password"], input[type="text"].key-input, select {
+      width: 100%;
+      padding: 0.95rem 2.75rem 0.95rem 0.9rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px 6px 0 0;
+      color: var(--text);
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    input[type="password"]:focus, input[type="text"].key-input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+    .key-wrap {
+      position: relative;
+    }
+    .btn-show-key {
+      position: absolute;
+      right: 0.8rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 1.1rem;
+      color: var(--muted);
+      padding: 0;
+      line-height: 1;
+    }
+    .btn-show-key:hover { color: var(--text); }
+    .help-box {
+      background: rgba(59, 130, 246, 0.05);
+      border: 1px solid rgba(59, 130, 246, 0.15);
+      border-radius: 8px;
+      padding: 1rem 1.1rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-top: 0.75rem;
+    }
+    .help-box strong { color: var(--text); }
+    .help-box a { color: var(--accent); text-decoration: none; }
+    .help-box a:hover { text-decoration: underline; }
+    .help-box ul { margin: 0.3rem 0 0.3rem 0; padding-left: 1.25rem; }
+    .help-box li { margin: 0.2rem 0; }
+    .help-box p { margin: 0.4rem 0 0; }
+    .key-state {
+      font-size: 0.9rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      border-width: 0 1px 1px;
+      padding: .5rem;
+    }
+    .key-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .warning {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid #f59e0b;
+      color: #fcd34d;
+      padding: 1.1rem 1.15rem;
+      border-radius: 8px;
+      margin-bottom: 1.75rem;
+      font-size: 1rem;
+      line-height: 1.55;
+    }
+    .warning strong {
+      display: block;
+      margin-bottom: .5rem;
+      color: #f59e0b;
+    }
+    .warning p {
+      margin: 0;
+    }
+    .warning p + p {
+      margin-top: 0.6rem;
+    }
+    .warning a {
+      color: #fde68a;
+    }
+    .config-textarea {
+      width: 100%;
+      min-height: 420px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 0.95rem;
+      padding: 1rem;
+      box-sizing: border-box;
+      resize: vertical;
+      line-height: 1.7;
+    }
+    .config-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.9rem;
+      flex-wrap: wrap;
+    }
+    button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 0.9rem 1.3rem;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background calc(var(--yai-tabs-closed-timeout) * 0.4);
+    }
+    button:hover { background: var(--accent-hover); }
+    .btn-full { width: 100%; }
+    .btn-reset {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .btn-reset:hover {
+      background: transparent;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+    .btn-secondary {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover {
+      background: #243247;
+    }
+    .status {
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+      color: var(--success);
+      opacity: 0;
+      transition: opacity calc(var(--yai-tabs-closed-timeout) * 0.6);
+      min-height: 1.2rem;
+    }
+    code {
+      font-size: 0.95em;
+    }
+    .status.show { opacity: 1; }
+    .status.error { color: var(--danger); }
+    .keystone-help-card {
+      display: none;
+      padding: 1rem 1.1rem;
+      border-radius: 8px;
+      border: 1px solid rgba(245, 158, 11, 0.45);
+      background: rgba(245, 158, 11, 0.08);
+      color: var(--text);
+    }
+    .keystone-help-card h3 {
+      margin: 0 0 0.45rem 0;
+      font-size: 1rem;
+      color: #fbbf24;
+    }
+    .keystone-help-card h4 {
+      margin: 0.9rem 0 0.35rem 0;
+      font-size: 0.96rem;
+      color: #fcd34d;
+    }
+    .keystone-help-card hr {
+      border: 0;
+      border-top: 1px solid rgba(245, 158, 11, 0.2);
+      margin: 0.9rem 0;
+    }
+    .keystone-help-card p {
+      margin: 0;
+      line-height: 1.55;
+      color: var(--text);
+    }
+    .keystone-help-card p + p {
+      margin-top: 0.55rem;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .keystone-help-meta {
+      display: grid;
+      gap: 0.45rem;
+      margin-top: 0.85rem;
+    }
+    .keystone-help-meta div {
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+    .keystone-help-meta strong {
+      color: var(--text);
+    }
+    .keystone-help-card select {
+      width: auto;
+      margin-top: 0;
+      padding: 0.4rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 22px;
+      box-sizing: border-box;
+    }
+    .keystone-help-card code,
+    .info-card code {
+      display: inline-block;
+      margin-top: 0.4rem;
+      padding: 0.3rem 0.5rem;
+      border-radius: 6px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      word-break: break-all;
+    }
+    .keystone-help-card a {
+      color: #fde68a;
+      text-decoration: none;
+    }
+    .keystone-help-card a:hover {
+      text-decoration: underline;
+    }
+    .info-card h3 {
+      margin: 1rem 0 0.35rem 0;
+      font-size: 1rem;
+      color: var(--text);
+    }
+    .info-card h3:first-of-type {
+      margin-top: 0;
+    }
+    .info-card p {
+      margin: 0;
+      color: var(--muted);
+    }
+    .info-card p + p {
+      margin-top: 0.55rem;
+    }
+    .info-card a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    .info-card a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h1>Y/TXT Options</h1>
+      <p class="section-desc" style="margin-bottom:0;">
+        Configure providers, model/tool definitions, and optional local Keystone integration.
+      </p>
+    </div>
+
+    <div class="cardless">
+      <div class="warning" style="margin-bottom:0;">
+        <strong>⚠️ Security Warning</strong>
+        <p><strong style="display:inline; margin:0; color:#fcd34d;">Preferred:</strong> store provider keys in Keystone and let Y/TXT tunnel requests through the local host. If Keystone is unavailable, Y/TXT falls back to <code>chrome.storage.local</code>.</p>
+        <p id="keystone-warning-detail">If Chromium storage fallback is active, use low-limit keys and treat this browser profile as a trusted environment.</p>
+      </div>
+    </div>
+
+    <div id="keystone-help-card" class="keystone-help-card">
+      <h3 id="keystone-help-title">Keystone Reinstall Needed</h3>
+      <p id="keystone-help-body">The Native Messaging host is not installed for this browser right now.</p>
+      <p id="keystone-help-detail">Reinstall Keystone for this browser in Keystone Admin or via the `keystone install ...` command, then try again.</p>
+      <div class="keystone-help-meta">
+        <div>
+          <strong>Browser target:</strong>
+          <select id="keystone-help-browser-select">
+            <option value="chrome">Chrome</option>
+            <option value="chromium">Chromium</option>
+            <option value="vivaldi">Vivaldi</option>
+            <option value="opera">Opera</option>
+            <option value="brave">Brave</option>
+          </select>
+        </div>
+        <div>
+          <strong>Operating system:</strong>
+          <select id="keystone-help-os-select">
+            <option value="linux">Linux</option>
+            <option value="mac">macOS</option>
+            <option value="win">Windows</option>
+          </select>
+        </div>
+        <div>
+          <strong>Keystone flavor:</strong>
+          <select id="keystone-help-flavor-select">
+            <option value="dev">dev</option>
+            <option value="beta">beta</option>
+            <option value="prod">prod</option>
+          </select>
+        </div>
+        <div><strong>Native host ID:</strong> <span id="keystone-help-host">—</span></div>
+        <div><strong>Extension ID:</strong> <span id="keystone-help-extension-id">—</span></div>
+      </div>
+      <hr />
+      <h4>Step 1: Install Keystone</h4>
+      <p>Download the packaged Keystone release for your operating system:</p>
+      <p><a href="https://github.com/yaijs/keystone/releases" target="_blank" rel="noopener">https://github.com/yaijs/keystone/releases</a></p>
+      <h4>Step 2: Connect It To This Browser</h4>
+      <p>After Keystone is installed on this machine, run the command below to register the Native Messaging host for the current browser, flavor, and extension ID.</p>
+      <p id="keystone-help-command-wrap" style="display:none;">
+        <h4 style="margin-top:0;">Connect via terminal</h4>
+        <code id="keystone-help-command"></code>
+      </p>
+      <div class="btn-row" id="keystone-help-actions" style="display:none; margin-top:0.75rem; margin-bottom:0.75rem;">
+        <button id="copy-keystone-help-command-btn" type="button" class="btn-secondary">Copy Install Command</button>
+      </div>
+      <p id="keystone-help-terminal-hint">Open a terminal first, then run the command above.</p>
+      <p id="keystone-help-path-note" style="display:none;">
+        Replace <code>/absolute/path/to/keystone</code> with the real installed Keystone binary path on your machine.
+      </p>
+      <p>
+        After reinstalling, reload the extension and click <strong>Test Keystone Connection</strong> again here.
+      </p>
+      <p>Repository: <a href="https://github.com/yaijs/keystone" target="_blank" rel="noopener">https://github.com/yaijs/keystone</a></p>
+    </div>
+
+    <div class="card" id="provider-keys-card">
+      <h2>Provider Keys</h2>
+      <p class="section-desc">
+        Each provider entry comes from Providers Config below. Keystone can only tunnel providers it knows; unknown provider IDs fall back to local extension storage only.
+      </p>
+
+      <div id="provider-fields"></div>
+
+      <button id="save-btn" class="btn-full">Save Settings</button>
+      <div id="status" class="status"></div>
+    </div>
+
+    <!-- Tools Config Editor -->
+    <div class="card">
+      <h2>Tools Config</h2>
+      <p class="section-desc">
+        Define and customize tools as JSON. Each category has a <code>label</code> and a <code>tools</code> array.
+        Supports <code>{{input}}</code>, <code>{{previous}}</code>, <code>{{originalInput}}</code>, and option-id placeholders in prompts.
+        Use a <code>steps</code> array to build chained tools.<br/>
+        Changes take effect when the popup is re-opened.
+      </p>
+      <textarea id="tools-config" class="config-textarea" spellcheck="false"></textarea>
+      <div class="btn-row">
+        <button id="save-tools-btn">Save Tools</button>
+        <button id="import-tools-btn" class="btn-secondary">Import JSON</button>
+        <button id="export-tools-btn" class="btn-secondary">Export JSON</button>
+        <button id="reset-tools-btn" class="btn-reset">Reset to Default</button>
+      </div>
+      <div id="tools-status" class="status"></div>
+    </div>
+
+    <!-- Models Config Editor -->
+    <div class="card">
+      <h2>Providers Config</h2>
+      <p class="section-desc">
+        Define provider IDs, labels, adapter type, and upstream base URLs here. Tools and model sets reference these provider IDs.
+      </p>
+      <textarea id="providers-config" class="config-textarea" spellcheck="false"></textarea>
+      <div class="btn-row">
+        <button id="save-providers-btn">Save Providers</button>
+        <button id="import-providers-btn" class="btn-secondary">Import JSON</button>
+        <button id="export-providers-btn" class="btn-secondary">Export JSON</button>
+        <button id="reset-providers-btn" class="btn-reset">Reset to Default</button>
+      </div>
+      <div id="providers-status" class="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Models Config</h2>
+      <p class="section-desc">
+        Map tier names (e.g. <code>"coding"</code>, <code>"creative"</code>) to provider-specific models.
+        A string value uses the tool's temperature; an object with <code>"temperature": null</code> suppresses it.<br/>
+        Invalid provider mappings are rejected instead of silently falling back.<br/>
+        Changes take effect immediately.
+      </p>
+      <textarea id="models-config" class="config-textarea" spellcheck="false"></textarea>
+      <div class="btn-row">
+        <button id="save-models-btn">Save Models</button>
+        <button id="import-models-btn" class="btn-secondary">Import JSON</button>
+        <button id="export-models-btn" class="btn-secondary">Export JSON</button>
+        <button id="reset-models-btn" class="btn-reset">Reset to Default</button>
+      </div>
+      <div id="models-status" class="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Default Provider</h2>
+      <p class="section-desc">
+        Used only when a tool step does not set its own provider. Tools can still choose a provider explicitly.
+      </p>
+
+      <div class="form-group">
+        <label for="provider">Default Provider</label>
+        <select id="provider"></select>
+      </div>
+    </div>
+
+    <div class="card" id="keystone-card">
+      <h2>Keystone</h2>
+      <p class="section-desc">
+        Test the local Native Messaging bridge against the currently installed dev host manifest.
+      </p>
+      <div class="btn-row">
+        <button id="test-keystone-btn" class="btn-secondary">Test Keystone Connection</button>
+        <button id="open-keystone-admin-btn" class="btn-secondary">Open Keystone Admin</button>
+      </div>
+      <div id="keystone-status" class="status"></div>
+    </div>
+
+    <div class="card info-card">
+      <h2>General Info</h2>
+      <h3>Why this extension exists</h3>
+      <p>Y/TXT treats plain-language instructions as configurable tools. Instead of building a separate app for every narrow text workflow, you can often describe the job in human language and let a model handle it.</p>
+      <p>That means custom tools, custom providers, and model mappings can all be composed here without changing extension code.</p>
+
+      <h3>API Keys</h3>
+      <p>LLM providers require API keys so requests can be authenticated and billed. Chrome extensions can store data, but they do not offer a truly secure secret vault for extension-managed API keys.</p>
+      <p>If secure API-key handling matters, use Keystone. It stores secrets outside the extension and lets Y/TXT tunnel requests through a local trusted host instead of keeping the key in browser storage.</p>
+    </div>
+
+  </div>
+  <input id="import-file-input" type="file" accept="application/json,.json" style="display:none;" />
+  <script type="module" src="/src/options/main.ts"></script>
+</body>
+</html>
