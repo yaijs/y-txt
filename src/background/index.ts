@@ -89,6 +89,15 @@ interface LlmResponse {
   viaKeystone: boolean;
 }
 
+interface LlmRequestPayload {
+  systemPrompt: string;
+  userMessage: string;
+  temperature?: number;
+  modelOverride?: string;
+  providerOverride?: string;
+  stagedContent?: string;
+}
+
 type RunStatus = 'running' | 'completed' | 'error' | 'aborted';
 
 interface ToolRunStep {
@@ -158,6 +167,22 @@ function pickStringRecord(value: unknown): Record<string, string> {
   return Object.fromEntries(
     Object.entries(value).filter(([, itemValue]) => typeof itemValue === 'string')
   ) as Record<string, string>;
+}
+
+function normalizeLlmRequestPayload(value: unknown): LlmRequestPayload | null {
+  if (!isObject(value)) return null;
+  if (typeof value.systemPrompt !== 'string' || typeof value.userMessage !== 'string') {
+    return null;
+  }
+
+  return {
+    systemPrompt: value.systemPrompt,
+    userMessage: value.userMessage,
+    temperature: typeof value.temperature === 'number' ? value.temperature : undefined,
+    modelOverride: typeof value.modelOverride === 'string' ? value.modelOverride : undefined,
+    providerOverride: typeof value.providerOverride === 'string' ? value.providerOverride : undefined,
+    stagedContent: typeof value.stagedContent === 'string' ? value.stagedContent : undefined
+  };
 }
 
 function normalizeToolRunStep(value: unknown): ToolRunStep | null {
@@ -454,12 +479,16 @@ async function listKeystoneProviders(): Promise<KeystoneProviderInfo[]> {
   return Array.isArray(result?.providers) ? result.providers : [];
 }
 
-async function isKeystoneConfigured(providerId: string): Promise<boolean> {
+async function getKeystoneConfiguredProviderIds(): Promise<Set<string>> {
   try {
     const providers = await listKeystoneProviders();
-    return providers.some((provider) => provider.id === providerId && provider.configured);
+    return new Set(
+      providers
+        .filter((provider) => provider.configured)
+        .map((provider) => provider.id)
+    );
   } catch {
-    return false;
+    return new Set<string>();
   }
 }
 
@@ -499,7 +528,8 @@ async function tryKeystoneCompletion(
   signal?: AbortSignal
 ): Promise<CompletionResult | null> {
   throwIfAborted(signal);
-  if (!(await isKeystoneConfigured(providerConfig.id))) {
+  const configuredProviders = await getKeystoneConfiguredProviderIds();
+  if (!configuredProviders.has(providerConfig.id)) {
     return null;
   }
 
@@ -533,16 +563,12 @@ async function localProviderHasKey(providerId: string): Promise<boolean> {
   return Boolean(currentKeys[getProviderStorageKey(providerId)]);
 }
 
-async function providerReady(providerId: string): Promise<boolean> {
-  if (await isKeystoneConfigured(providerId)) return true;
-  return await localProviderHasKey(providerId);
-}
-
 async function listAvailableProviders(): Promise<string[]> {
+  const configuredKeystoneProviders = await getKeystoneConfiguredProviderIds();
   const availableProviders: string[] = [];
 
   for (const provider of currentProviders) {
-    if (await providerReady(provider.id)) {
+    if (configuredKeystoneProviders.has(provider.id) || await localProviderHasKey(provider.id)) {
       availableProviders.push(provider.id);
     }
   }
@@ -739,10 +765,13 @@ async function executeToolRun(
 
     return runState;
   } catch (error) {
-    const message = (error as Error).message;
+    const message = error instanceof Error ? error.message : String(error);
+    const aborted = signal?.aborted === true
+      || (error instanceof DOMException && error.name === 'AbortError')
+      || message === 'Request aborted.';
     runState = {
       ...runState,
-      status: /abort/i.test(message) ? 'aborted' : 'error',
+      status: aborted ? 'aborted' : 'error',
       result: currentInput,
       finishedAt: Date.now(),
       providerId: lastResponse?.providerId,
@@ -840,7 +869,7 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   }
 
   if (request.type === 'STORE_PROVIDER_SECRETS') {
-    storeSecretsInKeystone(request.payload || {})
+    storeSecretsInKeystone(pickStringRecord(request.payload))
       .then((result) => sendResponse({ success: true, data: result }))
       .catch((error: Error) => sendResponse({ success: false, error: error.message }));
     return true;
@@ -880,7 +909,9 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   }
 
   if (request.type === 'SETTINGS_UPDATED') {
-    configurePromise = configureClient();
+    configurePromise = (configurePromise ?? Promise.resolve())
+      .catch(() => {})
+      .then(() => configureClient());
     configurePromise
       .then(() => sendResponse({ success: true }))
       .catch((error: Error) => sendResponse({ success: false, error: error.message }));
@@ -891,10 +922,14 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
     ensureConfigured()
       .then(() => {
         const requestId = typeof request.requestId === 'string' ? request.requestId : `request-${Date.now()}`;
+        const payload = normalizeLlmRequestPayload(request.payload);
+        if (!payload) {
+          throw new Error('Invalid LLM request payload.');
+        }
         const controller = new AbortController();
         activeRequestControllers.set(requestId, controller);
 
-        return handleLLMRequest(request.payload, controller.signal)
+        return handleLLMRequest(payload, controller.signal)
           .finally(() => {
             activeRequestControllers.delete(requestId);
           });
@@ -931,10 +966,11 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   return false;
 });
 
-async function handleLLMRequest(payload: any, signal?: AbortSignal): Promise<LlmResponse> {
+async function handleLLMRequest(payload: LlmRequestPayload, signal?: AbortSignal): Promise<LlmResponse> {
   const { systemPrompt, userMessage, temperature: toolTemperature, modelOverride, providerOverride, stagedContent } = payload;
-  const effectiveProviderConfig = normalizeProviderId(providerOverride)
-    ? getProviderConfig(providerOverride)
+  const normalizedProviderOverride = normalizeProviderId(providerOverride);
+  const effectiveProviderConfig = normalizedProviderOverride
+    ? getProviderConfig(normalizedProviderOverride)
     : await resolveDefaultProvider();
   const resolved = resolveModel(effectiveProviderConfig.id, modelOverride);
   const resolvedProviderConfig = getProviderConfig(resolved.providerId);

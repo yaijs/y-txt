@@ -1,4 +1,4 @@
-import type { ProviderConfig } from './config.js';
+import { getProviderStorageKey, type ProviderConfig } from './config.js';
 
 export interface CompletionRequest {
   systemPrompt: string;
@@ -240,7 +240,7 @@ export function createProvider(
   providerConfig: ProviderConfig,
   keys: Record<string, string | undefined>
 ): Provider | null {
-  const storageKey = `${providerConfig.id}Key`;
+  const storageKey = getProviderStorageKey(providerConfig.id);
   const apiKey = keys[storageKey];
   if (!apiKey) {
     return null;
