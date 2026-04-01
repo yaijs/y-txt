@@ -162,6 +162,12 @@ interface GeneratedToolCandidate {
   userMessage: string;
 }
 
+function unwrapJsonFence(raw: string): string {
+  const trimmed = raw.trim();
+  const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
+  return fenced ? fenced[1].trim() : trimmed;
+}
+
 type RunStatus = 'running' | 'completed' | 'error' | 'aborted';
 
 interface ToolRunStep {
@@ -303,9 +309,10 @@ function updateToolManagerVisibility(): void {
 }
 
 function parseGeneratedToolCandidate(raw: string): GeneratedToolCandidate {
+  const normalized = unwrapJsonFence(raw);
   let parsed: unknown;
   try {
-    parsed = JSON.parse(raw);
+    parsed = JSON.parse(normalized);
   } catch {
     throw new Error(msg('generatedToolInvalidJson'));
   }
@@ -356,8 +363,8 @@ function updateInputUI(value: string) {
 }
 
 function updateResultUI(value: string) {
-  workspaceResult.value = value;
-  resultCharCount.textContent = String(value.length);
+  workspaceResult.value = isToolGeneratorActive() ? unwrapJsonFence(value) : value;
+  resultCharCount.textContent = String(workspaceResult.value.length);
   autoResizeResult();
   updateGeneratedToolAction();
 }
