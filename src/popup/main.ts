@@ -297,7 +297,7 @@ function isToolingWorkspaceActive(): boolean {
 
 function updateToolManagerVisibility(): void {
   const visible = isToolingWorkspaceActive();
-  btnToolManagerToggle.style.display = visible ? '' : 'none';
+  btnToolManagerToggle.style.display = visible ? 'block' : 'none';
   btnToolManagerToggle.textContent = toolManagerOpen ? msg('hideToolManagerButton') : msg('manageToolsButton');
   toolManagerPanel.classList.toggle('is-open', visible && toolManagerOpen);
 }
