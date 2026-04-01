@@ -8,6 +8,11 @@ import {
   validateProvidersConfig,
 } from '../providers/config.js';
 import toolsBundled from '../tools/tools.json';
+import {
+  DEFAULT_TRANSLATION_LANGUAGES,
+  normalizeTranslationLanguages,
+  TRANSLATION_LANGUAGES_STORAGE_KEY
+} from '../tools/languages.js';
 
 const providerSelect = document.getElementById('provider') as HTMLSelectElement;
 const providerFieldsEl = document.getElementById('provider-fields') as HTMLDivElement;
@@ -56,6 +61,11 @@ const toolsStatusEl = document.getElementById('tools-status') as HTMLDivElement;
 const modelsStatusEl = document.getElementById('models-status') as HTMLDivElement;
 const providersStatusEl = document.getElementById('providers-status') as HTMLDivElement;
 const importFileInput = document.getElementById('import-file-input') as HTMLInputElement;
+const translationLanguagesListEl = document.getElementById('translation-languages-list') as HTMLDivElement;
+const translationLanguageInputEl = document.getElementById('translation-language-input') as HTMLInputElement;
+const addTranslationLanguageBtn = document.getElementById('add-translation-language-btn') as HTMLButtonElement;
+const resetTranslationLanguagesBtn = document.getElementById('reset-translation-languages-btn') as HTMLButtonElement;
+const translationLanguagesStatusEl = document.getElementById('translation-languages-status') as HTMLDivElement;
 
 const bundledTools = validateCategories(toolsBundled);
 const bundledModels = validateModelSets(modelsBundled);
@@ -64,6 +74,7 @@ const bundledProviders = BUNDLED_PROVIDERS;
 let currentProviders: ProviderConfig[] = bundledProviders;
 let pendingImportTarget: 'tools' | 'models' | 'providers' | null = null;
 let currentPlatformOs = 'unknown';
+let currentTranslationLanguages = [...DEFAULT_TRANSLATION_LANGUAGES];
 
 type KeyLocation = 'none' | 'keystone' | 'local' | 'both';
 
@@ -109,6 +120,48 @@ function updateStorageBadge(button: HTMLButtonElement, location: KeyLocation) {
   }
   button.textContent = 'storage';
   button.title = 'Stored in browser storage';
+}
+
+function updateSaveButtonDocking(): void {
+  const hasPendingProviderInput = [...providerFields.values()].some((field) => field.input.value.trim() !== '');
+  saveBtn.classList.toggle('save-btn-floating', hasPendingProviderInput);
+}
+
+function renderTranslationLanguages(): void {
+  translationLanguagesListEl.innerHTML = '';
+
+  currentTranslationLanguages.forEach((language) => {
+    const chip = document.createElement('span');
+    chip.className = 'language-chip';
+    chip.textContent = language;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = '×';
+    removeBtn.title = `Remove ${language}`;
+    removeBtn.addEventListener('click', () => {
+      void persistTranslationLanguages(currentTranslationLanguages.filter((entry) => entry !== language));
+    });
+
+    chip.appendChild(removeBtn);
+    translationLanguagesListEl.appendChild(chip);
+  });
+}
+
+async function persistTranslationLanguages(nextLanguages: string[], statusMessage?: string): Promise<void> {
+  currentTranslationLanguages = normalizeTranslationLanguages(nextLanguages);
+  await chrome.storage.local.set({ [TRANSLATION_LANGUAGES_STORAGE_KEY]: currentTranslationLanguages });
+  renderTranslationLanguages();
+  if (statusMessage) {
+    showStatus(translationLanguagesStatusEl, statusMessage);
+  }
+}
+
+async function loadTranslationLanguages(): Promise<void> {
+  const stored = await chrome.storage.local.get(TRANSLATION_LANGUAGES_STORAGE_KEY) as Record<string, unknown>;
+  currentTranslationLanguages = normalizeTranslationLanguages(stored[TRANSLATION_LANGUAGES_STORAGE_KEY]);
+  await chrome.storage.local.set({ [TRANSLATION_LANGUAGES_STORAGE_KEY]: currentTranslationLanguages });
+  renderTranslationLanguages();
 }
 
 async function refreshKeystoneInstalledPath(): Promise<void> {
@@ -357,6 +410,9 @@ function renderProviderFields() {
     input.type = 'password';
     input.id = `${provider.id}-key`;
     input.placeholder = msg('replaceStoredKeyPlaceholder');
+    input.addEventListener('input', () => {
+      updateSaveButtonDocking();
+    });
     keyWrap.appendChild(input);
 
     const showBtn = document.createElement('button');
@@ -404,6 +460,8 @@ function renderProviderFields() {
     providerFieldsEl.appendChild(group);
     providerFields.set(provider.id, { provider, storageKey, input, hasApiKeyBadge: hasApiKey, storageBadge, clearBtn });
   });
+
+  updateSaveButtonDocking();
 }
 
 async function fetchKeystoneStatus(): Promise<Record<string, boolean>> {
@@ -529,6 +587,7 @@ async function loadSettings() {
   renderDefaultProviderSelect(result.provider);
   renderProviderFields();
   attachClearHandlers();
+  await loadTranslationLanguages();
   await refreshKeyStates();
   await refreshKeystoneWarning();
   await refreshKeystoneInstalledPath();
@@ -606,8 +665,31 @@ saveBtn.addEventListener('click', async () => {
 
   await chrome.storage.local.set(nextValues);
   await refreshKeyStates(nextValues);
+  updateSaveButtonDocking();
   showStatus(statusEl, buildSaveStatus([...storedProviders], fallbackProviders, keystoneErrors));
   await chrome.runtime.sendMessage({ type: 'SETTINGS_UPDATED' });
+});
+
+addTranslationLanguageBtn.addEventListener('click', async () => {
+  const nextLanguage = translationLanguageInputEl.value.trim();
+  if (!nextLanguage) {
+    showStatus(translationLanguagesStatusEl, 'Enter a language first.', true);
+    return;
+  }
+
+  translationLanguageInputEl.value = '';
+  await persistTranslationLanguages([...currentTranslationLanguages, nextLanguage], 'Translation languages updated.');
+});
+
+translationLanguageInputEl.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter') return;
+  event.preventDefault();
+  addTranslationLanguageBtn.click();
+});
+
+resetTranslationLanguagesBtn.addEventListener('click', async () => {
+  translationLanguageInputEl.value = '';
+  await persistTranslationLanguages([...DEFAULT_TRANSLATION_LANGUAGES], 'Translation languages reset to defaults.');
 });
 
 testKeystoneBtn.addEventListener('click', async () => {

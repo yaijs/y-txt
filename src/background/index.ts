@@ -14,6 +14,11 @@ import modelSetsData from '../models.json';
 import { ModelSets, validateModelSets } from '../config/index.js';
 import { interpolate } from '../tools/index.js';
 import {
+  DEFAULT_TRANSLATION_LANGUAGES,
+  normalizeTranslationLanguages,
+  TRANSLATION_LANGUAGES_STORAGE_KEY
+} from '../tools/languages.js';
+import {
   BUNDLED_PROVIDERS,
   findProviderConfig,
   getProviderStorageKey,
@@ -238,6 +243,23 @@ async function persistRunState(runState: ActiveRunState): Promise<void> {
       runRequestId: runState.requestId
     }
   });
+}
+
+async function ensureTranslationLanguagesStored(): Promise<void> {
+  const stored = await chrome.storage.local.get(TRANSLATION_LANGUAGES_STORAGE_KEY) as Record<string, unknown>;
+  const normalized = normalizeTranslationLanguages(stored[TRANSLATION_LANGUAGES_STORAGE_KEY]);
+  const current = Array.isArray(stored[TRANSLATION_LANGUAGES_STORAGE_KEY])
+    ? normalizeTranslationLanguages(stored[TRANSLATION_LANGUAGES_STORAGE_KEY])
+    : null;
+
+  if (!current || JSON.stringify(current) !== JSON.stringify(normalized)) {
+    await chrome.storage.local.set({ [TRANSLATION_LANGUAGES_STORAGE_KEY]: normalized });
+    return;
+  }
+
+  if (!stored[TRANSLATION_LANGUAGES_STORAGE_KEY]) {
+    await chrome.storage.local.set({ [TRANSLATION_LANGUAGES_STORAGE_KEY]: [...DEFAULT_TRANSLATION_LANGUAGES] });
+  }
 }
 
 async function addToHistory(entry: HistoryEntry): Promise<void> {
@@ -796,6 +818,11 @@ async function executeToolRun(
 }
 
 configurePromise = configureClient();
+void ensureTranslationLanguagesStored();
+
+chrome.runtime.onInstalled.addListener(() => {
+  void ensureTranslationLanguagesStored();
+});
 
 chrome.runtime.onConnect.addListener((port) => {
   if (!port.name.startsWith(SIDE_PANEL_PORT_PREFIX)) return;

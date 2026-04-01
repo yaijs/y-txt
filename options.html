@@ -142,6 +142,61 @@
     .help-box ul { margin: 0.3rem 0 0.3rem 0; padding-left: 1.25rem; }
     .help-box li { margin: 0.2rem 0; }
     .help-box p { margin: 0.4rem 0 0; }
+    .language-tools-box {
+      margin-bottom: 1rem;
+    }
+    .language-chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      margin: 0.85rem 0 0;
+    }
+    .language-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.42rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(59, 130, 246, 0.08);
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+    .language-chip button {
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 0.95rem;
+      line-height: 1;
+    }
+    .language-chip button:hover {
+      background: transparent;
+      color: #fecaca;
+    }
+    .language-helper-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-top: 0.9rem;
+    }
+    .language-helper-row input {
+      flex: 1 1 260px;
+      min-width: 220px;
+      padding: 0.9rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    .language-helper-row input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
     .key-actions {
       display: flex;
       gap: 0.5rem;
@@ -205,10 +260,19 @@
       font-size: 1rem;
       font-weight: 500;
       cursor: pointer;
-      transition: background calc(var(--yai-tabs-closed-timeout) * 0.4);
+      transition: all calc(var(--yai-tabs-closed-timeout) * 0.8) ease-in-out;
     }
     button:hover { background: var(--accent-hover); }
     .btn-full { width: 100%; }
+    .save-btn-floating {
+      position: fixed;
+      bottom: 1rem;
+      left: 50%;
+      width: 240px;
+      margin-left: -120px;
+      z-index: 40;
+      box-shadow: 0 18px 38px rgba(15, 23, 42, 0.42);
+    }
     .btn-reset {
       background: transparent;
       border: 1px solid var(--border);
@@ -512,6 +576,16 @@
         Use a <code>steps</code> array to build chained tools.<br/>
         Changes take effect when the popup is re-opened.
       </p>
+      <div class="help-box language-tools-box">
+        <strong>Shared translation languages:</strong> tools with <code>"languages": true</code> get one generated <code>targetLanguage</code> select from this list.
+        <div id="translation-languages-list" class="language-chip-list"></div>
+        <div class="language-helper-row">
+          <input id="translation-language-input" type="text" placeholder="Add language, e.g. Portuguese" />
+          <button id="add-translation-language-btn" type="button">Add Language</button>
+          <button id="reset-translation-languages-btn" type="button" class="btn-reset">Reset Languages</button>
+        </div>
+      </div>
+      <div id="translation-languages-status" class="status"></div>
       <textarea id="tools-config" class="config-textarea" spellcheck="false"></textarea>
       <div class="btn-row">
         <button id="save-tools-btn" data-i18n="saveTools">Save Tools</button>

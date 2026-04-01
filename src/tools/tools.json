@@ -14,17 +14,9 @@
         "id": "translate",
         "name": "Semantical Translation",
         "icon": "🌐",
+        "languages": true,
         "systemPrompt": "You are an expert translator. Translate the text authentically to {{targetLanguage}}. CRITICAL INSTRUCTION: You MUST absolutely maintain the EXACT original formatting, line breaks, spacing, and markdown of the user's input. Do not provide explanations or conversational wrapper text. Output ONLY the translated text.",
-        "userMessage": "Translate this EXACTLY to {{targetLanguage}} while preserving all formatting and line breaks:\n\n{{input}}",
-        "options": [
-          {
-            "id": "targetLanguage",
-            "label": "Target Language",
-            "type": "select",
-            "options": ["English", "German", "Spanish", "French", "Italian", "Japanese", "Chinese"],
-            "default": "English"
-          }
-        ]
+        "userMessage": "Translate this EXACTLY to {{targetLanguage}} while preserving all formatting and line breaks:\n\n{{input}}"
       },
       {
         "id": "brainstorm",
@@ -39,15 +31,7 @@
         "id": "proofread_translate",
         "name": "Proofread → Translate",
         "icon": "🔁",
-        "options": [
-          {
-            "id": "targetLanguage",
-            "label": "Target Language",
-            "type": "select",
-            "options": ["English", "German", "Spanish", "French", "Italian", "Japanese", "Chinese"],
-            "default": "English"
-          }
-        ],
+        "languages": true,
         "steps": [
           {
             "id": "proofread",

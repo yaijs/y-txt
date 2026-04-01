@@ -1,6 +1,12 @@
 import { CATEGORIES as BUNDLED_CATEGORIES, Category, ToolDef } from '../tools/index.js';
 import { getToolSteps, validateCategories } from '../config/index.js';
 import { localizePage, msg } from '../i18n.js';
+import {
+  injectTranslationLanguageOptions,
+  normalizeTranslationLanguages,
+  TARGET_LANGUAGE_OPTION_ID,
+  TRANSLATION_LANGUAGES_STORAGE_KEY
+} from '../tools/languages.js';
 
 const mainView = document.getElementById('main-view') as HTMLDivElement;
 const historyView = document.getElementById('history-view') as HTMLDivElement;
@@ -76,7 +82,6 @@ let preferredTargetLanguage = '';
 let popupLocked = false;
 let sidePanelPort: chrome.runtime.Port | null = null;
 
-const TARGET_LANGUAGE_OPTION_ID = 'targetLanguage';
 const TARGET_LANGUAGE_STORAGE_KEY = 'lastUsedTargetLanguage';
 const LANGUAGE_NAME_BY_CODE: Record<string, string> = {
   en: 'English',
@@ -917,14 +922,19 @@ function renderStatsView(entries: HistoryEntry[]) {
 }
 
 async function loadCategories(): Promise<Category[]> {
-  const res = await chrome.storage.local.get('customTools') as Record<string, string>;
-  if (!res.customTools) return validateCategories(BUNDLED_CATEGORIES);
+  const res = await chrome.storage.local.get(['customTools', TRANSLATION_LANGUAGES_STORAGE_KEY]) as Record<string, unknown>;
+  const translationLanguages = normalizeTranslationLanguages(res[TRANSLATION_LANGUAGES_STORAGE_KEY]);
+  await chrome.storage.local.set({ [TRANSLATION_LANGUAGES_STORAGE_KEY]: translationLanguages });
+  if (!res.customTools) return injectTranslationLanguageOptions(validateCategories(BUNDLED_CATEGORIES), translationLanguages);
 
   try {
-    return validateCategories(JSON.parse(res.customTools));
+    return injectTranslationLanguageOptions(
+      validateCategories(JSON.parse(res.customTools as string)),
+      translationLanguages
+    );
   } catch (error) {
     console.warn('Invalid custom tools, falling back to bundled defaults.', error);
-    return validateCategories(BUNDLED_CATEGORIES);
+    return injectTranslationLanguageOptions(validateCategories(BUNDLED_CATEGORIES), translationLanguages);
   }
 }
 

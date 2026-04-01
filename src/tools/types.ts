@@ -23,6 +23,7 @@ export interface ToolDef extends Partial<ToolPromptDef> {
   id: string;
   name: string;
   icon?: string;
+  languages?: boolean;
   options?: ToolOption[];
   steps?: ToolStepDef[];
 }

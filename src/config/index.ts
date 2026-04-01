@@ -101,6 +101,13 @@ function validateTool(value: unknown, path: string): ToolDef {
     icon: optionalString(value.icon, `${path}.icon`)
   };
 
+  if (value.languages !== undefined) {
+    if (typeof value.languages !== 'boolean') {
+      throw new Error(`${path}.languages must be a boolean.`);
+    }
+    tool.languages = value.languages;
+  }
+
   if (value.options !== undefined) {
     if (!Array.isArray(value.options)) throw new Error(`${path}.options must be an array.`);
     tool.options = value.options.map((option, index) => validateToolOption(option, `${path}.options[${index}]`));
