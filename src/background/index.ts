@@ -543,7 +543,11 @@ async function tryKeystoneCompletion(
   if (providerConfig.type === 'anthropic') {
     const session = await openKeystoneSession(providerConfig.id, 'messages');
     throwIfAborted(signal);
-    const payload = buildAnthropicPayload(request, request.modelOverride || providerConfig.defaultModel);
+    const payload = buildAnthropicPayload(
+      request,
+      request.modelOverride || providerConfig.defaultModel,
+      providerConfig.overrideConfig
+    );
     const data = await fetchViaKeystone(`${session.base_url}/v1/messages`, session.token, payload, signal);
     return {
       text: extractAnthropicText(data),
@@ -556,7 +560,8 @@ async function tryKeystoneCompletion(
   const payload = buildOpenAiCompatiblePayload(
     request,
     request.modelOverride || providerConfig.defaultModel,
-    providerConfig.systemMode || 'system'
+    providerConfig.systemMode || 'system',
+    providerConfig.overrideConfig
   );
   const data = await fetchViaKeystone(`${session.base_url}/v1/chat/completions`, session.token, payload, signal);
   return {
