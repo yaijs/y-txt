@@ -47,6 +47,9 @@
   "statsButton": {
     "message": "◔ Stats"
   },
+  "toolingButton": {
+    "message": "🧰 Tooling"
+  },
   "panelButton": {
     "message": "▣ Panel"
   },
@@ -96,7 +99,7 @@
     "message": "Custom tools"
   },
   "faqCustomToolsA": {
-    "message": "Edit the Tools JSON in Options to add your own. Use <code>{{input}}</code> for the active step input, <code>{{previous}}</code> inside chains, and option IDs like <code>{{targetLanguage}}</code>. Add a <code>steps</code> array to build chained tools. Changes take effect on next popup open."
+    "message": "Edit the Tools JSON in Options to add your own. Use <code>{{input}}</code> for the active step input, <code>{{previous}}</code> inside chains, <code>{{originalInput}}</code> for the untouched source, and option IDs like <code>{{targetLanguage}}</code>. Tooling-aware prompts can also inspect <code>{{currentConfig}}</code>, <code>{{currentModelsConfig}}</code>, and <code>{{currentProvidersConfig}}</code>. Add a <code>steps</code> array to build chained tools. Changes take effect on next popup open."
   },
   "faqCustomModelsQ": {
     "message": "Custom models"

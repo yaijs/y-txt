@@ -122,6 +122,7 @@ interface ToolRunPayload {
   input: string;
   stagedContent: string;
   options: Record<string, string>;
+  context: Record<string, string>;
   stagedOpen: boolean;
   steps: ToolRunStep[];
 }
@@ -225,6 +226,7 @@ function normalizeToolRunPayload(value: unknown): ToolRunPayload | null {
     input: value.input,
     stagedContent: value.stagedContent,
     options: pickStringRecord(value.options),
+    context: pickStringRecord(value.context),
     stagedOpen: value.stagedOpen === true,
     steps
   };
@@ -742,6 +744,7 @@ async function executeToolRun(
 
       const vars = {
         ...payload.options,
+        ...payload.context,
         ...stepOutputs,
         input: currentInput,
         previous: currentInput,

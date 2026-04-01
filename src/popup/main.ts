@@ -1,7 +1,10 @@
 import { CATEGORIES as BUNDLED_CATEGORIES, Category, ToolDef } from '../tools/index.js';
-import { getToolSteps, validateCategories } from '../config/index.js';
+import { getToolSteps, validateCategories, validateModelSets } from '../config/index.js';
 import { localizePage, msg } from '../i18n.js';
+import bundledModelsData from '../models.json';
+import { BUNDLED_PROVIDERS, validateProvidersConfig } from '../providers/config.js';
 import {
+  DEFAULT_TRANSLATION_LANGUAGES,
   injectTranslationLanguageOptions,
   normalizeTranslationLanguages,
   TARGET_LANGUAGE_OPTION_ID,
@@ -43,6 +46,7 @@ const btnStatsBack = document.getElementById('btn-stats-back') as HTMLButtonElem
 const btnClearHistory = document.getElementById('btn-clear-history') as HTMLButtonElement;
 const btnHistory = document.getElementById('btn-history') as HTMLButtonElement;
 const btnStats = document.getElementById('btn-stats') as HTMLButtonElement;
+const btnTooling = document.getElementById('btn-tooling') as HTMLButtonElement;
 const btnFaq = document.getElementById('btn-faq') as HTMLButtonElement;
 const btnFaqBack = document.getElementById('btn-faq-back') as HTMLButtonElement;
 const resultHint = document.getElementById('result-hint') as HTMLSpanElement;
@@ -133,6 +137,14 @@ interface WorkspaceState {
   options: Record<string, string>;
   stagedOpen: boolean;
   runRequestId?: string;
+}
+
+interface ToolRuntimeContext {
+  currentConfig: string;
+  currentToolsConfig: string;
+  currentModelsConfig: string;
+  currentProvidersConfig: string;
+  currentTranslationLanguages: string;
 }
 
 type RunStatus = 'running' | 'completed' | 'error' | 'aborted';
@@ -246,6 +258,12 @@ function resolveInitialTargetLanguage(optionValues: string[], toolDefault?: stri
 
 function updateToolOptionsVisibility(): void {
   toolOptionsContainer.classList.toggle('is-visible', toolOptionsContainer.childElementCount > 0);
+}
+
+function getToolingTool(): ToolDef | null {
+  return activeToolIndex.get('tool-generator')
+    ?? activeCategories.find((category) => category.id === 'tooling')?.tools[0]
+    ?? null;
 }
 
 function isStagedSectionOpen(): boolean {
@@ -505,6 +523,62 @@ async function loadHistory(): Promise<HistoryEntry[]> {
 
   await chrome.storage.local.set({ history });
   return history;
+}
+
+async function buildToolRuntimeContext(): Promise<ToolRuntimeContext> {
+  const stored = await chrome.storage.local.get([
+    'customTools',
+    'customModels',
+    'customProviders',
+    TRANSLATION_LANGUAGES_STORAGE_KEY
+  ]) as Record<string, unknown>;
+
+  const toolsConfig = (() => {
+    if (typeof stored.customTools === 'string') {
+      try {
+        return validateCategories(JSON.parse(stored.customTools));
+      } catch {
+        // fall through to bundled defaults
+      }
+    }
+    return validateCategories(BUNDLED_CATEGORIES);
+  })();
+
+  const modelsConfig = (() => {
+    if (typeof stored.customModels === 'string') {
+      try {
+        return validateModelSets(JSON.parse(stored.customModels));
+      } catch {
+        // fall through to bundled defaults
+      }
+    }
+    return validateModelSets(bundledModelsData);
+  })();
+
+  const providersConfig = (() => {
+    if (typeof stored.customProviders === 'string') {
+      try {
+        return validateProvidersConfig(JSON.parse(stored.customProviders));
+      } catch {
+        // fall through to bundled defaults
+      }
+    }
+    return BUNDLED_PROVIDERS;
+  })();
+
+  const translationLanguages = normalizeTranslationLanguages(stored[TRANSLATION_LANGUAGES_STORAGE_KEY]);
+
+  return {
+    currentConfig: JSON.stringify(toolsConfig, null, 2),
+    currentToolsConfig: JSON.stringify(toolsConfig, null, 2),
+    currentModelsConfig: JSON.stringify(modelsConfig, null, 2),
+    currentProvidersConfig: JSON.stringify(providersConfig, null, 2),
+    currentTranslationLanguages: JSON.stringify(
+      translationLanguages.length ? translationLanguages : DEFAULT_TRANSLATION_LANGUAGES,
+      null,
+      2
+    )
+  };
 }
 
 function debouncedSave() {
@@ -1068,6 +1142,7 @@ async function submitActiveTool(): Promise<void> {
   await saveWorkspaceState();
 
   try {
+    const context = await buildToolRuntimeContext();
     const steps: ToolRunStep[] = getToolSteps(activeTool).map((step) => ({
       id: step.id,
       name: step.name,
@@ -1088,6 +1163,7 @@ async function submitActiveTool(): Promise<void> {
         input: workspaceInput.value,
         stagedContent: stagedContentEl.value.trim(),
         options: { ...currentOptions },
+        context,
         stagedOpen: isStagedSectionOpen(),
         steps
       }
@@ -1209,6 +1285,10 @@ async function loadLastUsedTargetLanguage(): Promise<string> {
   toolListEl.innerHTML = '';
 
   activeCategories.forEach((category) => {
+    if (category.id === 'tooling') {
+      return;
+    }
+
     const categoryEl = document.createElement('div');
     categoryEl.className = 'tool-category';
 
@@ -1322,6 +1402,16 @@ btnHistory.addEventListener('click', async () => {
 btnStats.addEventListener('click', async () => {
   renderStatsView(await loadHistory());
   showStats();
+});
+
+btnTooling.addEventListener('click', async () => {
+  const tool = getToolingTool();
+  if (!tool) return;
+
+  previousView = 'main';
+  openWorkspace(tool, '', '', {});
+  updateInputUI('');
+  await saveWorkspaceState();
 });
 
 btnHistoryBack.addEventListener('click', () => showMain());

@@ -113,5 +113,29 @@
         "userMessage": "Audit the following code for security vulnerabilities:\n\n{{input}}"
       }
     ]
+  },
+  {
+    "id": "tooling",
+    "label": "Tooling",
+    "tools": [
+      {
+        "id": "tool-generator",
+        "name": "Tool Generator",
+        "icon": "🧙",
+        "model": "creative",
+        "temperature": 0.35,
+        "options": [
+          {
+            "id": "configTarget",
+            "label": "Target Config",
+            "type": "select",
+            "default": "tool",
+            "options": ["tool", "models", "providers"]
+          }
+        ],
+        "systemPrompt": "You are the Tool Engineer for Y/TXT. You create exceptionally well-crafted, production-ready JSON snippets for Y/TXT configuration.\n\nCore principles:\n- Precision over creativity unless asked\n- Strict instructions in systemPrompt\n- Excellent output formatting\n- Smart use of temperature\n- Prefer reusable structures over duplicated ones\n- Use `languages: true` for translation-capable tools instead of large embedded language objects\n- Respect the current config so you do not duplicate IDs or drift away from the existing style\n\nOutput contract by target:\n- If {{configTarget}} is `tool`, return exactly one valid JSON tool object.\n- If {{configTarget}} is `models`, return exactly one valid JSON object fragment that fits inside the Models Config object.\n- If {{configTarget}} is `providers`, return exactly one valid JSON provider object.\n\nNever wrap the JSON in markdown fences. Never add explanations before or after the JSON.",
+        "userMessage": "Build a Y/TXT {{configTarget}} snippet for this request:\n\n{{input}}\n\nCurrent tools config:\n{{currentConfig}}\n\nCurrent models config:\n{{currentModelsConfig}}\n\nCurrent providers config:\n{{currentProvidersConfig}}\n\nCurrent translation languages:\n{{currentTranslationLanguages}}"
+      }
+    ]
   }
 ]
