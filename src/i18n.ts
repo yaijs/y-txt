@@ -33,6 +33,7 @@ export function localizePage(root: ParentNode = document): void {
   root.querySelectorAll('[data-i18n-title]').forEach((el) => {
     const key = el.getAttribute('data-i18n-title');
     if (!key) return;
+    if (el === document.documentElement) return;
     el.setAttribute('title', msg(key));
   });
 

@@ -37,6 +37,10 @@ const stagedSection = document.getElementById('staged-section') as HTMLDivElemen
 const stagedContentEl = document.getElementById('staged-content') as HTMLTextAreaElement;
 const stagedToggle = document.getElementById('staged-toggle') as HTMLButtonElement;
 const workspaceStatus = document.getElementById('workspace-status') as HTMLDivElement;
+const btnToolManagerToggle = document.getElementById('btn-tool-manager-toggle') as HTMLButtonElement;
+const toolManagerPanel = document.getElementById('tool-manager-panel') as HTMLDivElement;
+const toolManagerStatus = document.getElementById('tool-manager-status') as HTMLDivElement;
+const toolManagerList = document.getElementById('tool-manager-list') as HTMLDivElement;
 
 const btnCopyResult = document.getElementById('btn-copy-result') as HTMLButtonElement;
 const btnUseResult = document.getElementById('btn-use-result') as HTMLButtonElement;
@@ -86,6 +90,7 @@ let loadingWatchdogTimer: ReturnType<typeof setInterval> | null = null;
 let preferredTargetLanguage = '';
 let popupLocked = false;
 let sidePanelPort: chrome.runtime.Port | null = null;
+let toolManagerOpen = false;
 
 const TARGET_LANGUAGE_STORAGE_KEY = 'lastUsedTargetLanguage';
 const LANGUAGE_NAME_BY_CODE: Record<string, string> = {
@@ -282,6 +287,17 @@ function updateGeneratedToolAction(): void {
   const visible = isToolGeneratorActive() && workspaceResult.value.trim().length > 0;
   btnSaveGeneratedTool.style.display = visible ? '' : 'none';
   btnSaveGeneratedTool.disabled = !visible;
+}
+
+function isToolingWorkspaceActive(): boolean {
+  return activeTool?.id === 'tool-generator';
+}
+
+function updateToolManagerVisibility(): void {
+  const visible = isToolingWorkspaceActive();
+  btnToolManagerToggle.style.display = visible ? '' : 'none';
+  btnToolManagerToggle.textContent = toolManagerOpen ? msg('hideToolManagerButton') : msg('manageToolsButton');
+  toolManagerPanel.classList.toggle('is-open', visible && toolManagerOpen);
 }
 
 function parseGeneratedToolCandidate(raw: string): GeneratedToolCandidate {
@@ -692,6 +708,95 @@ async function saveGeneratedToolToStorage(): Promise<void> {
   setCategories(await loadEffectiveToolCategories());
 }
 
+async function deleteToolFromStorage(categoryId: string, toolId: string): Promise<void> {
+  const stored = await chrome.storage.local.get('customTools') as { customTools?: unknown };
+  const categories = (() => {
+    if (typeof stored.customTools === 'string') {
+      try {
+        return validateCategories(JSON.parse(stored.customTools));
+      } catch {
+        // fall through to bundled defaults
+      }
+    }
+    return validateCategories(BUNDLED_CATEGORIES);
+  })().map((category) => ({
+    ...category,
+    tools: category.tools.map((tool) => ({ ...tool }))
+  }));
+
+  const nextCategories = categories
+    .map((category) => {
+      if (category.id !== categoryId) return category;
+      return {
+        ...category,
+        tools: category.tools.filter((tool) => tool.id !== toolId)
+      };
+    })
+    .filter((category) => category.id !== 'tooled' || category.tools.length > 0);
+
+  const validated = validateCategories(nextCategories);
+  await chrome.storage.local.set({ customTools: JSON.stringify(validated, null, 2) });
+  setCategories(await loadEffectiveToolCategories());
+}
+
+async function renderToolManager(): Promise<void> {
+  toolManagerList.innerHTML = '';
+  toolManagerStatus.style.display = 'none';
+  toolManagerStatus.textContent = '';
+
+  const categories = (await loadEffectiveToolCategories()).filter((category) => category.id !== 'tooling');
+  const hasEntries = categories.some((category) => category.tools.length > 0);
+
+  if (!hasEntries) {
+    toolManagerStatus.textContent = msg('toolManagerEmpty');
+    toolManagerStatus.style.display = 'block';
+    return;
+  }
+
+  categories.forEach((category) => {
+    if (!category.tools.length) return;
+
+    const categoryEl = document.createElement('div');
+    categoryEl.className = 'tool-manager-category';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'tool-manager-category-title';
+    titleEl.textContent = category.label;
+    categoryEl.appendChild(titleEl);
+
+    category.tools.forEach((tool) => {
+      const row = document.createElement('div');
+      row.className = 'tool-manager-item';
+
+      const name = document.createElement('div');
+      name.className = 'tool-manager-name';
+      name.textContent = tool.name;
+      row.appendChild(name);
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.type = 'button';
+      deleteBtn.className = 'tool-manager-delete';
+      deleteBtn.textContent = msg('deleteToolButton');
+      deleteBtn.addEventListener('click', async () => {
+        try {
+          await deleteToolFromStorage(category.id, tool.id);
+          toolManagerStatus.textContent = msg('toolDeleted');
+          toolManagerStatus.style.display = 'block';
+          await renderToolManager();
+        } catch {
+          toolManagerStatus.textContent = msg('toolDeleteFailed');
+          toolManagerStatus.style.display = 'block';
+        }
+      });
+      row.appendChild(deleteBtn);
+
+      categoryEl.appendChild(row);
+    });
+
+    toolManagerList.appendChild(categoryEl);
+  });
+}
+
 function debouncedSave() {
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
@@ -814,6 +919,7 @@ function openWorkspace(
   runRequestId: string | null = null
 ) {
   activeTool = tool;
+  toolManagerOpen = false;
   activeRunRequestId = runRequestId;
   activeRequestId = null;
   activeRunStartedAt = null;
@@ -832,6 +938,9 @@ function openWorkspace(
   setRunningState(false);
   btnSaveGeneratedTool.textContent = msg('saveGeneratedToolButton');
   btnSaveGeneratedTool.title = msg('generatedToolSaveTitle');
+  toolManagerStatus.style.display = 'none';
+  toolManagerStatus.textContent = '';
+  updateToolManagerVisibility();
 }
 
 function applyRunState(runState: ActiveRunState): void {
@@ -1509,6 +1618,15 @@ btnUseResult.addEventListener('click', async () => {
   await saveWorkspaceState();
 });
 
+btnToolManagerToggle.addEventListener('click', async () => {
+  if (!isToolingWorkspaceActive()) return;
+  toolManagerOpen = !toolManagerOpen;
+  updateToolManagerVisibility();
+  if (toolManagerOpen) {
+    await renderToolManager();
+  }
+});
+
 btnSaveGeneratedTool.addEventListener('click', async () => {
   if (!isToolGeneratorActive()) return;
 
@@ -1516,6 +1634,9 @@ btnSaveGeneratedTool.addEventListener('click', async () => {
     await saveGeneratedToolToStorage();
     workspaceStatus.textContent = msg('generatedToolSaved');
     setResultHint(msg('generatedToolSaved'), '#10b981');
+    if (toolManagerOpen) {
+      await renderToolManager();
+    }
     btnSaveGeneratedTool.textContent = '✓';
     btnSaveGeneratedTool.title = msg('generatedToolSaved');
     setTimeout(() => {

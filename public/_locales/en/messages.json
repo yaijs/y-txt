@@ -196,6 +196,24 @@
   "generatedToolSaveTitle": {
     "message": "Save generated tool to Tooled"
   },
+  "manageToolsButton": {
+    "message": "Manage Tools"
+  },
+  "hideToolManagerButton": {
+    "message": "Hide Tool Manager"
+  },
+  "deleteToolButton": {
+    "message": "Delete"
+  },
+  "toolDeleted": {
+    "message": "Tool deleted."
+  },
+  "toolDeleteFailed": {
+    "message": "Failed to delete tool."
+  },
+  "toolManagerEmpty": {
+    "message": "No removable tools available."
+  },
   "missingKeyMsg": {
     "message": "⚠️ Missing API Key<br/>Open Options to configure a provider and key."
   },
