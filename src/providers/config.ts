@@ -13,6 +13,7 @@ export interface ProviderConfig {
   apiKeyUrl?: string;
   helpUrl?: string;
   description?: string;
+  overrideConfig?: Record<string, unknown>;
 }
 
 function isObject(value: unknown): value is Record<string, unknown> {
@@ -30,6 +31,14 @@ function optionalString(value: unknown, path: string): string | undefined {
   if (value === undefined) return undefined;
   if (typeof value !== 'string') {
     throw new Error(`${path} must be a string.`);
+  }
+  return value;
+}
+
+function optionalObject(value: unknown, path: string): Record<string, unknown> | undefined {
+  if (value === undefined) return undefined;
+  if (!isObject(value)) {
+    throw new Error(`${path} must be an object.`);
   }
   return value;
 }
@@ -77,6 +86,7 @@ export function validateProvidersConfig(value: unknown): ProviderConfig[] {
       apiKeyUrl: optionalString(entry.apiKeyUrl, `${path}.apiKeyUrl`),
       helpUrl: optionalString(entry.helpUrl, `${path}.helpUrl`),
       description: optionalString(entry.description, `${path}.description`),
+      overrideConfig: optionalObject(entry.overrideConfig, `${path}.overrideConfig`),
     };
   });
 }

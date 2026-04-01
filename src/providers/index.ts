@@ -36,6 +36,7 @@ interface OpenAiCompatiblePayload {
   model: string;
   messages: OpenAiCompatibleMessage[];
   temperature?: number;
+  [key: string]: unknown;
 }
 
 interface AnthropicPayload {
@@ -44,6 +45,25 @@ interface AnthropicPayload {
   system: string;
   messages: { role: 'user'; content: string }[];
   temperature?: number;
+  [key: string]: unknown;
+}
+
+const OPENAI_COMPATIBLE_OVERRIDE_EXCLUDE = new Set(['model', 'messages']);
+const ANTHROPIC_OVERRIDE_EXCLUDE = new Set(['model', 'messages', 'system']);
+
+function applyOverrideConfig<T extends Record<string, unknown>>(
+  payload: T,
+  overrideConfig: Record<string, unknown> | undefined,
+  excludedKeys: Set<string>
+): T {
+  if (!overrideConfig) return payload;
+
+  return {
+    ...payload,
+    ...Object.fromEntries(
+      Object.entries(overrideConfig).filter(([key]) => !excludedKeys.has(key))
+    )
+  };
 }
 
 function combineUserContent(request: CompletionRequest, includeSystemPrompt: boolean): string {
@@ -65,7 +85,8 @@ function combineUserContent(request: CompletionRequest, includeSystemPrompt: boo
 export function buildOpenAiCompatiblePayload(
   request: CompletionRequest,
   model: string,
-  systemMode: OpenAiCompatibleSystemMode = 'system'
+  systemMode: OpenAiCompatibleSystemMode = 'system',
+  overrideConfig?: Record<string, unknown>
 ): OpenAiCompatiblePayload {
   const payload: OpenAiCompatiblePayload = {
     model,
@@ -81,7 +102,7 @@ export function buildOpenAiCompatiblePayload(
     payload.temperature = request.temperature;
   }
 
-  return payload;
+  return applyOverrideConfig(payload, overrideConfig, OPENAI_COMPATIBLE_OVERRIDE_EXCLUDE);
 }
 
 export function extractOpenAiCompatibleText(data: unknown): string {
@@ -114,7 +135,11 @@ export function extractOpenAiCompatibleUsage(data: unknown): CompletionUsage | u
   };
 }
 
-export function buildAnthropicPayload(request: CompletionRequest, model: string): AnthropicPayload {
+export function buildAnthropicPayload(
+  request: CompletionRequest,
+  model: string,
+  overrideConfig?: Record<string, unknown>
+): AnthropicPayload {
   const payload: AnthropicPayload = {
     model,
     max_tokens: 4096,
@@ -126,7 +151,7 @@ export function buildAnthropicPayload(request: CompletionRequest, model: string)
     payload.temperature = request.temperature;
   }
 
-  return payload;
+  return applyOverrideConfig(payload, overrideConfig, ANTHROPIC_OVERRIDE_EXCLUDE);
 }
 
 export function extractAnthropicText(data: unknown): string {
@@ -167,14 +192,16 @@ class OpenAICompatibleProvider implements Provider {
     private apiKey: string,
     private defaultModel: string,
     private baseUrl: string,
-    private systemMode: OpenAiCompatibleSystemMode = 'system'
+    private systemMode: OpenAiCompatibleSystemMode = 'system',
+    private overrideConfig?: Record<string, unknown>
   ) {}
 
   async generateCompletion(request: CompletionRequest, signal?: AbortSignal): Promise<CompletionResult> {
     const payload = buildOpenAiCompatiblePayload(
       request,
       request.modelOverride || this.defaultModel,
-      this.systemMode
+      this.systemMode,
+      this.overrideConfig
     );
 
     const response = await fetch(`${this.baseUrl}/chat/completions`, {
@@ -206,11 +233,16 @@ class AnthropicProvider implements Provider {
     public name: string,
     private apiKey: string,
     private defaultModel: string,
-    private baseUrl: string
+    private baseUrl: string,
+    private overrideConfig?: Record<string, unknown>
   ) {}
 
   async generateCompletion(request: CompletionRequest, signal?: AbortSignal): Promise<CompletionResult> {
-    const payload = buildAnthropicPayload(request, request.modelOverride || this.defaultModel);
+    const payload = buildAnthropicPayload(
+      request,
+      request.modelOverride || this.defaultModel,
+      this.overrideConfig
+    );
 
     const response = await fetch(`${this.baseUrl}/messages`, {
       method: 'POST',
@@ -253,7 +285,8 @@ export function createProvider(
       apiKey,
       providerConfig.defaultModel,
       providerConfig.baseUrl,
-      providerConfig.systemMode || 'system'
+      providerConfig.systemMode || 'system',
+      providerConfig.overrideConfig
     );
   }
 
@@ -263,7 +296,8 @@ export function createProvider(
       providerConfig.label,
       apiKey,
       providerConfig.defaultModel,
-      providerConfig.baseUrl
+      providerConfig.baseUrl,
+      providerConfig.overrideConfig
     );
   }
 
