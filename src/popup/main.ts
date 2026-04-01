@@ -40,6 +40,7 @@ const workspaceStatus = document.getElementById('workspace-status') as HTMLDivEl
 
 const btnCopyResult = document.getElementById('btn-copy-result') as HTMLButtonElement;
 const btnUseResult = document.getElementById('btn-use-result') as HTMLButtonElement;
+const btnSaveGeneratedTool = document.getElementById('btn-save-generated-tool') as HTMLButtonElement;
 const btnBack = document.getElementById('btn-back') as HTMLButtonElement;
 const btnHistoryBack = document.getElementById('btn-history-back') as HTMLButtonElement;
 const btnStatsBack = document.getElementById('btn-stats-back') as HTMLButtonElement;
@@ -145,6 +146,13 @@ interface ToolRuntimeContext {
   currentModelsConfig: string;
   currentProvidersConfig: string;
   currentTranslationLanguages: string;
+}
+
+interface GeneratedToolCandidate {
+  id: string;
+  name: string;
+  systemPrompt: string;
+  userMessage: string;
 }
 
 type RunStatus = 'running' | 'completed' | 'error' | 'aborted';
@@ -266,6 +274,45 @@ function getToolingTool(): ToolDef | null {
     ?? null;
 }
 
+function isToolGeneratorActive(): boolean {
+  return activeTool?.id === 'tool-generator' && currentOptions.configTarget === 'tool';
+}
+
+function updateGeneratedToolAction(): void {
+  const visible = isToolGeneratorActive() && workspaceResult.value.trim().length > 0;
+  btnSaveGeneratedTool.style.display = visible ? '' : 'none';
+  btnSaveGeneratedTool.disabled = !visible;
+}
+
+function parseGeneratedToolCandidate(raw: string): GeneratedToolCandidate {
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    throw new Error(msg('generatedToolInvalidJson'));
+  }
+
+  if (!isObject(parsed)) {
+    throw new Error(msg('generatedToolInvalidShape'));
+  }
+
+  if (
+    typeof parsed.id !== 'string' ||
+    typeof parsed.name !== 'string' ||
+    typeof parsed.systemPrompt !== 'string' ||
+    typeof parsed.userMessage !== 'string'
+  ) {
+    throw new Error(msg('generatedToolInvalidShape'));
+  }
+
+  return {
+    id: parsed.id,
+    name: parsed.name,
+    systemPrompt: parsed.systemPrompt,
+    userMessage: parsed.userMessage
+  };
+}
+
 function isStagedSectionOpen(): boolean {
   return stagedSection.classList.contains('is-open');
 }
@@ -294,6 +341,7 @@ function updateResultUI(value: string) {
   workspaceResult.value = value;
   resultCharCount.textContent = String(value.length);
   autoResizeResult();
+  updateGeneratedToolAction();
 }
 
 function setResultHint(label: string, color = 'var(--muted)') {
@@ -581,6 +629,69 @@ async function buildToolRuntimeContext(): Promise<ToolRuntimeContext> {
   };
 }
 
+async function loadEffectiveToolCategories(): Promise<Category[]> {
+  const stored = await chrome.storage.local.get(['customTools', TRANSLATION_LANGUAGES_STORAGE_KEY]) as Record<string, unknown>;
+  const translationLanguages = normalizeTranslationLanguages(stored[TRANSLATION_LANGUAGES_STORAGE_KEY]);
+
+  if (typeof stored.customTools === 'string') {
+    try {
+      return injectTranslationLanguageOptions(
+        validateCategories(JSON.parse(stored.customTools)),
+        translationLanguages
+      );
+    } catch {
+      // fall through to bundled defaults
+    }
+  }
+
+  return injectTranslationLanguageOptions(validateCategories(BUNDLED_CATEGORIES), translationLanguages);
+}
+
+async function saveGeneratedToolToStorage(): Promise<void> {
+  const candidate = parseGeneratedToolCandidate(workspaceResult.value.trim());
+  const stored = await chrome.storage.local.get('customTools') as { customTools?: unknown };
+  const categories = (() => {
+    if (typeof stored.customTools === 'string') {
+      try {
+        return validateCategories(JSON.parse(stored.customTools));
+      } catch {
+        // fall through to bundled defaults
+      }
+    }
+    return validateCategories(BUNDLED_CATEGORIES);
+  })().map((category) => ({
+    ...category,
+    tools: category.tools.map((tool) => ({ ...tool }))
+  }));
+
+  const duplicate = categories.some((category) => category.tools.some((tool) => tool.id === candidate.id));
+  if (duplicate) {
+    throw new Error(msg('generatedToolExists'));
+  }
+
+  let tooledCategory = categories.find((category) => category.id === 'tooled');
+  if (!tooledCategory) {
+    tooledCategory = {
+      id: 'tooled',
+      label: 'Tooled',
+      tools: []
+    };
+    categories.push(tooledCategory);
+  }
+
+  tooledCategory.tools.push(candidate as ToolDef);
+
+  let validated: Category[];
+  try {
+    validated = validateCategories(categories);
+  } catch {
+    throw new Error(msg('generatedToolInvalidConfig'));
+  }
+
+  await chrome.storage.local.set({ customTools: JSON.stringify(validated, null, 2) });
+  setCategories(await loadEffectiveToolCategories());
+}
+
 function debouncedSave() {
   if (saveTimer) clearTimeout(saveTimer);
   saveTimer = setTimeout(() => {
@@ -669,6 +780,7 @@ function buildOptionsUI(tool: ToolDef, overrideValues?: Record<string, string>) 
         if (opt.id === TARGET_LANGUAGE_OPTION_ID) {
           void setLastUsedTargetLanguage(nextValue);
         }
+        updateGeneratedToolAction();
         void saveWorkspaceState();
       });
       wrap.appendChild(select);
@@ -680,6 +792,7 @@ function buildOptionsUI(tool: ToolDef, overrideValues?: Record<string, string>) 
       input.style.cssText = 'padding:8px; border-radius:6px; background:var(--bg); color:var(--text); border:1px solid var(--border);';
       input.addEventListener('input', (e) => {
         currentOptions[opt.id] = (e.target as HTMLInputElement).value;
+        updateGeneratedToolAction();
         debouncedSave();
       });
       wrap.appendChild(input);
@@ -717,6 +830,8 @@ function openWorkspace(
   updateResultUI(result);
   updateRunMeta(null, null);
   setRunningState(false);
+  btnSaveGeneratedTool.textContent = msg('saveGeneratedToolButton');
+  btnSaveGeneratedTool.title = msg('generatedToolSaveTitle');
 }
 
 function applyRunState(runState: ActiveRunState): void {
@@ -1392,6 +1507,27 @@ btnUseResult.addEventListener('click', async () => {
   updateInputUI(workspaceResult.value);
   setResultHint('');
   await saveWorkspaceState();
+});
+
+btnSaveGeneratedTool.addEventListener('click', async () => {
+  if (!isToolGeneratorActive()) return;
+
+  try {
+    await saveGeneratedToolToStorage();
+    workspaceStatus.textContent = msg('generatedToolSaved');
+    setResultHint(msg('generatedToolSaved'), '#10b981');
+    btnSaveGeneratedTool.textContent = '✓';
+    btnSaveGeneratedTool.title = msg('generatedToolSaved');
+    setTimeout(() => {
+      btnSaveGeneratedTool.textContent = msg('saveGeneratedToolButton');
+      btnSaveGeneratedTool.title = msg('generatedToolSaveTitle');
+      updateGeneratedToolAction();
+    }, 1500);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : msg('generatedToolInvalidConfig');
+    workspaceStatus.textContent = message;
+    setResultHint(message, '#f59e0b');
+  }
 });
 
 btnHistory.addEventListener('click', async () => {
