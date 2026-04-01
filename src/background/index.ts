@@ -347,8 +347,14 @@ async function getKeystoneInstallInfo(): Promise<KeystoneInstallInfo> {
     if (adminUrl) {
       info.adminUrl = adminUrl;
       try {
-        const adminStatusUrl = new URL('/admin/api/status', adminUrl).toString();
-        const adminStatusResponse = await fetch(adminStatusUrl);
+        const adminStatusBaseUrl = new URL(adminUrl);
+        const adminToken = adminStatusBaseUrl.searchParams.get('token') || '';
+        const adminStatusUrl = new URL('/admin/api/status', adminStatusBaseUrl).toString();
+        const adminStatusResponse = await fetch(adminStatusUrl, {
+          headers: adminToken
+            ? { authorization: `Bearer ${adminToken}` }
+            : undefined
+        });
         if (adminStatusResponse.ok) {
           const adminStatus = await adminStatusResponse.json() as { binary_path?: unknown };
           if (typeof adminStatus.binary_path === 'string' && adminStatus.binary_path) {
