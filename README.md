@@ -5,6 +5,20 @@
 
 Y/TXT is a Chrome extension for running small LLM-powered browser tools against selected text without leaving the page. Define tools as JSON, select text, run the tool, and get the result back inside a quick popup or a longer-lived side panel workspace.
 
+## Screenshots
+
+Popup index view:
+
+![Y/TXT popup index view](./screenshots/screenshot-1-open-popup-index-view.png)
+
+Side panel translation workflow:
+
+![Y/TXT side panel semantic translation view](./screenshots/screenshot-4-open-sidepanel-semantic-translation-view.png)
+
+Options and provider setup:
+
+![Y/TXT options route](./screenshots/screenshot-5-options-route.png)
+
 ## Key Storage
 
 Y/TXT prefers storing provider keys in Keystone, the local native host companion project.
