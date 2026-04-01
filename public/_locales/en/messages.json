@@ -214,6 +214,12 @@
   "toolManagerEmpty": {
     "message": "No removable tools available."
   },
+  "resetToolsDefaultButton": {
+    "message": "Reset to default"
+  },
+  "toolsResetToDefault": {
+    "message": "Reset to bundled default tools."
+  },
   "missingKeyMsg": {
     "message": "⚠️ Missing API Key<br/>Open Options to configure a provider and key."
   },

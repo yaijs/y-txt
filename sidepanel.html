@@ -262,6 +262,26 @@
       color: var(--muted);
       font-size: 0.84rem;
     }
+    .tool-manager-actions {
+      display: none;
+      justify-content: flex-end;
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid rgba(148, 163, 184, 0.12);
+    }
+    .tool-manager-reset {
+      border: 1px solid rgba(239, 68, 68, 0.32);
+      background: rgba(127, 29, 29, 0.18);
+      color: #fca5a5;
+      border-radius: 6px;
+      padding: 0.42rem 0.7rem;
+      font-size: 0.78rem;
+    }
+    .tool-manager-reset:hover {
+      border-color: rgba(248, 113, 113, 0.62);
+      background: rgba(127, 29, 29, 0.3);
+      color: #fecaca;
+    }
     button:not(.tool-btn):not(.btn-link) {
       cursor: pointer;
       transition:
@@ -656,11 +676,14 @@
       <button id="btn-use-result" class="btn-link" style="font-size:0.86rem; padding:0 2px;" data-i18n-title="useResultTitle" title="Use result as new input">↺</button>
       <button id="btn-copy-result" class="btn-link" style="font-size:0.86rem; padding:0 2px;" data-i18n-title="copyResultTitle" title="Copy to clipboard">📋</button>
     </div>
-    <textarea id="workspace-result" readonly data-i18n-placeholder="workspaceResultPlaceholder" placeholder="AI result will appear here..." style="width: 100%; min-height: 96px; height: auto; background: var(--bg); border: 1px solid var(--border); color: #10b981; border-radius: 6px; padding: 0.75rem; box-sizing: border-box; font-family: inherit; resize: vertical; overflow: hidden;"></textarea>
+    <textarea id="workspace-result" data-i18n-placeholder="workspaceResultPlaceholder" placeholder="AI result will appear here..." style="width: 100%; min-height: 96px; height: auto; background: var(--bg); border: 1px solid var(--border); color: #10b981; border-radius: 6px; padding: 0.75rem; box-sizing: border-box; font-family: inherit; resize: vertical; overflow: hidden;"></textarea>
     <button id="btn-tool-manager-toggle" class="tool-manager-toggle" type="button" data-i18n="manageToolsButton">Manage Tools</button>
     <div id="tool-manager-panel" class="tool-manager-panel">
       <div id="tool-manager-status" class="tool-manager-empty" style="display:none;"></div>
       <div id="tool-manager-list"></div>
+      <div id="tool-manager-actions" class="tool-manager-actions">
+        <button id="btn-tool-manager-reset" type="button" class="tool-manager-reset" data-i18n="resetToolsDefaultButton">Reset to default</button>
+      </div>
     </div>
   </div>
 

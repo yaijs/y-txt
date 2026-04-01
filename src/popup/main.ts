@@ -41,6 +41,8 @@ const btnToolManagerToggle = document.getElementById('btn-tool-manager-toggle') 
 const toolManagerPanel = document.getElementById('tool-manager-panel') as HTMLDivElement;
 const toolManagerStatus = document.getElementById('tool-manager-status') as HTMLDivElement;
 const toolManagerList = document.getElementById('tool-manager-list') as HTMLDivElement;
+const toolManagerActions = document.getElementById('tool-manager-actions') as HTMLDivElement;
+const btnToolManagerReset = document.getElementById('btn-tool-manager-reset') as HTMLButtonElement;
 
 const btnCopyResult = document.getElementById('btn-copy-result') as HTMLButtonElement;
 const btnUseResult = document.getElementById('btn-use-result') as HTMLButtonElement;
@@ -739,10 +741,16 @@ async function deleteToolFromStorage(categoryId: string, toolId: string): Promis
   setCategories(await loadEffectiveToolCategories());
 }
 
+async function resetToolsToDefault(): Promise<void> {
+  await chrome.storage.local.remove('customTools');
+  setCategories(await loadEffectiveToolCategories());
+}
+
 async function renderToolManager(): Promise<void> {
   toolManagerList.innerHTML = '';
   toolManagerStatus.style.display = 'none';
   toolManagerStatus.textContent = '';
+  toolManagerActions.style.display = 'none';
 
   const categories = (await loadEffectiveToolCategories()).filter((category) => category.id !== 'tooling');
   const hasEntries = categories.some((category) => category.tools.length > 0);
@@ -750,6 +758,7 @@ async function renderToolManager(): Promise<void> {
   if (!hasEntries) {
     toolManagerStatus.textContent = msg('toolManagerEmpty');
     toolManagerStatus.style.display = 'block';
+    toolManagerActions.style.display = 'flex';
     return;
   }
 
@@ -795,6 +804,8 @@ async function renderToolManager(): Promise<void> {
 
     toolManagerList.appendChild(categoryEl);
   });
+
+  toolManagerActions.style.display = 'flex';
 }
 
 function debouncedSave() {
@@ -1624,6 +1635,18 @@ btnToolManagerToggle.addEventListener('click', async () => {
   updateToolManagerVisibility();
   if (toolManagerOpen) {
     await renderToolManager();
+  }
+});
+
+btnToolManagerReset.addEventListener('click', async () => {
+  try {
+    await resetToolsToDefault();
+    toolManagerStatus.textContent = msg('toolsResetToDefault');
+    toolManagerStatus.style.display = 'block';
+    await renderToolManager();
+  } catch {
+    toolManagerStatus.textContent = msg('toolDeleteFailed');
+    toolManagerStatus.style.display = 'block';
   }
 });
 
