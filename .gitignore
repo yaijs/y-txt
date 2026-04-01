@@ -11,3 +11,4 @@ dist/
 *.orig
 coverage/
 *.local
+CLAUDE.md
