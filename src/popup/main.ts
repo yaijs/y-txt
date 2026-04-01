@@ -155,7 +155,7 @@ interface ToolRuntimeContext {
   currentTranslationLanguages: string;
 }
 
-interface GeneratedToolCandidate {
+interface GeneratedToolCandidate extends Record<string, unknown> {
   id: string;
   name: string;
   systemPrompt: string;
@@ -331,6 +331,7 @@ function parseGeneratedToolCandidate(raw: string): GeneratedToolCandidate {
   }
 
   return {
+    ...parsed,
     id: parsed.id,
     name: parsed.name,
     systemPrompt: parsed.systemPrompt,
