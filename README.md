@@ -19,6 +19,10 @@ Options and provider setup:
 
 ![Y/TXT options route](./screenshots/screenshot-5-options-route.png)
 
+Looking for ready-made tool patterns and placeholder examples?
+
+- [`TOOL.PROTOTYPES.md`](./TOOL.PROTOTYPES.md)
+
 ## Key Storage
 
 Y/TXT prefers storing provider keys in Keystone, the local native host companion project.
@@ -43,6 +47,7 @@ So the rule is now:
 - Supports staged context for tools that need extra reference material
 - Supports chained tools with multi-step pipelines
 - Supports both a quick popup flow and a side panel workspace that share the same persisted state
+- Includes a built-in Tooling workspace for generating, saving, deleting, and resetting tools
 
 ## Current Workflow
 
@@ -53,6 +58,27 @@ So the rule is now:
 5. Run the tool and copy the result, reuse it as the next input, or continue iterating.
 
 The popup and side panel now share one persisted workspace. The side panel is better for longer sessions, staged context, and watching runs complete without losing the UI. The last 50 completed runs are stored in Recent.
+
+## Tooling
+
+Y/TXT now includes a built-in `⌘ Tooling` entry in the footer.
+
+It opens the default `Tool Generator`, which can inspect your current:
+
+- tools config
+- model config
+- provider config
+- shared translation languages
+
+That makes it useful for:
+
+- generating a new tool from plain English
+- sketching model or provider config snippets
+- saving generated tools straight into the extension
+- managing and deleting tools by category
+- resetting the stored tool config back to bundled defaults
+
+The current save shortcut is intentionally limited to generated tool objects. Model and provider snippets still require a deliberate copy/paste step in Options.
 
 ## Provider Setup
 
@@ -121,6 +147,14 @@ Tools live in [`src/tools/tools.json`](./src/tools/tools.json). You can also edi
 ## Quickstart: Add Your Own Tool
 
 You do not need to understand JSON to extend Y/TXT.
+
+The fastest path now is often:
+
+1. Open `⌘ Tooling`
+2. Describe the tool you want in plain English
+3. Save the generated tool directly
+
+The manual Options-based path still exists and is useful when you want full control over categories or large edits.
 
 1. Open the extension popup or side panel.
 2. Click `⚙ Options`.
