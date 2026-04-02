@@ -49,7 +49,7 @@ With Keystone:
 - Y/TXT asks the local Keystone companion to inject the correct key at request time
 - the extension does not need to keep that provider key in browser storage
 
-This is safer because it narrows exposure from "anything that can read extension-managed storage" to "the local trusted host and its storage model".
+This is safer because it narrows exposure from "anything that can read extension-managed storage" to "the local Keystone companion and its storage model".
 
 Keystone is still local software, so it is not a magic boundary against a fully compromised machine, but it is a better separation model than storing secrets directly in the extension.
 

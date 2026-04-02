@@ -398,7 +398,7 @@
     "message": "Open Keystone Admin"
   },
   "keystoneSectionDesc": {
-    "message": "Test the local Native Messaging bridge and open the local admin UI. Keystone is optional, but preferred once you want secrets stored outside the browser."
+    "message": "Test the local Native Messaging bridge and open the local admin UI. Keystone is optional, but preferred once you want provider secrets stored outside the browser."
   },
   "running": {
     "message": "Running..."

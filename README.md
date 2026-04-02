@@ -27,9 +27,9 @@ Looking for ready-made tool patterns and placeholder examples?
 
 ## Key Storage
 
-Y/TXT prefers storing provider keys in Keystone, the local native host companion project.
+Y/TXT prefers storing provider keys in Keystone, the local companion credential proxy.
 
-That gives the extension a practical way to use API keys without keeping them in Chrome extension storage. Requests are tunneled through the local Keystone host, which injects the provider key right before the upstream API call and returns the response directly to the extension.
+That gives the extension a practical way to use API keys without keeping them in Chrome extension storage. Requests are tunneled through the local Keystone companion, which injects the provider key right before the upstream API call and returns the response directly to the extension.
 
 If Keystone is unavailable, Y/TXT can still fall back to `chrome.storage.local`. That fallback exists for resilience and development, not because it is the preferred security model.
 
