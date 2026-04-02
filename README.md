@@ -5,6 +5,8 @@
 
 Y/TXT is a Chrome extension for running small LLM-powered browser tools against selected text without leaving the page. Define tools as JSON, select text, run the tool, and get the result back inside a quick popup or a longer-lived side panel workspace.
 
+License: [MIT](./LICENSE)
+
 ## Screenshots
 
 Popup index view:
