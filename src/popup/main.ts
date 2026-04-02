@@ -73,6 +73,7 @@ const btnOptions = document.getElementById('btn-options') as HTMLButtonElement;
 const ACTIVE_RUN_STORAGE_KEY = 'activeRunState';
 const WORKSPACE_STORAGE_KEY = 'workspaceState';
 const SURFACE_LOCK_STORAGE_KEY = 'uiSurfaceLock';
+const CATEGORY_COLLAPSE_STORAGE_KEY = 'categoryCollapsed';
 const SIDE_PANEL_PORT_PREFIX = 'ytxt-sidepanel:';
 const surface = document.body.dataset.surface === 'sidepanel' ? 'sidepanel' : 'popup';
 const isSidePanelSurface = surface === 'sidepanel';
@@ -84,6 +85,7 @@ let activeCategories: Category[] = [];
 let activeToolIndex = new Map<string, ToolDef>();
 let currentOptions: Record<string, string> = {};
 let categoryAutoRun: Record<string, boolean> = {};
+let categoryCollapsed: Record<string, boolean> = {};
 let previousView: 'main' | 'history' = 'main';
 let activeRequestId: string | null = null;
 let activeRunRequestId: string | null = null;
@@ -481,6 +483,25 @@ async function setCategoryAutoRun(categoryId: string, enabled: boolean): Promise
     [categoryId]: enabled
   };
   await chrome.storage.local.set({ categoryAutoRun });
+}
+
+async function loadCategoryCollapsed(): Promise<Record<string, boolean>> {
+  const stored = await chrome.storage.local.get(CATEGORY_COLLAPSE_STORAGE_KEY) as { categoryCollapsed?: unknown };
+  if (!isObject(stored.categoryCollapsed)) {
+    return {};
+  }
+
+  return Object.fromEntries(
+    Object.entries(stored.categoryCollapsed).filter(([, value]) => typeof value === 'boolean')
+  ) as Record<string, boolean>;
+}
+
+async function setCategoryCollapsed(categoryId: string, collapsed: boolean): Promise<void> {
+  categoryCollapsed = {
+    ...categoryCollapsed,
+    [categoryId]: collapsed
+  };
+  await chrome.storage.local.set({ [CATEGORY_COLLAPSE_STORAGE_KEY]: categoryCollapsed });
 }
 
 function normalizeHistoryEntry(value: unknown): HistoryEntry | null {
@@ -1546,6 +1567,7 @@ async function loadLastUsedTargetLanguage(): Promise<string> {
 
   preferredTargetLanguage = await loadLastUsedTargetLanguage();
   categoryAutoRun = await loadCategoryAutoRun();
+  categoryCollapsed = isPopupSurface ? await loadCategoryCollapsed() : {};
   setCategories(await loadCategories());
   toolListEl.innerHTML = '';
 
@@ -1559,11 +1581,14 @@ async function loadLastUsedTargetLanguage(): Promise<string> {
 
     const categoryLabel = document.createElement('div');
     categoryLabel.className = 'category-label';
+    const categoryLabelMain = document.createElement('div');
+    categoryLabelMain.className = 'category-label-main';
     const autoRunId = `category-auto-run-${category.id}`;
     const autoRun = document.createElement('input');
     autoRun.type = 'checkbox';
     autoRun.id = autoRunId;
     autoRun.checked = categoryAutoRun[category.id] === true;
+    autoRun.title = msg('categoryAutoRunTitle');
     autoRun.addEventListener('change', () => {
       void setCategoryAutoRun(category.id, autoRun.checked);
     });
@@ -1573,16 +1598,44 @@ async function loadLastUsedTargetLanguage(): Promise<string> {
     labelText.htmlFor = autoRunId;
     labelText.textContent = category.label;
 
-    categoryLabel.appendChild(autoRun);
-    categoryLabel.appendChild(labelText);
+    categoryLabelMain.appendChild(autoRun);
+    categoryLabelMain.appendChild(labelText);
+    categoryLabel.appendChild(categoryLabelMain);
     categoryEl.appendChild(categoryLabel);
 
     const btnGrid = document.createElement('div');
     btnGrid.className = 'tool-btn-grid';
+    if (category.flatList) {
+      btnGrid.classList.add('flat-list');
+    }
+    if (isPopupSurface && categoryCollapsed[category.id] === true) {
+      btnGrid.classList.add('is-collapsed');
+    }
+
+    if (isPopupSurface) {
+      const collapseBtn = document.createElement('button');
+      collapseBtn.type = 'button';
+      collapseBtn.className = 'category-collapse-btn';
+      const syncCollapseUi = () => {
+        const collapsed = btnGrid.classList.contains('is-collapsed');
+        collapseBtn.textContent = collapsed ? msg('expandCategorySymbol') : msg('collapseCategorySymbol');
+        collapseBtn.title = collapsed ? msg('expandCategoryTitle') : msg('collapseCategoryTitle');
+      };
+      syncCollapseUi();
+      collapseBtn.addEventListener('click', () => {
+        btnGrid.classList.toggle('is-collapsed');
+        syncCollapseUi();
+        void setCategoryCollapsed(category.id, btnGrid.classList.contains('is-collapsed'));
+      });
+      categoryLabel.appendChild(collapseBtn);
+    }
 
     category.tools.forEach((tool) => {
       const btn = document.createElement('button');
       btn.className = 'tool-btn';
+      if (category.flatList) {
+        btn.classList.add('tool-btn-flat');
+      }
       btn.innerHTML = tool.icon ? `<span>${tool.icon}</span> ${tool.name}` : tool.name;
 
       btn.addEventListener('click', async () => {

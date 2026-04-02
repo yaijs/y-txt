@@ -32,5 +32,6 @@ export interface ToolDef extends Partial<ToolPromptDef> {
 export interface Category {
   id: string;
   label: string;
+  flatList?: boolean;
   tools: ToolDef[];
 }

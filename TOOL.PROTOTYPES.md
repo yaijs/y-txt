@@ -27,6 +27,7 @@ For faster iteration, use the built-in footer entry `🧰 Tooling`. It opens the
 | `id` | Unique identifier. Use letters, numbers, `_`, and keep it stable. |
 | `name` | Human-facing tool label in the UI. |
 | `icon` | Optional emoji for fast visual scanning. |
+| `description` | Optional plain-text note shown behind the `Info` toggle in the workspace. |
 | `model` | Preconfigured tier such as `default`, `fast`, `coding`, or `creative`. |
 | `provider` | Optional provider override for the whole tool or a specific step. |
 | `temperature` | Creativity / variance control. Lower is stricter. |
@@ -88,6 +89,17 @@ Y/TXT injects the shared `targetLanguage` select automatically, so the tool can 
 
 This keeps translation tools compact and centralized.
 
+### Optional tool description
+
+If a tool includes:
+
+```json
+"description": "Short explanation of what the tool does and when to use it."
+```
+
+Y/TXT shows an `Info` button next to the input label in the workspace.
+Descriptions are treated as plain text and rendered with preserved line breaks, so they are safe to share and still readable for longer notes.
+
 ### Advanced config-aware placeholders
 
 These are especially useful for the built-in `Tool Generator`, but any tool can use them:
@@ -122,6 +134,7 @@ Do not split one obvious rewrite into three model calls just because you can.
   "icon": "✨",
   "id": "professional_polish",
   "name": "Professional Polish",
+  "description": "Polishes business or professional writing without changing the intended meaning.",
   "systemPrompt": "You are an expert editor. Improve clarity, professionalism, tone, and flow. Fix grammar and awkward phrasing while preserving the original meaning and voice. Output only the polished version.",
   "userMessage": "Polish this text to sound professional and confident:\n\n{{input}}",
   "temperature": 0.3
@@ -177,6 +190,7 @@ Do not split one obvious rewrite into three model calls just because you can.
   "icon": "🔁",
   "id": "proofread_translate",
   "name": "Proofread -> Translate",
+  "description": "First cleans up the source text, then translates it into the selected target language.",
   "languages": true,
   "steps": [
     {
@@ -263,6 +277,7 @@ That makes it a good first stop when you want to:
 ## Design Rules That Age Well
 
 - Keep tool IDs stable once you start using them in history.
+- Add a `description` when the tool's intent is not obvious from the name alone.
 - Put strict output rules in `systemPrompt`, not only in `userMessage`.
 - Prefer one excellent pass over three vague chained passes.
 - Reuse shared language config with `languages: true`.

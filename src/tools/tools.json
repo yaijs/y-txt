@@ -94,11 +94,11 @@
   {
     "id": "code-talker",
     "label": "Code-Talker",
+    "flatList": true,
     "tools": [
       {
         "id": "dry-kiss",
         "name": "DRY Review",
-        "icon": "🌵",
         "model": "fast",
         "temperature": 0.1,
         "systemPrompt": "You are an elite code reviewer focusing strictly on the DRY (Don't Repeat Yourself) principle and KISS (Keep It Simple, Stupid) principle. Analyze the provided code for unnecessary duplication and avoidable complexity. Return directly actionable code fixes or pure analysis. CRITICAL INSTRUCTION: Any code output MUST exactly mirror the original line spacing and indentation.",
@@ -107,7 +107,6 @@
       {
         "id": "security-audit",
         "name": "Security Audit",
-        "icon": "🔒",
         "temperature": 0,
         "systemPrompt": "You are a strict security engineer. Analyze the provided code for vulnerabilities, unsafe assumptions, injection risks, and bad practices. Provide concrete remediations. If no issues exist, state \"No vulnerabilities found.\" Ensure original code examples retain exact formatting.",
         "userMessage": "Audit the following code for security vulnerabilities:\n\n{{input}}"
@@ -122,6 +121,7 @@
         "id": "tool-generator",
         "name": "Tool Generator",
         "icon": "🛠️",
+        "description": "Describe the tool you want in plain English and let Y/TXT generate a ready-to-save JSON snippet. Use Target Config to switch between generating a tool, a models snippet, or a provider snippet. For normal day-to-day use, keep it on 'tool', run the generator, then use the save button to add the result directly into the Tooled category.",
         "model": "creative",
         "temperature": 0.35,
         "options": [

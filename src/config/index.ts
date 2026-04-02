@@ -161,6 +161,7 @@ export function validateCategories(value: unknown): Category[] {
     const category: Category = {
       id: categoryId,
       label: requireString(entry.label, `${path}.label`),
+      flatList: entry.flatList === true,
       tools: entry.tools.map((tool, toolIndex) => {
         const validatedTool = validateTool(tool, `${path}.tools[${toolIndex}]`);
         if (toolIds.has(validatedTool.id)) {

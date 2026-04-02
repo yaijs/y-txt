@@ -131,8 +131,29 @@
   "appendSelection": {
     "message": "+ selection"
   },
+  "appendSelectionTitle": {
+    "message": "Append the current page selection to the existing input"
+  },
   "overrideSelection": {
     "message": "= selection"
+  },
+  "overrideSelectionTitle": {
+    "message": "Replace the current input with the current page selection"
+  },
+  "categoryAutoRunTitle": {
+    "message": "Automatically run this category's tools immediately after selection"
+  },
+  "collapseCategoryTitle": {
+    "message": "Show or hide this category in the popup"
+  },
+  "expandCategoryTitle": {
+    "message": "Show this category in the popup"
+  },
+  "collapseCategorySymbol": {
+    "message": "▾"
+  },
+  "expandCategorySymbol": {
+    "message": "▸"
   },
   "resetButton": {
     "message": "reset"

@@ -86,6 +86,12 @@
       margin-bottom: 0.4rem;
       padding-left: 2px;
     }
+    .category-label-main {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      min-width: 0;
+    }
     .category-label input[type="checkbox"] {
       margin: 0;
       accent-color: var(--accent);
@@ -97,6 +103,11 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.35rem;
+    }
+    .tool-btn-grid.flat-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
     }
     .tool-options-container {
       display: none;
@@ -127,6 +138,18 @@
     .tool-btn:hover {
       border-color: var(--accent);
       background: rgba(59, 130, 246, 0.1);
+    }
+    .tool-btn.tool-btn-flat {
+      flex: 0 1 auto;
+      display: inline-flex;
+      justify-content: center;
+      padding: 0.46rem 0.72rem;
+      border-radius: 999px;
+      font-size: 0.84rem;
+      text-align: center;
+      white-space: nowrap;
+      min-height: 0;
+      gap: 0.35rem;
     }
     .footer {
       margin-top: 1rem;
@@ -666,8 +689,8 @@
 <div id="tool-options-container" class="tool-options-container"></div>
 
     <div style="display: flex; gap: 6px; margin-bottom: 1rem;">
-      <button id="btn-append" style="flex: 1; padding: 8px; font-size: 0.82rem; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); border-radius:4px;" data-i18n="appendSelection">+ selection</button>
-      <button id="btn-override" style="flex: 1; padding: 8px; font-size: 0.82rem; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); border-radius:4px;" data-i18n="overrideSelection">= selection</button>
+      <button id="btn-append" style="flex: 1; padding: 8px; font-size: 0.82rem; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); border-radius:4px;" data-i18n="appendSelection" data-i18n-title="appendSelectionTitle">+ selection</button>
+      <button id="btn-override" style="flex: 1; padding: 8px; font-size: 0.82rem; background: var(--card-bg); border: 1px solid var(--border); color: var(--text); border-radius:4px;" data-i18n="overrideSelection" data-i18n-title="overrideSelectionTitle">= selection</button>
       <button id="btn-reset" style="padding: 8px 12px; font-size: 0.82rem; background: transparent; border: 1px solid var(--border); color: #ef4444; border-radius:4px;" data-i18n="resetButton">reset</button>
     </div>
 
