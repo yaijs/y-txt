@@ -98,7 +98,8 @@ function validateTool(value: unknown, path: string): ToolDef {
   const tool: ToolDef = {
     id: requireString(value.id, `${path}.id`),
     name: requireString(value.name, `${path}.name`),
-    icon: optionalString(value.icon, `${path}.icon`)
+    icon: optionalString(value.icon, `${path}.icon`),
+    description: optionalString(value.description, `${path}.description`)
   };
 
   if (value.languages !== undefined) {

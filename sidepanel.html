@@ -262,6 +262,34 @@
       color: var(--muted);
       font-size: 0.84rem;
     }
+    .tool-description-toggle {
+      margin-left: auto;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(30, 41, 59, 0.68);
+      color: var(--muted);
+      font-size: 0.74rem;
+    }
+    .tool-description-toggle:hover {
+      color: var(--text);
+      border-color: var(--accent);
+    }
+    .tool-description-box {
+      display: none;
+      margin-bottom: 0.65rem;
+      padding: 0.7rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.45);
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    .tool-description-box.is-open {
+      display: block;
+    }
     .tool-manager-actions {
       display: none;
       justify-content: flex-end;
@@ -630,7 +658,9 @@
     <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:4px;">
       <label for="workspace-input" style="font-size: 0.8rem; color: var(--muted);" data-i18n="workspaceInputLabel">Input Text</label>
       <span id="input-char-count" style="font-size:0.7rem; color:var(--muted);">0</span>
+      <button id="btn-tool-description-toggle" type="button" class="tool-description-toggle" style="display:none;" data-i18n="toolDescriptionInfoButton">Info</button>
     </div>
+    <div id="tool-description-box" class="tool-description-box"></div>
     <textarea id="workspace-input" data-i18n-placeholder="workspaceInputPlaceholder" placeholder="Text to process..." style="width: 100%; height: 160px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.75rem; box-sizing: border-box; font-family: inherit; resize: vertical; margin-bottom: 0.6rem;"></textarea>
 
 <div id="tool-options-container" class="tool-options-container"></div>

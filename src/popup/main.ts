@@ -32,6 +32,8 @@ const sidePanelLockToggle = document.getElementById('side-panel-lock-toggle') as
 const workspaceTitle = document.getElementById('workspace-title') as HTMLHeadingElement;
 const workspaceSubtitle = document.getElementById('workspace-subtitle') as HTMLSpanElement;
 const workspaceInput = document.getElementById('workspace-input') as HTMLTextAreaElement;
+const btnToolDescriptionToggle = document.getElementById('btn-tool-description-toggle') as HTMLButtonElement;
+const toolDescriptionBox = document.getElementById('tool-description-box') as HTMLDivElement;
 const workspaceResult = document.getElementById('workspace-result') as HTMLTextAreaElement;
 const stagedSection = document.getElementById('staged-section') as HTMLDivElement;
 const stagedContentEl = document.getElementById('staged-content') as HTMLTextAreaElement;
@@ -93,6 +95,7 @@ let preferredTargetLanguage = '';
 let popupLocked = false;
 let sidePanelPort: chrome.runtime.Port | null = null;
 let toolManagerOpen = false;
+let toolDescriptionOpen = false;
 
 const TARGET_LANGUAGE_STORAGE_KEY = 'lastUsedTargetLanguage';
 const LANGUAGE_NAME_BY_CODE: Record<string, string> = {
@@ -158,8 +161,10 @@ interface ToolRuntimeContext {
 interface GeneratedToolCandidate extends Record<string, unknown> {
   id: string;
   name: string;
-  systemPrompt: string;
-  userMessage: string;
+  systemPrompt?: string;
+  userMessage?: string;
+  steps?: unknown[];
+  description?: string;
 }
 
 function unwrapJsonFence(raw: string): string {
@@ -297,6 +302,15 @@ function updateGeneratedToolAction(): void {
   btnSaveGeneratedTool.disabled = !visible;
 }
 
+function updateToolDescriptionVisibility(): void {
+  const description = activeTool?.description?.trim();
+  const visible = Boolean(description);
+  btnToolDescriptionToggle.style.display = visible ? '' : 'none';
+  btnToolDescriptionToggle.textContent = toolDescriptionOpen ? msg('toolDescriptionHideButton') : msg('toolDescriptionInfoButton');
+  toolDescriptionBox.classList.toggle('is-open', visible && toolDescriptionOpen);
+  toolDescriptionBox.textContent = visible ? description || '' : '';
+}
+
 function isToolingWorkspaceActive(): boolean {
   return activeTool?.id === 'tool-generator';
 }
@@ -323,10 +337,14 @@ function parseGeneratedToolCandidate(raw: string): GeneratedToolCandidate {
 
   if (
     typeof parsed.id !== 'string' ||
-    typeof parsed.name !== 'string' ||
-    typeof parsed.systemPrompt !== 'string' ||
-    typeof parsed.userMessage !== 'string'
+    typeof parsed.name !== 'string'
   ) {
+    throw new Error(msg('generatedToolInvalidShape'));
+  }
+
+  const hasDirectPrompt = typeof parsed.systemPrompt === 'string' && typeof parsed.userMessage === 'string';
+  const hasSteps = Array.isArray(parsed.steps) && parsed.steps.length > 0;
+  if (!hasDirectPrompt && !hasSteps) {
     throw new Error(msg('generatedToolInvalidShape'));
   }
 
@@ -334,8 +352,10 @@ function parseGeneratedToolCandidate(raw: string): GeneratedToolCandidate {
     ...parsed,
     id: parsed.id,
     name: parsed.name,
-    systemPrompt: parsed.systemPrompt,
-    userMessage: parsed.userMessage
+    systemPrompt: typeof parsed.systemPrompt === 'string' ? parsed.systemPrompt : undefined,
+    userMessage: typeof parsed.userMessage === 'string' ? parsed.userMessage : undefined,
+    steps: Array.isArray(parsed.steps) ? parsed.steps : undefined,
+    description: typeof parsed.description === 'string' ? parsed.description : undefined
   };
 }
 
@@ -939,6 +959,7 @@ function openWorkspace(
 ) {
   activeTool = tool;
   toolManagerOpen = false;
+  toolDescriptionOpen = false;
   activeRunRequestId = runRequestId;
   activeRequestId = null;
   activeRunStartedAt = null;
@@ -959,6 +980,7 @@ function openWorkspace(
   btnSaveGeneratedTool.title = msg('generatedToolSaveTitle');
   toolManagerStatus.style.display = 'none';
   toolManagerStatus.textContent = '';
+  updateToolDescriptionVisibility();
   updateToolManagerVisibility();
 }
 
@@ -1635,6 +1657,11 @@ btnUseResult.addEventListener('click', async () => {
   updateInputUI(workspaceResult.value);
   setResultHint('');
   await saveWorkspaceState();
+});
+
+btnToolDescriptionToggle.addEventListener('click', () => {
+  toolDescriptionOpen = !toolDescriptionOpen;
+  updateToolDescriptionVisibility();
 });
 
 btnToolManagerToggle.addEventListener('click', async () => {

@@ -119,6 +119,12 @@
   "workspaceInputLabel": {
     "message": "Input Text"
   },
+  "toolDescriptionInfoButton": {
+    "message": "Info"
+  },
+  "toolDescriptionHideButton": {
+    "message": "Hide"
+  },
   "workspaceInputPlaceholder": {
     "message": "Text to process..."
   },
@@ -188,7 +194,7 @@
     "message": "Result is not valid JSON."
   },
   "generatedToolInvalidShape": {
-    "message": "Tool JSON must include id, name, systemPrompt, and userMessage."
+    "message": "Tool JSON must include id and name plus either systemPrompt/userMessage or a valid steps array."
   },
   "generatedToolInvalidConfig": {
     "message": "Generated tool is not a valid Y/TXT tool."
