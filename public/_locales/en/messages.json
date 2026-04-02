@@ -619,7 +619,7 @@
   "keystoneInstallerNotes": {
     "message": "Installer notes ↗"
   },
-  "keystoneConnectTerminalLinux": {
+  "keystoneConnectTerminalHelper": {
     "message": "Connect via terminal"
   },
   "keystoneConnectTerminalFallback": {
@@ -628,10 +628,16 @@
   "keystoneTerminalHintLinux": {
     "message": "Open a terminal in the extracted release folder, then run the command above."
   },
+  "keystoneTerminalHintMac": {
+    "message": "Open Terminal in the extracted release folder, then run the command above."
+  },
+  "keystoneTerminalHintWin": {
+    "message": "Open PowerShell in the extracted release folder, then run the command above."
+  },
   "keystoneTerminalHintFallback": {
     "message": "Linux release archives include a helper script. For macOS and Windows, use the release docs and installer notes first."
   },
-  "keystonePathNoteLinux": {
+  "keystonePathNoteHelper": {
     "message": "This helper installs the binary into a stable per-user location and then registers the browser manifest for the selected browser and flavor."
   },
   "keystonePathNoteFallback": {

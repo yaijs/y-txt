@@ -262,12 +262,18 @@ function buildKeystoneInstallCommand(): string {
   if (os === 'linux') {
     return `./install-keystone-linux.sh ${browserTarget} ${flavor} ${extensionId}`;
   }
+  if (os === 'mac') {
+    return `./install-keystone-macos.sh ${browserTarget} ${flavor} ${extensionId}`;
+  }
+  if (os === 'win') {
+    return `.\\install-keystone-windows.ps1 ${browserTarget} ${flavor} ${extensionId}`;
+  }
   return '';
 }
 
 function pathNoteForOs(os: string): string {
-  if (os === 'linux') {
-    return msg('keystonePathNoteLinux');
+  if (os === 'linux' || os === 'mac' || os === 'win') {
+    return msg('keystonePathNoteHelper');
   }
   return msg('keystonePathNoteFallback');
 }
@@ -275,6 +281,12 @@ function pathNoteForOs(os: string): string {
 function terminalHintForOs(os: string): string {
   if (os === 'linux') {
     return msg('keystoneTerminalHintLinux');
+  }
+  if (os === 'mac') {
+    return msg('keystoneTerminalHintMac');
+  }
+  if (os === 'win') {
+    return msg('keystoneTerminalHintWin');
   }
   return msg('keystoneTerminalHintFallback');
 }
@@ -295,8 +307,8 @@ function refreshKeystoneCommandPreview() {
   const flavor = keystoneHelpFlavorSelectEl.value || keystoneFlavorFromHost();
   const command = buildKeystoneInstallCommand();
   keystoneHelpCommandEl.textContent = command;
-  keystoneHelpCommandTitleEl.textContent = os === 'linux'
-    ? msg('keystoneConnectTerminalLinux')
+  keystoneHelpCommandTitleEl.textContent = command
+    ? msg('keystoneConnectTerminalHelper')
     : msg('keystoneConnectTerminalFallback');
   keystoneHelpHostEl.textContent = hostIdForFlavor(flavor);
   keystoneHelpTerminalHintEl.textContent = terminalHintForOs(os);
