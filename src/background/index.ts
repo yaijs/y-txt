@@ -33,7 +33,11 @@ const ACTIVE_RUN_STORAGE_KEY = 'activeRunState';
 const WORKSPACE_STORAGE_KEY = 'workspaceState';
 const HISTORY_STORAGE_KEY = 'history';
 const SURFACE_LOCK_STORAGE_KEY = 'uiSurfaceLock';
+const SIDE_PANEL_VIEW_STATE_KEY = 'sidePanelViewState';
 const SIDE_PANEL_PORT_PREFIX = 'ytxt-sidepanel:';
+const INCOMING_SELECTION_STORAGE_KEY = 'incomingSelectionPayload';
+const CONTEXT_MENU_APPEND_ID = 'ytxt-append-selection';
+const CONTEXT_MENU_REPLACE_ID = 'ytxt-replace-selection';
 
 type KeystonePending = {
   resolve: (value: any) => void;
@@ -163,8 +167,41 @@ interface HistoryEntry {
   timestamp: number;
 }
 
+interface IncomingSelectionPayload {
+  mode: 'append' | 'replace';
+  text: string;
+  createdAt: number;
+  nonce: string;
+}
+
+interface SidePanelViewState {
+  sessionId: string;
+  view: 'main' | 'history' | 'stats' | 'faq' | 'workspace';
+  updatedAt: number;
+}
+
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function normalizeSidePanelViewState(value: unknown): SidePanelViewState | null {
+  if (!isObject(value)) return null;
+  if (typeof value.sessionId !== 'string' || typeof value.updatedAt !== 'number') return null;
+  if (
+    value.view !== 'main' &&
+    value.view !== 'history' &&
+    value.view !== 'stats' &&
+    value.view !== 'faq' &&
+    value.view !== 'workspace'
+  ) {
+    return null;
+  }
+
+  return {
+    sessionId: value.sessionId,
+    view: value.view,
+    updatedAt: value.updatedAt
+  };
 }
 
 function pickStringRecord(value: unknown): Record<string, string> {
@@ -291,6 +328,12 @@ async function clearSidePanelLock(sessionId: string): Promise<void> {
     (lock as { sessionId?: unknown }).sessionId === sessionId
   ) {
     await chrome.storage.local.remove(SURFACE_LOCK_STORAGE_KEY);
+  }
+
+  const viewStored = await chrome.storage.local.get(SIDE_PANEL_VIEW_STATE_KEY) as { sidePanelViewState?: unknown };
+  const viewState = normalizeSidePanelViewState(viewStored[SIDE_PANEL_VIEW_STATE_KEY]);
+  if (viewState?.sessionId === sessionId) {
+    await chrome.storage.local.remove(SIDE_PANEL_VIEW_STATE_KEY);
   }
 }
 
@@ -823,8 +866,68 @@ async function executeToolRun(
 configurePromise = configureClient();
 void ensureTranslationLanguagesStored();
 
+async function setupContextMenus(): Promise<void> {
+  await chrome.contextMenus.removeAll();
+  chrome.contextMenus.create({
+    id: CONTEXT_MENU_APPEND_ID,
+    title: 'Append selection to Y/TXT',
+    contexts: ['selection']
+  });
+  chrome.contextMenus.create({
+    id: CONTEXT_MENU_REPLACE_ID,
+    title: 'Replace input in Y/TXT',
+    contexts: ['selection']
+  });
+}
+
 chrome.runtime.onInstalled.addListener(() => {
   void ensureTranslationLanguagesStored();
+  void setupContextMenus();
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  const selectionText = typeof info.selectionText === 'string' ? info.selectionText : '';
+  if (!selectionText) return;
+
+  const mode = info.menuItemId === CONTEXT_MENU_APPEND_ID
+    ? 'append'
+    : info.menuItemId === CONTEXT_MENU_REPLACE_ID
+      ? 'replace'
+      : null;
+
+  if (!mode) return;
+
+  if (typeof tab?.windowId === 'number') {
+    chrome.sidePanel.open({ windowId: tab.windowId }).catch((error: Error) => {
+      console.warn('Immediate context-menu side panel open failed.', {
+        windowId: tab.windowId,
+        error: error.message
+      });
+    });
+  }
+
+  const payload: IncomingSelectionPayload = {
+    mode,
+    text: selectionText,
+    createdAt: Date.now(),
+    nonce: crypto.randomUUID()
+  };
+
+  void chrome.storage.local.get([SURFACE_LOCK_STORAGE_KEY, SIDE_PANEL_VIEW_STATE_KEY]).then((stored) => {
+    const lock = stored[SURFACE_LOCK_STORAGE_KEY];
+    const viewState = normalizeSidePanelViewState(stored[SIDE_PANEL_VIEW_STATE_KEY]);
+    const shouldInjectIntoOpenWorkspace =
+      isObject(lock) &&
+      lock.owner === 'sidepanel' &&
+      typeof lock.sessionId === 'string' &&
+      viewState?.view === 'workspace' &&
+      viewState.sessionId === lock.sessionId;
+
+    if (shouldInjectIntoOpenWorkspace) {
+      return chrome.storage.local.set({ [INCOMING_SELECTION_STORAGE_KEY]: payload });
+    }
+    return undefined;
+  });
 });
 
 chrome.runtime.onConnect.addListener((port) => {

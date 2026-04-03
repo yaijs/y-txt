@@ -1,0 +1,140 @@
+:root {
+  --bg: #0f172a;
+  --bg-soft: #13203b;
+  --card: #1e293b;
+  --text: #e2e8f0;
+  --muted: #94a3b8;
+  --border: #334155;
+  --accent: #7dd3fc;
+  --link: #93c5fd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background:
+    radial-gradient(circle at top left, rgba(125, 211, 252, 0.08), transparent 28%),
+    linear-gradient(160deg, var(--bg) 0%, #101c34 55%, var(--bg) 100%);
+  color: var(--text);
+  font-family: "Segoe UI", Inter, system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+a {
+  color: var(--link);
+}
+
+.shell {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 20px 48px;
+}
+
+.hero {
+  margin-bottom: 28px;
+}
+
+.eyebrow {
+  margin: 0 0 6px;
+  color: var(--accent);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.hero h1,
+.doc-header h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  line-height: 1.1;
+}
+
+.lead {
+  margin: 0;
+  max-width: 64ch;
+  color: var(--muted);
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.card {
+  display: block;
+  background: rgba(30, 41, 59, 0.88);
+  border: 1px solid var(--border);
+  padding: 18px;
+  color: inherit;
+  text-decoration: none;
+}
+
+.card:hover {
+  border-color: var(--accent);
+  background: rgba(30, 41, 59, 0.98);
+}
+
+.card h2 {
+  margin: 0 0 6px;
+  font-size: 1.05rem;
+}
+
+.card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.doc-header {
+  margin-bottom: 20px;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 10px;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.back-link:hover {
+  color: var(--text);
+}
+
+.doc-body {
+  background: rgba(30, 41, 59, 0.88);
+  border: 1px solid var(--border);
+  padding: 22px;
+}
+
+.doc-body h1,
+.doc-body h2,
+.doc-body h3 {
+  line-height: 1.2;
+}
+
+.doc-body :first-child {
+  margin-top: 0;
+}
+
+.doc-body code {
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border);
+  padding: 0 4px;
+}
+
+.doc-body pre {
+  overflow-x: auto;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid var(--border);
+  padding: 14px;
+}
+
+.loading {
+  margin: 0;
+  color: var(--muted);
+}

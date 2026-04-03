@@ -3,15 +3,19 @@
   "default_locale": "en",
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA73P1AeKJeVZmvRE1ENyzlNxmBouMvd1Z4XM4FT7Yd7u6eAEFEO2gmpYFxSKZYUm5pezr1KGKDM7kw1JXbbuBSh/JU0gbveK15Czpl2MSx1K9GsvcZm6qbQZxpEI8qNd2s0GfCynMUm3BSuoIjr0TEvXg5FVIyTc2AWrPNPp2XLc5z20spARJhiFp/K3LvXaVCGVHQ/XMMQj2KYmrOfe6se+YjJrC65uP5XMVR9neld7/FrSgs58YsSCIZQCq/iwf9z6LoAlCP+CtGr0ZB7YGxmS90L5HZcPiOarM5o/0QH/cHM5xx+cvoHCQvmtEzMdQpGHS6XMQYex7GCQqID8B0wIDAQAB",
   "name": "__MSG_appName__",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "__MSG_appDescription__",
-  "permissions": ["activeTab", "storage", "scripting", "nativeMessaging", "sidePanel"],
+  "permissions": ["activeTab", "storage", "scripting", "nativeMessaging", "sidePanel", "contextMenus"],
   "host_permissions": [
     "http://127.0.0.1/*",
     "https://api.openai.com/*",
     "https://api.anthropic.com/*",
     "https://api.deepseek.com/*",
     "https://integrate.api.nvidia.com/*"
+  ],
+  "optional_host_permissions": [
+    "http://*/*",
+    "https://*/*"
   ],
   "background": {
     "service_worker": "assets/background.js",

@@ -2,7 +2,8 @@ import { CATEGORIES as BUNDLED_CATEGORIES, Category, ToolDef } from '../tools/in
 import { getToolSteps, validateCategories, validateModelSets } from '../config/index.js';
 import { localizePage, msg } from '../i18n.js';
 import bundledModelsData from '../models.json';
-import { BUNDLED_PROVIDERS, validateProvidersConfig } from '../providers/config.js';
+import { CompletionRequest } from '../providers/index.js';
+import { BUNDLED_PROVIDERS, findProviderConfig, validateProvidersConfig } from '../providers/config.js';
 import {
   DEFAULT_TRANSLATION_LANGUAGES,
   injectTranslationLanguageOptions,
@@ -10,6 +11,7 @@ import {
   TARGET_LANGUAGE_OPTION_ID,
   TRANSLATION_LANGUAGES_STORAGE_KEY
 } from '../tools/languages.js';
+import { interpolate } from '../tools/index.js';
 
 const mainView = document.getElementById('main-view') as HTMLDivElement;
 const historyView = document.getElementById('history-view') as HTMLDivElement;
@@ -32,8 +34,11 @@ const sidePanelLockToggle = document.getElementById('side-panel-lock-toggle') as
 const workspaceTitle = document.getElementById('workspace-title') as HTMLHeadingElement;
 const workspaceSubtitle = document.getElementById('workspace-subtitle') as HTMLSpanElement;
 const workspaceInput = document.getElementById('workspace-input') as HTMLTextAreaElement;
+const toolDebugToggles = document.getElementById('tool-debug-toggles') as HTMLDivElement;
 const btnToolDescriptionToggle = document.getElementById('btn-tool-description-toggle') as HTMLButtonElement;
+const btnToolPayloadToggle = document.getElementById('btn-tool-payload-toggle') as HTMLButtonElement;
 const toolDescriptionBox = document.getElementById('tool-description-box') as HTMLDivElement;
+const toolPayloadBox = document.getElementById('tool-payload-box') as HTMLPreElement;
 const workspaceResult = document.getElementById('workspace-result') as HTMLTextAreaElement;
 const stagedSection = document.getElementById('staged-section') as HTMLDivElement;
 const stagedContentEl = document.getElementById('staged-content') as HTMLTextAreaElement;
@@ -49,6 +54,7 @@ const btnToolManagerReset = document.getElementById('btn-tool-manager-reset') as
 const btnCopyResult = document.getElementById('btn-copy-result') as HTMLButtonElement;
 const btnUseResult = document.getElementById('btn-use-result') as HTMLButtonElement;
 const btnSaveGeneratedTool = document.getElementById('btn-save-generated-tool') as HTMLButtonElement;
+const generatedToolCategorySelect = document.getElementById('generated-tool-category-select') as HTMLSelectElement;
 const btnBack = document.getElementById('btn-back') as HTMLButtonElement;
 const btnHistoryBack = document.getElementById('btn-history-back') as HTMLButtonElement;
 const btnStatsBack = document.getElementById('btn-stats-back') as HTMLButtonElement;
@@ -74,6 +80,8 @@ const ACTIVE_RUN_STORAGE_KEY = 'activeRunState';
 const WORKSPACE_STORAGE_KEY = 'workspaceState';
 const SURFACE_LOCK_STORAGE_KEY = 'uiSurfaceLock';
 const CATEGORY_COLLAPSE_STORAGE_KEY = 'categoryCollapsed';
+const INCOMING_SELECTION_STORAGE_KEY = 'incomingSelectionPayload';
+const SIDE_PANEL_VIEW_STATE_KEY = 'sidePanelViewState';
 const SIDE_PANEL_PORT_PREFIX = 'ytxt-sidepanel:';
 const surface = document.body.dataset.surface === 'sidepanel' ? 'sidepanel' : 'popup';
 const isSidePanelSurface = surface === 'sidepanel';
@@ -98,6 +106,7 @@ let popupLocked = false;
 let sidePanelPort: chrome.runtime.Port | null = null;
 let toolManagerOpen = false;
 let toolDescriptionOpen = false;
+let toolPayloadOpen = false;
 
 const TARGET_LANGUAGE_STORAGE_KEY = 'lastUsedTargetLanguage';
 const LANGUAGE_NAME_BY_CODE: Record<string, string> = {
@@ -169,6 +178,18 @@ interface GeneratedToolCandidate extends Record<string, unknown> {
   description?: string;
 }
 
+interface SelectionScriptResult {
+  value: string;
+  permissionDenied: boolean;
+}
+
+interface IncomingSelectionPayload {
+  mode: 'append' | 'replace';
+  text: string;
+  createdAt: number;
+  nonce: string;
+}
+
 function unwrapJsonFence(raw: string): string {
   const trimmed = raw.trim();
   const fenced = trimmed.match(/^```(?:json)?\s*([\s\S]*?)\s*```$/i);
@@ -176,6 +197,7 @@ function unwrapJsonFence(raw: string): string {
 }
 
 type RunStatus = 'running' | 'completed' | 'error' | 'aborted';
+type SurfaceView = 'main' | 'history' | 'stats' | 'faq' | 'workspace';
 
 interface ToolRunStep {
   id: string;
@@ -301,16 +323,115 @@ function isToolGeneratorActive(): boolean {
 function updateGeneratedToolAction(): void {
   const visible = isToolGeneratorActive() && workspaceResult.value.trim().length > 0;
   btnSaveGeneratedTool.style.display = visible ? '' : 'none';
+  generatedToolCategorySelect.style.display = visible ? '' : 'none';
   btnSaveGeneratedTool.disabled = !visible;
+  generatedToolCategorySelect.disabled = !visible;
 }
 
 function updateToolDescriptionVisibility(): void {
   const description = activeTool?.description?.trim();
   const visible = Boolean(description);
+  toolDebugToggles.style.display = (visible || Boolean(activeTool)) ? 'flex' : 'none';
   btnToolDescriptionToggle.style.display = visible ? '' : 'none';
   btnToolDescriptionToggle.textContent = toolDescriptionOpen ? msg('toolDescriptionHideButton') : msg('toolDescriptionInfoButton');
   toolDescriptionBox.classList.toggle('is-open', visible && toolDescriptionOpen);
   toolDescriptionBox.textContent = visible ? description || '' : '';
+}
+
+async function buildCurrentToolPayloadPreview(): Promise<string> {
+  if (!activeTool) return '';
+
+  const context = await buildToolRuntimeContext();
+  const providers = await loadEffectiveProviders();
+  const stagedContent = stagedContentEl.value.trim();
+  const toolSteps = getToolSteps(activeTool);
+  const requests: Array<Record<string, unknown>> = [];
+  const stepOutputs: Record<string, string> = {};
+  let currentInput = workspaceInput.value;
+
+  for (const step of toolSteps) {
+    const vars = {
+      ...currentOptions,
+      ...context,
+      ...stepOutputs,
+      input: currentInput,
+      previous: currentInput,
+      originalInput: workspaceInput.value
+    };
+
+    const request: CompletionRequest = {
+      systemPrompt: interpolate(step.systemPrompt, vars),
+      userMessage: interpolate(step.userMessage, vars),
+      stagedContent
+    };
+
+    const resolved = await resolvePreviewProviderAndModel(step.provider, step.model, step.temperature);
+    if (resolved.temperature !== undefined) {
+      request.temperature = resolved.temperature;
+    }
+
+    const providerConfig = findProviderConfig(providers, resolved.providerId);
+    if (!providerConfig) {
+      throw new Error(`Unknown provider "${resolved.providerId}".`);
+    }
+
+    const prompt = providerConfig.type === 'anthropic'
+      ? {
+          system: request.systemPrompt,
+          user: request.userMessage,
+          stagedContent
+        }
+      : providerConfig.systemMode === 'system'
+        ? {
+            system: request.systemPrompt,
+            user: request.userMessage,
+            stagedContent
+          }
+        : {
+            systemInline: request.systemPrompt,
+            user: request.userMessage,
+            stagedContent
+          };
+
+    requests.push({
+      stepId: step.id,
+      stepName: step.name,
+      providerId: providerConfig.id,
+      providerType: providerConfig.type,
+      prompt,
+      meta: {
+        model: resolved.model,
+        temperature: request.temperature ?? null,
+        systemMode: providerConfig.type === 'openai-compatible'
+          ? (providerConfig.systemMode || 'system')
+          : undefined
+      }
+    });
+
+    currentInput = '[previous step output]';
+    stepOutputs[step.id] = '[this step output]';
+  }
+
+  return JSON.stringify(toolSteps.length === 1 ? requests[0] : requests, null, 2);
+}
+
+async function refreshToolPayloadPreview(): Promise<void> {
+  const visible = Boolean(activeTool);
+  toolDebugToggles.style.display = visible ? 'flex' : 'none';
+  btnToolPayloadToggle.style.display = visible ? '' : 'none';
+  btnToolPayloadToggle.textContent = toolPayloadOpen ? msg('toolPayloadHideButton') : msg('toolPayloadButton');
+  if (!visible) {
+    toolPayloadBox.classList.remove('is-open');
+    toolPayloadBox.textContent = '';
+    return;
+  }
+
+  toolPayloadBox.classList.toggle('is-open', toolPayloadOpen);
+  if (!toolPayloadOpen) {
+    return;
+  }
+
+  toolPayloadBox.textContent = await buildCurrentToolPayloadPreview();
 }
 
 function isToolingWorkspaceActive(): boolean {
@@ -383,6 +504,7 @@ function autoResizeResult() {
 function updateInputUI(value: string) {
   workspaceInput.value = value;
   inputCharCount.textContent = String(value.length);
+  btnSubmit.disabled = value.trim().length === 0 || document.body.classList.contains('is-loading');
 }
 
 function updateResultUI(value: string) {
@@ -416,7 +538,7 @@ function updateRunMeta(startedAt: Date | null, finishedAt: Date | null) {
 }
 
 function setRunningState(isRunning: boolean) {
-  btnSubmit.disabled = isRunning;
+  btnSubmit.disabled = isRunning || workspaceInput.value.trim().length === 0;
   btnAbort.style.display = isRunning ? '' : 'none';
   btnAbort.disabled = !isRunning;
   document.body.classList.toggle('is-loading', isRunning);
@@ -630,6 +752,23 @@ function normalizeSurfaceLockState(value: unknown): SurfaceLockState | null {
   };
 }
 
+function normalizeIncomingSelectionPayload(value: unknown): IncomingSelectionPayload | null {
+  if (!isObject(value)) return null;
+  if ((value.mode !== 'append' && value.mode !== 'replace') || typeof value.text !== 'string') {
+    return null;
+  }
+  if (typeof value.createdAt !== 'number' || typeof value.nonce !== 'string') {
+    return null;
+  }
+
+  return {
+    mode: value.mode,
+    text: value.text,
+    createdAt: value.createdAt,
+    nonce: value.nonce
+  };
+}
+
 async function loadHistory(): Promise<HistoryEntry[]> {
   const res = await chrome.storage.local.get('history') as { history?: unknown[] };
   const history = Array.isArray(res.history)
@@ -714,7 +853,105 @@ async function loadEffectiveToolCategories(): Promise<Category[]> {
   return injectTranslationLanguageOptions(validateCategories(BUNDLED_CATEGORIES), translationLanguages);
 }
 
-async function saveGeneratedToolToStorage(): Promise<void> {
+async function loadEffectiveModelSets() {
+  const stored = await chrome.storage.local.get('customModels') as { customModels?: unknown };
+  if (typeof stored.customModels === 'string') {
+    try {
+      return validateModelSets(JSON.parse(stored.customModels));
+    } catch {
+      // fall through to bundled defaults
+    }
+  }
+
+  return validateModelSets(bundledModelsData);
+}
+
+async function loadEffectiveProviders() {
+  const stored = await chrome.storage.local.get('customProviders') as { customProviders?: unknown };
+  if (typeof stored.customProviders === 'string') {
+    try {
+      return validateProvidersConfig(JSON.parse(stored.customProviders));
+    } catch {
+      // fall through to bundled defaults
+    }
+  }
+
+  return BUNDLED_PROVIDERS;
+}
+
+async function loadActiveProviderId(): Promise<string> {
+  const stored = await chrome.storage.local.get('provider') as { provider?: unknown };
+  return typeof stored.provider === 'string'
+    ? stored.provider
+    : (BUNDLED_PROVIDERS[0]?.id || 'openai');
+}
+
+async function resolvePreviewProviderAndModel(
+  providerOverride: string | undefined,
+  modelRef: string | undefined,
+  stepTemperature: number | undefined
+): Promise<{ providerId: string; model: string; temperature?: number }> {
+  const providers = await loadEffectiveProviders();
+  const models = await loadEffectiveModelSets();
+  const providerId = providerOverride || await loadActiveProviderId();
+  const providerConfig = findProviderConfig(providers, providerId);
+  if (!providerConfig) {
+    throw new Error(`Unknown provider "${providerId}".`);
+  }
+
+  let model = modelRef || providerConfig.defaultModel;
+  let temperature = stepTemperature;
+  if (modelRef && models[modelRef]?.[providerId]) {
+    const entry = models[modelRef][providerId];
+    if (typeof entry === 'string') {
+      model = entry;
+    } else {
+      model = entry.model;
+      if (temperature === undefined && typeof entry.temperature === 'number') {
+        temperature = entry.temperature;
+      }
+    }
+  }
+
+  return { providerId, model, temperature };
+}
+
+function getGeneratedToolTargetCategories(): Array<{ id: string; label: string }> {
+  const categories = activeCategories
+    .filter((category) => category.id !== 'tooling')
+    .map((category) => ({ id: category.id, label: category.label }));
+
+  if (!categories.some((category) => category.id === 'tooled')) {
+    categories.push({ id: 'tooled', label: 'Tooled' });
+  }
+
+  return categories;
+}
+
+function populateGeneratedToolCategorySelect(): void {
+  const currentValue = generatedToolCategorySelect.value;
+  const categories = getGeneratedToolTargetCategories();
+  generatedToolCategorySelect.innerHTML = '';
+
+  categories.forEach((category) => {
+    const optionEl = document.createElement('option');
+    optionEl.value = category.id;
+    optionEl.textContent = category.label;
+    generatedToolCategorySelect.appendChild(optionEl);
+  });
+
+  if (categories.some((category) => category.id === currentValue)) {
+    generatedToolCategorySelect.value = currentValue;
+  } else if (categories.some((category) => category.id === 'tooled')) {
+    generatedToolCategorySelect.value = 'tooled';
+  } else if (categories[0]) {
+    generatedToolCategorySelect.value = categories[0].id;
+  }
+
+  generatedToolCategorySelect.title = msg('generatedToolCategoryTitle');
+}
+
+async function saveGeneratedToolToStorage(targetCategoryId: string): Promise<string> {
   const candidate = parseGeneratedToolCandidate(workspaceResult.value.trim());
   const stored = await chrome.storage.local.get('customTools') as { customTools?: unknown };
   const categories = (() => {
@@ -736,17 +973,18 @@ async function saveGeneratedToolToStorage(): Promise<void> {
     throw new Error(msg('generatedToolExists'));
   }
 
-  let tooledCategory = categories.find((category) => category.id === 'tooled');
-  if (!tooledCategory) {
-    tooledCategory = {
-      id: 'tooled',
-      label: 'Tooled',
+  let targetCategory = categories.find((category) => category.id === targetCategoryId);
+  if (!targetCategory) {
+    const fallbackMeta = getGeneratedToolTargetCategories().find((category) => category.id === targetCategoryId);
+    targetCategory = {
+      id: targetCategoryId,
+      label: fallbackMeta?.label || targetCategoryId,
       tools: []
     };
-    categories.push(tooledCategory);
+    categories.push(targetCategory);
   }
 
-  tooledCategory.tools.push(candidate as ToolDef);
+  targetCategory.tools.push(candidate as ToolDef);
 
   let validated: Category[];
   try {
@@ -757,6 +995,8 @@ async function saveGeneratedToolToStorage(): Promise<void> {
 
   await chrome.storage.local.set({ customTools: JSON.stringify(validated, null, 2) });
   setCategories(await loadEffectiveToolCategories());
+  populateGeneratedToolCategorySelect();
+  return targetCategory.label;
 }
 
 async function deleteToolFromStorage(categoryId: string, toolId: string): Promise<void> {
@@ -870,6 +1110,7 @@ function showMain() {
   statsView.style.display = 'none';
   faqView.style.display = 'none';
   workspaceView.style.display = 'none';
+  void updateSidePanelViewState('main');
 }
 
 function showHistory() {
@@ -878,6 +1119,7 @@ function showHistory() {
   statsView.style.display = 'none';
   faqView.style.display = 'none';
   workspaceView.style.display = 'none';
+  void updateSidePanelViewState('history');
 }
 
 function showStats() {
@@ -886,6 +1128,7 @@ function showStats() {
   statsView.style.display = 'block';
   faqView.style.display = 'none';
   workspaceView.style.display = 'none';
+  void updateSidePanelViewState('stats');
 }
 
 function showFaq() {
@@ -894,6 +1137,7 @@ function showFaq() {
   statsView.style.display = 'none';
   faqView.style.display = 'block';
   workspaceView.style.display = 'none';
+  void updateSidePanelViewState('faq');
 }
 
 function showWorkspace() {
@@ -902,6 +1146,48 @@ function showWorkspace() {
   statsView.style.display = 'none';
   faqView.style.display = 'none';
   workspaceView.style.display = 'block';
+  void updateSidePanelViewState('workspace');
+}
+
+async function updateSidePanelViewState(view: SurfaceView): Promise<void> {
+  if (!isSidePanelSurface || !sidePanelSessionId) return;
+  await chrome.storage.local.set({
+    [SIDE_PANEL_VIEW_STATE_KEY]: {
+      sessionId: sidePanelSessionId,
+      view,
+      updatedAt: Date.now()
+    }
+  });
+}
+
+async function consumeIncomingSelectionPayload(payload: IncomingSelectionPayload): Promise<boolean> {
+  if (!activeTool || (isPopupSurface && popupLocked)) {
+    return false;
+  }
+
+  const nextValue = payload.mode === 'append'
+    ? `${workspaceInput.value}${workspaceInput.value && payload.text ? '\n\n' : ''}${payload.text}`
+    : payload.text;
+
+  updateInputUI(nextValue);
+  workspaceStatus.textContent = payload.mode === 'append'
+    ? msg('selectionAppendedStatus')
+    : msg('selectionReplacedStatus');
+  await saveWorkspaceState();
+  await chrome.storage.local.remove(INCOMING_SELECTION_STORAGE_KEY);
+  return true;
+}
+
+async function tryConsumeStoredIncomingSelection(): Promise<void> {
+  const stored = await chrome.storage.local.get(INCOMING_SELECTION_STORAGE_KEY) as { incomingSelectionPayload?: unknown };
+  const payload = normalizeIncomingSelectionPayload(stored[INCOMING_SELECTION_STORAGE_KEY]);
+  if (!payload) return;
+  await consumeIncomingSelectionPayload(payload);
+}
+
+async function hasStoredIncomingSelection(): Promise<boolean> {
+  const stored = await chrome.storage.local.get(INCOMING_SELECTION_STORAGE_KEY) as { incomingSelectionPayload?: unknown };
+  return normalizeIncomingSelectionPayload(stored[INCOMING_SELECTION_STORAGE_KEY]) !== null;
 }
 
 function buildOptionsUI(tool: ToolDef, overrideValues?: Record<string, string>) {
@@ -946,6 +1232,7 @@ function buildOptionsUI(tool: ToolDef, overrideValues?: Record<string, string>) 
           void setLastUsedTargetLanguage(nextValue);
         }
         updateGeneratedToolAction();
+        void refreshToolPayloadPreview();
         void saveWorkspaceState();
       });
       wrap.appendChild(select);
@@ -958,6 +1245,7 @@ function buildOptionsUI(tool: ToolDef, overrideValues?: Record<string, string>) 
       input.addEventListener('input', (e) => {
         currentOptions[opt.id] = (e.target as HTMLInputElement).value;
         updateGeneratedToolAction();
+        void refreshToolPayloadPreview();
         debouncedSave();
       });
       wrap.appendChild(input);
@@ -981,6 +1269,7 @@ function openWorkspace(
   activeTool = tool;
   toolManagerOpen = false;
   toolDescriptionOpen = false;
+  toolPayloadOpen = false;
   activeRunRequestId = runRequestId;
   activeRequestId = null;
   activeRunStartedAt = null;
@@ -990,6 +1279,7 @@ function openWorkspace(
   workspaceStatus.textContent = '';
   setResultHint('');
   buildOptionsUI(tool, options);
+  populateGeneratedToolCategorySelect();
   updateInputUI(input);
   stagedContentEl.value = stagedContent;
   setStagedSectionOpen(stagedOpen);
@@ -1003,6 +1293,8 @@ function openWorkspace(
   toolManagerStatus.textContent = '';
   updateToolDescriptionVisibility();
   updateToolManagerVisibility();
+  void refreshToolPayloadPreview();
+  void tryConsumeStoredIncomingSelection();
 }
 
 function applyRunState(runState: ActiveRunState): void {
@@ -1361,46 +1653,95 @@ function hideSetupCard() {
   setupCardEl.style.display = 'none';
 }
 
+async function fetchSelectionDetailed(): Promise<SelectionScriptResult> {
+  const [activeTab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+  if (!activeTab?.id) {
+    return { value: '', permissionDenied: false };
+  }
+
+  const initialResult = await executeSelectionScript(activeTab.id);
+  if (!initialResult.permissionDenied) {
+    return initialResult;
+  }
+
+  if (!(await requestHostPermissionForTab(activeTab.url))) {
+    return initialResult;
+  }
+
+  return await executeSelectionScript(activeTab.id);
+}
+
 async function fetchSelection(): Promise<string> {
+  return (await fetchSelectionDetailed()).value;
+}
+
+async function executeSelectionScript(tabId: number): Promise<SelectionScriptResult> {
   return new Promise((resolve) => {
-    chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
-      const activeTab = tabs[0];
-      if (!activeTab?.id) {
-        resolve('');
-        return;
-      }
+    chrome.scripting.executeScript({
+      target: { tabId },
+      func: () => {
+        const activeElement = document.activeElement;
 
-      chrome.scripting.executeScript({
-        target: { tabId: activeTab.id },
-        func: () => {
-          const activeElement = document.activeElement;
+        if (activeElement instanceof HTMLTextAreaElement) {
+          const start = activeElement.selectionStart ?? 0;
+          const end = activeElement.selectionEnd ?? 0;
+          return start !== end ? activeElement.value.slice(start, end) : '';
+        }
 
-          if (activeElement instanceof HTMLTextAreaElement) {
+        if (activeElement instanceof HTMLInputElement) {
+          const selectableTypes = new Set(['text', 'search', 'url', 'tel', 'email', 'password']);
+          if (selectableTypes.has(activeElement.type)) {
             const start = activeElement.selectionStart ?? 0;
             const end = activeElement.selectionEnd ?? 0;
             return start !== end ? activeElement.value.slice(start, end) : '';
           }
-
-          if (activeElement instanceof HTMLInputElement) {
-            const selectableTypes = new Set(['text', 'search', 'url', 'tel', 'email', 'password']);
-            if (selectableTypes.has(activeElement.type)) {
-              const start = activeElement.selectionStart ?? 0;
-              const end = activeElement.selectionEnd ?? 0;
-              return start !== end ? activeElement.value.slice(start, end) : '';
-            }
-          }
-
-          const selection = window.getSelection()?.toString() || '';
-          return selection;
-        }
-      }, (results) => {
-        if (chrome.runtime.lastError) {
-          resolve('');
-          return;
         }
 
-        resolve(typeof results?.[0]?.result === 'string' ? results[0].result : '');
+        return window.getSelection()?.toString() || '';
+      }
+    }, (results) => {
+      const error = chrome.runtime.lastError?.message || '';
+      if (error) {
+        resolve({
+          value: '',
+          permissionDenied: /Cannot access contents of url|Missing host permission|The extensions gallery cannot be scripted/i.test(error)
+        });
+        return;
+      }
+
+      resolve({
+        value: typeof results?.[0]?.result === 'string' ? results[0].result : '',
+        permissionDenied: false
       });
+    });
+  });
+}
+
+function getOriginPermissionPattern(rawUrl?: string): string | null {
+  if (!rawUrl) return null;
+
+  try {
+    const url = new URL(rawUrl);
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+      return null;
+    }
+    return `${url.origin}/*`;
+  } catch {
+    return null;
+  }
+}
+
+async function requestHostPermissionForTab(rawUrl?: string): Promise<boolean> {
+  const originPattern = getOriginPermissionPattern(rawUrl);
+  if (!originPattern) return false;
+
+  return new Promise((resolve) => {
+    chrome.permissions.request({ origins: [originPattern] }, (granted) => {
+      if (chrome.runtime.lastError) {
+        resolve(false);
+        return;
+      }
+      resolve(granted === true);
     });
   });
 }
@@ -1536,6 +1877,9 @@ async function loadLastUsedTargetLanguage(): Promise<string> {
     connectSidePanelHeartbeat();
   } else {
     await refreshPopupLockState();
+    if (popupLocked) {
+      return;
+    }
   }
 
   chrome.tabs.query({ active: true, lastFocusedWindow: true }, (tabs) => {
@@ -1640,11 +1984,15 @@ async function loadLastUsedTargetLanguage(): Promise<string> {
 
       btn.addEventListener('click', async () => {
         previousView = 'main';
-        const selection = await fetchSelection();
+        let selection = '';
         openWorkspace(tool, '', '', {});
-        updateInputUI(selection);
+        if (!(await hasStoredIncomingSelection())) {
+          selection = await fetchSelection();
+          updateInputUI(selection);
+        }
         await saveWorkspaceState();
-        if (autoRun.checked && selection.trim()) {
+        const effectiveInput = workspaceInput.value.trim();
+        if (autoRun.checked && effectiveInput) {
           await submitActiveTool();
         }
       });
@@ -1657,6 +2005,7 @@ async function loadLastUsedTargetLanguage(): Promise<string> {
   });
 
   await hydrateStoredWorkspace();
+  await tryConsumeStoredIncomingSelection();
 })();
 
 stagedToggle.addEventListener('click', () => {
@@ -1717,6 +2066,11 @@ btnToolDescriptionToggle.addEventListener('click', () => {
   updateToolDescriptionVisibility();
 });
 
+btnToolPayloadToggle.addEventListener('click', async () => {
+  toolPayloadOpen = !toolPayloadOpen;
+  await refreshToolPayloadPreview();
+});
+
 btnToolManagerToggle.addEventListener('click', async () => {
   if (!isToolingWorkspaceActive()) return;
   toolManagerOpen = !toolManagerOpen;
@@ -1742,14 +2096,15 @@ btnSaveGeneratedTool.addEventListener('click', async () => {
   if (!isToolGeneratorActive()) return;
 
   try {
-    await saveGeneratedToolToStorage();
-    workspaceStatus.textContent = msg('generatedToolSaved');
-    setResultHint(msg('generatedToolSaved'), '#10b981');
+    const savedCategoryLabel = await saveGeneratedToolToStorage(generatedToolCategorySelect.value || 'tooled');
+    const savedMessage = msg('generatedToolSavedInCategory', savedCategoryLabel);
+    workspaceStatus.textContent = savedMessage;
+    setResultHint(savedMessage, '#10b981');
     if (toolManagerOpen) {
       await renderToolManager();
     }
     btnSaveGeneratedTool.textContent = '✓';
-    btnSaveGeneratedTool.title = msg('generatedToolSaved');
+    btnSaveGeneratedTool.title = savedMessage;
     setTimeout(() => {
       btnSaveGeneratedTool.textContent = msg('saveGeneratedToolButton');
       btnSaveGeneratedTool.title = msg('generatedToolSaveTitle');
@@ -1807,13 +2162,23 @@ btnBack.addEventListener('click', async () => {
 });
 
 btnAppend.addEventListener('click', async () => {
-  const selection = await fetchSelection();
+  const selectionResult = await fetchSelectionDetailed();
+  const selection = selectionResult.value;
+  if (!selection && selectionResult.permissionDenied) {
+    workspaceStatus.textContent = msg('selectionCaptureUnavailable');
+    return;
+  }
   updateInputUI(`${workspaceInput.value}${workspaceInput.value && selection ? '\n\n' : ''}${selection}`);
   await saveWorkspaceState();
 });
 
 btnOverride.addEventListener('click', async () => {
-  updateInputUI(await fetchSelection());
+  const selectionResult = await fetchSelectionDetailed();
+  if (!selectionResult.value && selectionResult.permissionDenied) {
+    workspaceStatus.textContent = msg('selectionCaptureUnavailable');
+    return;
+  }
+  updateInputUI(selectionResult.value);
   await saveWorkspaceState();
 });
 
@@ -1850,15 +2215,25 @@ chrome.storage.onChanged.addListener((changes, areaName) => {
     const lockState = normalizeSurfaceLockState(changes[SURFACE_LOCK_STORAGE_KEY].newValue);
     setPopupLocked(Boolean(lockState));
   }
+
+  if (changes[INCOMING_SELECTION_STORAGE_KEY]) {
+    const payload = normalizeIncomingSelectionPayload(changes[INCOMING_SELECTION_STORAGE_KEY].newValue);
+    if (payload) {
+      void consumeIncomingSelectionPayload(payload);
+    }
+  }
 });
 
 
 workspaceInput.addEventListener('input', () => {
   inputCharCount.textContent = String(workspaceInput.value.length);
+  btnSubmit.disabled = workspaceInput.value.trim().length === 0 || document.body.classList.contains('is-loading');
+  void refreshToolPayloadPreview();
   debouncedSave();
 });
 
 stagedContentEl.addEventListener('input', () => {
+  void refreshToolPayloadPreview();
   debouncedSave();
 });
 

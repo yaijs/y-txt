@@ -144,7 +144,7 @@
       display: inline-flex;
       justify-content: center;
       padding: 0.46rem 0.72rem;
-      border-radius: 999px;
+      border-radius: 0;
       font-size: 0.84rem;
       text-align: center;
       white-space: nowrap;
@@ -297,6 +297,24 @@
     .tool-description-toggle:hover {
       color: var(--text);
       border-color: var(--accent);
+    }
+    .tool-debug-box {
+      display: none;
+      margin-top: 0;
+      margin-bottom: 0.65rem;
+      padding: 0.7rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: rgba(15, 23, 42, 0.45);
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      overflow-x: auto;
+    }
+    .tool-debug-box.is-open {
+      display: block;
     }
     .tool-description-box {
       display: none;
@@ -681,9 +699,13 @@
     <div style="display:flex; gap:0.5rem; align-items:baseline; margin-bottom:4px;">
       <label for="workspace-input" style="font-size: 0.8rem; color: var(--muted);" data-i18n="workspaceInputLabel">Input Text</label>
       <span id="input-char-count" style="font-size:0.7rem; color:var(--muted);">0</span>
-      <button id="btn-tool-description-toggle" type="button" class="tool-description-toggle" style="display:none;" data-i18n="toolDescriptionInfoButton">Info</button>
+      <div id="tool-debug-toggles" style="display:none; margin-left:auto; gap:0.35rem; align-items:center;">
+        <button id="btn-tool-description-toggle" type="button" class="tool-description-toggle" style="display:none;" data-i18n="toolDescriptionInfoButton">Info</button>
+        <button id="btn-tool-payload-toggle" type="button" class="tool-description-toggle" style="display:none;" data-i18n="toolPayloadButton">Payload</button>
+      </div>
     </div>
     <div id="tool-description-box" class="tool-description-box"></div>
+    <pre id="tool-payload-box" class="tool-debug-box"></pre>
     <textarea id="workspace-input" data-i18n-placeholder="workspaceInputPlaceholder" placeholder="Text to process..." style="width: 100%; height: 160px; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 6px; padding: 0.75rem; box-sizing: border-box; font-family: inherit; resize: vertical; margin-bottom: 0.6rem;"></textarea>
 
 <div id="tool-options-container" class="tool-options-container"></div>
@@ -725,6 +747,7 @@
       <span id="result-char-count" style="font-size:0.8rem; color:var(--muted);">0</span>
       <span id="result-hint" style="font-size: 0.8rem; display:none;"></span>
       <span style="flex:1;"></span>
+      <select id="generated-tool-category-select" style="display:none; max-width: 148px; padding: 2px 6px; background: var(--bg); color: var(--text); border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem;"></select>
       <button id="btn-save-generated-tool" class="btn-link" style="display:none; font-size:0.82rem; padding:0 4px;" data-i18n="saveGeneratedToolButton">＋ Save</button>
       <button id="btn-use-result" class="btn-link" style="font-size:0.86rem; padding:0 2px;" data-i18n-title="useResultTitle" title="Use result as new input">↺</button>
       <button id="btn-copy-result" class="btn-link" style="font-size:0.86rem; padding:0 2px;" data-i18n-title="copyResultTitle" title="Copy to clipboard">📋</button>

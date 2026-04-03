@@ -39,22 +39,22 @@
     "message": "⌂ Open Keystone Admin"
   },
   "faqButton": {
-    "message": "⌥ FAQ"
+    "message": "FAQ"
   },
   "recentButton": {
-    "message": "⏱ Recent"
+    "message": "Recent"
   },
   "statsButton": {
-    "message": "◔ Stats"
+    "message": "Stats"
   },
   "toolingButton": {
-    "message": "⌘ Tooling"
+    "message": "Tooling"
   },
   "panelButton": {
-    "message": "▣ Panel"
+    "message": "Panel"
   },
   "optionsButton": {
-    "message": "⚙ Options"
+    "message": "Options"
   },
   "faqTitle": {
     "message": "How to use Y/TXT"
@@ -125,6 +125,12 @@
   "toolDescriptionHideButton": {
     "message": "Hide"
   },
+  "toolPayloadButton": {
+    "message": "Payload"
+  },
+  "toolPayloadHideButton": {
+    "message": "Hide Payload"
+  },
   "workspaceInputPlaceholder": {
     "message": "Text to process..."
   },
@@ -139,6 +145,15 @@
   },
   "overrideSelectionTitle": {
     "message": "Replace the current input with the current page selection"
+  },
+  "selectionCaptureUnavailable": {
+    "message": "Direct page selection is not available here. Use the page context menu: Append selection to Y/TXT or Replace input in Y/TXT."
+  },
+  "selectionAppendedStatus": {
+    "message": "Selection appended."
+  },
+  "selectionReplacedStatus": {
+    "message": "Selection replaced."
   },
   "categoryAutoRunTitle": {
     "message": "Automatically run this category's tools immediately after selection"
@@ -205,8 +220,16 @@
   "saveGeneratedToolButton": {
     "message": "＋ Save"
   },
-  "generatedToolSaved": {
-    "message": "Saved to Tooled."
+  "generatedToolCategoryTitle": {
+    "message": "Choose the category where the generated tool will be saved"
+  },
+  "generatedToolSavedInCategory": {
+    "message": "Saved to $CATEGORY$.",
+    "placeholders": {
+      "category": {
+        "content": "$1"
+      }
+    }
   },
   "generatedToolExists": {
     "message": "A tool with this id already exists."
@@ -221,7 +244,7 @@
     "message": "Generated tool is not a valid Y/TXT tool."
   },
   "generatedToolSaveTitle": {
-    "message": "Save generated tool to Tooled"
+    "message": "Save generated tool to the selected category"
   },
   "manageToolsButton": {
     "message": "Manage Tools"

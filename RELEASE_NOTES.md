@@ -1,4 +1,4 @@
-# Y/TXT v1.0
+# Y/TXT v1.1.0
 
 Y/TXT is a Chrome extension for running small LLM-powered text tools directly against selected page content without leaving the current tab.
 
@@ -9,6 +9,10 @@ Y/TXT is a Chrome extension for running small LLM-powered text tools directly ag
 - Support for staged context, recent runs, and a persistent shared workspace across popup and side panel
 - Chained tools with multi-step prompt pipelines
 - Built-in provider adapters for Nvidia Build, OpenAI, Anthropic, and DeepSeek
+- Context-menu driven side-panel workflow for reliable selection capture without needing the popup first
+- Built-in Tooling flow for generating, saving, categorizing, and deleting tools from inside the extension
+- Optional per-tool descriptions plus payload/meta debugging previews in the workspace
+- Policy pages published through GitHub Pages for stable Privacy and Security links
 
 ## Setup And Admin
 
