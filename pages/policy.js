@@ -42,6 +42,28 @@ function rewriteDocumentLinks(container) {
     const mapped = docMap.get(href);
     if (mapped) {
       link.setAttribute('href', mapped);
+      return;
+    }
+
+    if (href.startsWith('./screenshots/')) {
+      link.setAttribute('href', `https://raw.githubusercontent.com/yaijs/y-txt/main/${href.slice(2)}`);
+      return;
+    }
+
+    if (href.startsWith('./public/')) {
+      link.setAttribute('href', `https://raw.githubusercontent.com/yaijs/y-txt/main/${href.slice(2)}`);
+    }
+  });
+
+  container.querySelectorAll('img[src]').forEach((img) => {
+    const src = img.getAttribute('src');
+    if (!src) return;
+    if (src.startsWith('./screenshots/')) {
+      img.setAttribute('src', `https://raw.githubusercontent.com/yaijs/y-txt/main/${src.slice(2)}`);
+      return;
+    }
+    if (src.startsWith('./public/')) {
+      img.setAttribute('src', `https://raw.githubusercontent.com/yaijs/y-txt/main/${src.slice(2)}`);
     }
   });
 }
