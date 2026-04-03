@@ -13,13 +13,17 @@ Popup index view:
 
 ![Y/TXT popup index view](./screenshots/screenshot-1-open-popup-index-view.png)
 
-Side panel translation workflow:
+Side panel index view:
 
-![Y/TXT side panel semantic translation view](./screenshots/screenshot-4-open-sidepanel-semantic-translation-view.png)
+![Y/TXT side panel index view](./screenshots/screenshot-3-open-sidepanel-index-view.png)
+
+Tool Generator creating and saving a new tool:
+
+![Y/TXT Tool Generator split view](./screenshots/screenshot-5-tool-generator-splitted.png)
 
 Options and provider setup:
 
-![Y/TXT options route](./screenshots/screenshot-5-options-route.png)
+![Y/TXT options route](./screenshots/screenshot-6-options-route.png)
 
 Looking for ready-made tool patterns and placeholder examples?
 
