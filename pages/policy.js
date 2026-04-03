@@ -36,6 +36,8 @@ function rewriteDocumentLinks(container) {
     ['README.md', './readme.html']
   ]);
 
+  const repoBlobPrefix = 'https://github.com/yaijs/y-txt/blob/main/';
+
   container.querySelectorAll('a[href]').forEach((link) => {
     const href = link.getAttribute('href');
     if (!href) return;
@@ -52,6 +54,17 @@ function rewriteDocumentLinks(container) {
 
     if (href.startsWith('./public/')) {
       link.setAttribute('href', `https://raw.githubusercontent.com/yaijs/y-txt/main/${href.slice(2)}`);
+      return;
+    }
+
+    if (
+      href === './LICENSE' ||
+      href === './TOOL.PROTOTYPES.md' ||
+      href === './src/tools/tools.json' ||
+      href === './src/models.json' ||
+      href === './src/providers/providers.json'
+    ) {
+      link.setAttribute('href', `${repoBlobPrefix}${href.slice(2)}`);
     }
   });
 

@@ -130,15 +130,22 @@ a {
 
 .doc-body code {
   background: rgba(7, 14, 28, 0.96);
-  border: 1px solid var(--border);
   padding: 0 4px;
 }
 
 .doc-body pre {
   overflow-x: auto;
   background: rgba(7, 14, 28, 0.96);
-  border: 1px solid var(--border);
   padding: 14px;
+}
+
+.doc-body img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  margin: 1rem 0;
 }
 
 .loading {
