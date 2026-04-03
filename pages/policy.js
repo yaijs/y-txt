@@ -16,6 +16,7 @@ async function loadPolicyDocument() {
     }
 
     container.innerHTML = markedLib.parse(markdown);
+    rewriteDocumentLinks(container);
   } catch (error) {
     console.error(error);
     container.innerHTML = `
@@ -23,6 +24,26 @@ async function loadPolicyDocument() {
       <p><a href="https://github.com/yaijs/y-txt">Open the repository instead</a>.</p>
     `;
   }
+}
+
+function rewriteDocumentLinks(container) {
+  const docMap = new Map([
+    ['./PRIVACY.md', './privacy.html'],
+    ['./SECURITY.md', './security.html'],
+    ['./README.md', './readme.html'],
+    ['PRIVACY.md', './privacy.html'],
+    ['SECURITY.md', './security.html'],
+    ['README.md', './readme.html']
+  ]);
+
+  container.querySelectorAll('a[href]').forEach((link) => {
+    const href = link.getAttribute('href');
+    if (!href) return;
+    const mapped = docMap.get(href);
+    if (mapped) {
+      link.setAttribute('href', mapped);
+    }
+  });
 }
 
 void loadPolicyDocument();
